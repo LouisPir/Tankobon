@@ -48,7 +48,7 @@ npx expo start
 *Coming soon*
 
 ## 📁 Project Structure
-
+```bash
 src/
 ├── components/     # Reusable components
 ├── screens/        # App screens
@@ -56,7 +56,7 @@ src/
 ├── hooks/          # Custom hooks
 ├── navigation/     # Navigation config
 └── types/          # TypeScript types
-
+```
 ## 🔐 Environment Variables
 
 ```bash
