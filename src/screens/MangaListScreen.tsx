@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   Alert,
+  TextInput,
 } from 'react-native';
 import { useEffect, useState } from 'react';
 import { theme } from '../config/theme';
@@ -60,12 +61,15 @@ const MangaCard = ({
 
 export const MangaListScreen = ({ onSelectManga }: { onSelectManga: (manga: Manga) => void }) => {
   const [mangas, setMangas] = useState<Manga[]>([]);
+  const [filtered, setFiltered] = useState<Manga[]>([]);
+  const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
 
   const fetchMangas = async () => {
     try {
       const data = await getMangas();
       setMangas(data);
+      setFiltered(data);
     } catch (error: any) {
       Alert.alert('Erreur', error.message);
     } finally {
@@ -76,6 +80,18 @@ export const MangaListScreen = ({ onSelectManga }: { onSelectManga: (manga: Mang
   useEffect(() => {
     fetchMangas();
   }, []);
+
+  useEffect(() => {
+    if (search.trim() === '') {
+      setFiltered(mangas);
+    } else {
+      setFiltered(
+        mangas.filter((m) =>
+          m.title.toLowerCase().includes(search.toLowerCase())
+        )
+      );
+    }
+  }, [search, mangas]);
 
   const handleDelete = (id: string) => {
     Alert.alert(
@@ -114,15 +130,35 @@ export const MangaListScreen = ({ onSelectManga }: { onSelectManga: (manga: Mang
         <Text style={styles.headerCount}>{mangas.length} manga{mangas.length > 1 ? 's' : ''}</Text>
       </View>
 
-      {mangas.length === 0 ? (
+      {/* Search */}
+      <View style={styles.searchContainer}>
+        <TextInput
+          style={styles.searchInput}
+          placeholder="🔍 Rechercher un manga..."
+          value={search}
+          onChangeText={setSearch}
+          placeholderTextColor={theme.colors.textSecondary}
+        />
+        {search.length > 0 && (
+          <TouchableOpacity onPress={() => setSearch('')}>
+            <Text style={styles.clearSearch}>✕</Text>
+          </TouchableOpacity>
+        )}
+      </View>
+
+      {filtered.length === 0 ? (
         <View style={styles.empty}>
           <Text style={styles.emptyEmoji}>🌸</Text>
-          <Text style={styles.emptyTitle}>Aucun manga pour l'instant</Text>
-          <Text style={styles.emptySubtitle}>Ajoute ton premier manga !</Text>
+          <Text style={styles.emptyTitle}>
+            {search.length > 0 ? 'Aucun résultat' : 'Aucun manga pour l\'instant'}
+          </Text>
+          <Text style={styles.emptySubtitle}>
+            {search.length > 0 ? `Pas de manga pour "${search}"` : 'Ajoute ton premier manga !'}
+          </Text>
         </View>
       ) : (
         <FlatList
-          data={mangas}
+          data={filtered}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
             <MangaCard
@@ -165,6 +201,27 @@ const styles = StyleSheet.create({
   headerCount: {
     fontSize: theme.fontSize.md,
     color: theme.colors.textSecondary,
+  },
+  searchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    margin: theme.spacing.lg,
+    backgroundColor: theme.colors.surface,
+    borderRadius: theme.borderRadius.full,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+    paddingHorizontal: theme.spacing.md,
+  },
+  searchInput: {
+    flex: 1,
+    padding: theme.spacing.md,
+    fontSize: theme.fontSize.md,
+    color: theme.colors.text,
+  },
+  clearSearch: {
+    color: theme.colors.textSecondary,
+    fontSize: theme.fontSize.lg,
+    padding: theme.spacing.sm,
   },
   list: {
     padding: theme.spacing.lg,
