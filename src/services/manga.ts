@@ -5,6 +5,7 @@ export type MangaStatus = 'ongoing' | 'completed' | 'dropped';
 export type Manga = {
   id: string;
   user_id: string;
+  list_id: string;
   title: string;
   status: MangaStatus;
   current_chapter: number;
@@ -13,10 +14,11 @@ export type Manga = {
   created_at: string;
 };
 
-export const getMangas = async () => {
+export const getMangas = async (listId: string) => {
   const { data, error } = await supabase
     .from('mangas')
     .select('*')
+    .eq('list_id', listId)
     .order('created_at', { ascending: false });
 
   if (error) throw error;

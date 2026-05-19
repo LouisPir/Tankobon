@@ -19,7 +19,8 @@ const STATUS_OPTIONS: { label: string; value: MangaStatus }[] = [
   { label: 'ABANDONNÉ', value: 'dropped' },
 ];
 
-export const AddMangaScreen = ({ onBack, onSuccess }: {
+export const AddMangaScreen = ({ onBack, onSuccess, listId }: {
+  listId: string;
   onBack: () => void;
   onSuccess: () => void;
 }) => {
@@ -44,6 +45,7 @@ export const AddMangaScreen = ({ onBack, onSuccess }: {
         current_chapter: parseInt(currentChapter) || 0,
         rating,
         review: review.trim() || null,
+        list_id: listId,
       });
       onSuccess();
     } catch (error: any) {
