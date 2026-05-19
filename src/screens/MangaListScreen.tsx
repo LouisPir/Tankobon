@@ -59,7 +59,13 @@ const MangaCard = ({
   </TouchableOpacity>
 );
 
-export const MangaListScreen = ({ onSelectManga }: { onSelectManga: (manga: Manga) => void }) => {
+export const MangaListScreen = ({
+  onSelectManga,
+  onAddManga,
+}: {
+  onSelectManga: (manga: Manga) => void;
+  onAddManga: () => void;
+}) => {
   const [mangas, setMangas] = useState<Manga[]>([]);
   const [filtered, setFiltered] = useState<Manga[]>([]);
   const [search, setSearch] = useState('');
@@ -130,7 +136,6 @@ export const MangaListScreen = ({ onSelectManga }: { onSelectManga: (manga: Mang
         <Text style={styles.headerCount}>{mangas.length} manga{mangas.length > 1 ? 's' : ''}</Text>
       </View>
 
-      {/* Search */}
       <View style={styles.searchContainer}>
         <TextInput
           style={styles.searchInput}
@@ -150,7 +155,7 @@ export const MangaListScreen = ({ onSelectManga }: { onSelectManga: (manga: Mang
         <View style={styles.empty}>
           <Text style={styles.emptyEmoji}>🌸</Text>
           <Text style={styles.emptyTitle}>
-            {search.length > 0 ? 'Aucun résultat' : 'Aucun manga pour l\'instant'}
+            {search.length > 0 ? 'Aucun résultat' : "Aucun manga pour l'instant"}
           </Text>
           <Text style={styles.emptySubtitle}>
             {search.length > 0 ? `Pas de manga pour "${search}"` : 'Ajoute ton premier manga !'}
@@ -170,6 +175,11 @@ export const MangaListScreen = ({ onSelectManga }: { onSelectManga: (manga: Mang
           contentContainerStyle={styles.list}
         />
       )}
+
+      {/* Bouton flottant */}
+      <TouchableOpacity style={styles.fab} onPress={onAddManga}>
+        <Text style={styles.fabText}>+</Text>
+      </TouchableOpacity>
     </SafeAreaView>
   );
 };
@@ -300,5 +310,27 @@ const styles = StyleSheet.create({
   emptySubtitle: {
     fontSize: theme.fontSize.md,
     color: theme.colors.textSecondary,
+  },
+  fab: {
+    position: 'absolute',
+    bottom: 32,
+    right: 24,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: theme.colors.primary,
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+  },
+  fabText: {
+    color: '#fff',
+    fontSize: 32,
+    fontWeight: 'bold',
+    lineHeight: 36,
   },
 });
