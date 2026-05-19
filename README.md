@@ -80,7 +80,7 @@ In **Settings → API**, copy:
 
 ```bash
 # Clone the repository
-git clone https://github.com/LouisPir/manga-tracker.git
+git clone https://github.com/LouisPir/Tankobon.git
 cd manga-tracker
 
 # Install dependencies
