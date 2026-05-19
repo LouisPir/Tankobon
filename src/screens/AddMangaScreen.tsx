@@ -8,6 +8,8 @@ import {
   ScrollView,
   ActivityIndicator,
   Alert,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import { useState } from 'react';
 import { theme } from '../config/theme';
@@ -64,98 +66,105 @@ export const AddMangaScreen = ({ onBack, onSuccess, listId }: {
         <Text style={styles.headerTitle}>Ajouter un manga</Text>
         <View style={{ width: 60 }} />
       </View>
-
-      <ScrollView contentContainerStyle={styles.form}>
-        {/* Titre */}
-        <View style={styles.field}>
-          <Text style={styles.label}>Titre *</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Ex: Naruto, One Piece..."
-            value={title}
-            onChangeText={setTitle}
-          />
-        </View>
-
-        {/* Status */}
-        <View style={styles.field}>
-          <Text style={styles.label}>Statut</Text>
-          <View style={styles.statusOptions}>
-            {STATUS_OPTIONS.map((option) => (
-              <TouchableOpacity
-                key={option.value}
-                style={[
-                  styles.statusOption,
-                  status === option.value && styles.statusOptionActive,
-                ]}
-                onPress={() => setStatus(option.value)}
-              >
-                <Text style={[
-                  styles.statusOptionText,
-                  status === option.value && styles.statusOptionTextActive,
-                ]}>
-                  {option.label}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        </View>
-
-        {/* Chapitre */}
-        <View style={styles.field}>
-          <Text style={styles.label}>Dernier chapitre lu</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="0"
-            value={currentChapter}
-            onChangeText={setCurrentChapter}
-            keyboardType="numeric"
-          />
-        </View>
-
-        {/* Rating */}
-        <View style={styles.field}>
-          <Text style={styles.label}>Note</Text>
-          <View style={styles.starsContainer}>
-            {[1, 2, 3, 4, 5].map((star) => (
-              <TouchableOpacity
-                key={star}
-                onPress={() => setRating(rating === star ? null : star)}
-              >
-                <Text style={styles.star}>
-                  {rating && star <= rating ? '⭐' : '☆'}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        </View>
-
-        {/* Review */}
-        <View style={styles.field}>
-          <Text style={styles.label}>Mon avis</Text>
-          <TextInput
-            style={[styles.input, styles.textArea]}
-            placeholder="Qu'as-tu pensé de ce manga ?"
-            value={review}
-            onChangeText={setReview}
-            multiline
-            numberOfLines={4}
-          />
-        </View>
-
-        {/* Submit */}
-        <TouchableOpacity
-          style={styles.submitButton}
-          onPress={handleSubmit}
-          disabled={loading}
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={{ flex: 1 }}
+      >
+        <ScrollView
+          contentContainerStyle={styles.form}
+          keyboardShouldPersistTaps="handled"
         >
-          {loading ? (
-            <ActivityIndicator color="#fff" />
-          ) : (
-            <Text style={styles.submitText}>Ajouter 🌸</Text>
-          )}
-        </TouchableOpacity>
-      </ScrollView>
+          {/* Titre */}
+          <View style={styles.field}>
+            <Text style={styles.label}>Titre *</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Ex: Naruto, One Piece..."
+              value={title}
+              onChangeText={setTitle}
+            />
+          </View>
+
+          {/* Status */}
+          <View style={styles.field}>
+            <Text style={styles.label}>Statut</Text>
+            <View style={styles.statusOptions}>
+              {STATUS_OPTIONS.map((option) => (
+                <TouchableOpacity
+                  key={option.value}
+                  style={[
+                    styles.statusOption,
+                    status === option.value && styles.statusOptionActive,
+                  ]}
+                  onPress={() => setStatus(option.value)}
+                >
+                  <Text style={[
+                    styles.statusOptionText,
+                    status === option.value && styles.statusOptionTextActive,
+                  ]}>
+                    {option.label}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+
+          {/* Chapitre */}
+          <View style={styles.field}>
+            <Text style={styles.label}>Dernier chapitre lu</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="0"
+              value={currentChapter}
+              onChangeText={setCurrentChapter}
+              keyboardType="numeric"
+            />
+          </View>
+
+          {/* Rating */}
+          <View style={styles.field}>
+            <Text style={styles.label}>Note</Text>
+            <View style={styles.starsContainer}>
+              {[1, 2, 3, 4, 5].map((star) => (
+                <TouchableOpacity
+                  key={star}
+                  onPress={() => setRating(rating === star ? null : star)}
+                >
+                  <Text style={styles.star}>
+                    {rating && star <= rating ? '⭐' : '☆'}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+
+          {/* Review */}
+          <View style={styles.field}>
+            <Text style={styles.label}>Mon avis</Text>
+            <TextInput
+              style={[styles.input, styles.textArea]}
+              placeholder="Qu'as-tu pensé de ce manga ?"
+              value={review}
+              onChangeText={setReview}
+              multiline
+              numberOfLines={4}
+            />
+          </View>
+
+          {/* Submit */}
+          <TouchableOpacity
+            style={styles.submitButton}
+            onPress={handleSubmit}
+            disabled={loading}
+          >
+            {loading ? (
+              <ActivityIndicator color="#fff" />
+            ) : (
+              <Text style={styles.submitText}>Ajouter 🌸</Text>
+            )}
+          </TouchableOpacity>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 };
