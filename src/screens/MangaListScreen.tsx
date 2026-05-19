@@ -62,9 +62,15 @@ const MangaCard = ({
 export const MangaListScreen = ({
   onSelectManga,
   onAddManga,
+  onBack,
+  onEditList,
+  listId,
 }: {
+  listId: string;
   onSelectManga: (manga: Manga) => void;
   onAddManga: () => void;
+  onBack: () => void;
+  onEditList: () => void;
 }) => {
   const [mangas, setMangas] = useState<Manga[]>([]);
   const [filtered, setFiltered] = useState<Manga[]>([]);
@@ -73,7 +79,7 @@ export const MangaListScreen = ({
 
   const fetchMangas = async () => {
     try {
-      const data = await getMangas();
+      const data = await getMangas(listId);
       setMangas(data);
       setFiltered(data);
     } catch (error: any) {
@@ -132,8 +138,13 @@ export const MangaListScreen = ({
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
+        <TouchableOpacity onPress={onBack}>
+          <Text style={styles.backText}>← Retour</Text>
+        </TouchableOpacity>
         <Text style={styles.headerTitle}>🌸 Ma Collection</Text>
-        <Text style={styles.headerCount}>{mangas.length} manga{mangas.length > 1 ? 's' : ''}</Text>
+        <TouchableOpacity onPress={onEditList}>
+          <Text style={styles.editText}>✏️</Text>
+        </TouchableOpacity>
       </View>
 
       <View style={styles.searchContainer}>
@@ -326,6 +337,15 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 4,
+  },
+  backText: {
+    color: theme.colors.primary,
+    fontSize: theme.fontSize.md,
+    fontWeight: '600',
+  },
+  editText: {
+    color: theme.colors.primary,
+    fontSize: theme.fontSize.xl,
   },
   fabText: {
     color: '#fff',
