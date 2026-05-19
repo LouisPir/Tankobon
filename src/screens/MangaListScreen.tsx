@@ -12,6 +12,7 @@ import {
 import { useEffect, useState } from 'react';
 import { theme } from '../config/theme';
 import { getMangas, deleteManga, Manga } from '../services/manga';
+import { exportListToJSON } from '../services/lists';
 
 const StatusBadge = ({ status }: { status: string }) => {
   const statusConfig = {
@@ -142,9 +143,22 @@ export const MangaListScreen = ({
           <Text style={styles.backText}>← Retour</Text>
         </TouchableOpacity>
         <Text style={styles.headerTitle}>🌸 Ma Collection</Text>
-        <TouchableOpacity onPress={onEditList}>
-          <Text style={styles.editText}>✏️</Text>
-        </TouchableOpacity>
+        <View style={styles.headerActions}>
+          <TouchableOpacity
+            onPress={async () => {
+              try {
+                await exportListToJSON(listId);
+              } catch (error: any) {
+                Alert.alert('Erreur', error.message);
+              }
+            }}
+          >
+            <Text style={styles.exportText}>📤</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={onEditList}>
+            <Text style={styles.editText}>✏️</Text>
+          </TouchableOpacity>
+        </View>
       </View>
 
       <View style={styles.searchContainer}>
@@ -222,6 +236,15 @@ const styles = StyleSheet.create({
   headerCount: {
     fontSize: theme.fontSize.md,
     color: theme.colors.textSecondary,
+  },
+  headerActions: {
+    flexDirection: 'row',
+    gap: theme.spacing.md,
+    alignItems: 'center',
+  },
+  exportText: {
+    color: theme.colors.primary,
+    fontSize: theme.fontSize.xl,
   },
   searchContainer: {
     flexDirection: 'row',
