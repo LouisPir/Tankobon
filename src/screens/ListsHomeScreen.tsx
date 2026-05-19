@@ -52,9 +52,11 @@ const ListCard = ({
 export const ListsHomeScreen = ({
   onSelectList,
   onAddList,
+  onDeleteProtected,
 }: {
   onSelectList: (list: List) => void;
   onAddList: () => void;
+  onDeleteProtected: (list: List) => void;
 }) => {
   const [lists, setLists] = useState<List[]>([]);
   const [filtered, setFiltered] = useState<List[]>([]);
@@ -89,28 +91,35 @@ export const ListsHomeScreen = ({
     }
   }, [search, lists]);
 
+  
   const handleDelete = (id: string) => {
+    const list = lists.find((l) => l.id === id);
+
+    if (list?.password_hash) {
+        onDeleteProtected(list);
+        return;
+    }
+
     Alert.alert(
-      'Supprimer',
-      'Es-tu sûr de vouloir supprimer cette liste et tous ses mangas ?',
-      [
+        'Supprimer',
+        'Es-tu sûr de vouloir supprimer cette liste et tous ses mangas ?',
+        [
         { text: 'Annuler', style: 'cancel' },
         {
-          text: 'Supprimer',
-          style: 'destructive',
-          onPress: async () => {
+            text: 'Supprimer',
+            style: 'destructive',
+            onPress: async () => {
             try {
-              await deleteList(id);
-              setLists((prev) => prev.filter((l) => l.id !== id));
+                await deleteList(id);
+                setLists((prev) => prev.filter((l) => l.id !== id));
             } catch (error: any) {
-              Alert.alert('Erreur', error.message);
+                Alert.alert('Erreur', error.message);
             }
-          },
+            },
         },
-      ]
+        ]
     );
-  };
-
+    };
   const handleLogout = async () => {
     try {
       await logout();
