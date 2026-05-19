@@ -1,4 +1,6 @@
 import { supabase } from './supabase';
+import * as Sharing from 'expo-sharing';
+import * as FileSystem from 'expo-file-system/legacy';
 
 export type List = {
   id: string;
@@ -52,4 +54,49 @@ export const deleteList = async (id: string) => {
     .eq('id', id);
 
   if (error) throw error;
+};
+
+export const exportListToJSON = async (listId: string) => {
+  // Récupère la liste
+  const { data: list, error: listError } = await supabase
+    .from('lists')
+    .select('*')
+    .eq('id', listId)
+    .single();
+
+  if (listError) throw listError;
+
+  // Récupère les mangas de la liste
+  const { data: mangas, error: mangasError } = await supabase
+    .from('mangas')
+    .select('*')
+    .eq('list_id', listId);
+
+  if (mangasError) throw mangasError;
+
+  // Crée le JSON
+  const exportData = {
+    name: list.name,
+    description: list.description,
+    exported_at: new Date().toISOString(),
+    mangas: mangas.map((m) => ({
+      title: m.title,
+      status: m.status,
+      current_chapter: m.current_chapter,
+      rating: m.rating,
+      review: m.review,
+    })),
+  };
+
+  // Écrit le fichier
+  const fileName = `${list.name.replace(/\s/g, '_')}_${Date.now()}.json`;
+  const filePath = `${(FileSystem as any).cacheDirectory}${fileName}`;
+
+  await FileSystem.writeAsStringAsync(filePath, JSON.stringify(exportData, null, 2));
+
+  // Partage le fichier
+  await Sharing.shareAsync(filePath, {
+    mimeType: 'application/json',
+    dialogTitle: `Exporter ${list.name}`,
+  });
 };
