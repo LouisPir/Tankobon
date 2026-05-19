@@ -7,15 +7,27 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import { theme } from '../config/theme';
+import { Manga } from '../services/manga';
 
-export const MangaDetailScreen = () => {
+export const MangaDetailScreen = ({
+  manga,
+  onBack,
+  onEdit,
+}: {
+  manga: Manga;
+  onBack: () => void;
+  onEdit: () => void;
+}) => {
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView>
         {/* Header */}
         <View style={styles.header}>
-          <TouchableOpacity style={styles.backButton}>
+          <TouchableOpacity style={styles.backButton} onPress={onBack}>
             <Text style={styles.backText}>← Retour</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.editButton} onPress={onEdit}>
+            <Text style={styles.editText}>Modifier ✏️</Text>
           </TouchableOpacity>
         </View>
 
@@ -28,13 +40,12 @@ export const MangaDetailScreen = () => {
 
         {/* Info */}
         <View style={styles.infoContainer}>
-          <Text style={styles.title}>Titre du manga</Text>
-          <Text style={styles.author}>Auteur inconnu</Text>
+          <Text style={styles.title}>{manga.title.toUpperCase()}</Text>
 
           {/* Status badge */}
           <View style={styles.badgeContainer}>
             <View style={styles.badge}>
-              <Text style={styles.badgeText}>En cours</Text>
+              <Text style={styles.badgeText}>{manga.status.toUpperCase()}</Text>
             </View>
           </View>
 
@@ -43,7 +54,7 @@ export const MangaDetailScreen = () => {
             <Text style={styles.sectionTitle}>📚 Progression</Text>
             <View style={styles.chapterCard}>
               <Text style={styles.chapterLabel}>Dernier chapitre lu</Text>
-              <Text style={styles.chapterNumber}>—</Text>
+              <Text style={styles.chapterNumber}>{manga.current_chapter}</Text>
             </View>
           </View>
 
@@ -52,9 +63,9 @@ export const MangaDetailScreen = () => {
             <Text style={styles.sectionTitle}>⭐ Note personnelle</Text>
             <View style={styles.starsContainer}>
               {[1, 2, 3, 4, 5].map((star) => (
-                <TouchableOpacity key={star}>
-                  <Text style={styles.star}>☆</Text>
-                </TouchableOpacity>
+                <Text key={star} style={styles.star}>
+                  {manga.rating && star <= manga.rating ? '⭐' : '☆'}
+                </Text>
               ))}
             </View>
           </View>
@@ -64,7 +75,7 @@ export const MangaDetailScreen = () => {
             <Text style={styles.sectionTitle}>💭 Mon avis</Text>
             <View style={styles.reviewPlaceholder}>
               <Text style={styles.reviewPlaceholderText}>
-                Aucun avis pour l'instant...
+                {manga.review ?? "Aucun avis pour l'instant..."}
               </Text>
             </View>
           </View>
@@ -80,6 +91,9 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.background,
   },
   header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     padding: theme.spacing.lg,
   },
   backButton: {
@@ -88,6 +102,17 @@ const styles = StyleSheet.create({
   backText: {
     color: theme.colors.primary,
     fontSize: theme.fontSize.lg,
+    fontWeight: '600',
+  },
+  editButton: {
+    backgroundColor: theme.colors.accent,
+    paddingHorizontal: theme.spacing.md,
+    paddingVertical: theme.spacing.sm,
+    borderRadius: theme.borderRadius.full,
+  },
+  editText: {
+    color: theme.colors.primary,
+    fontSize: theme.fontSize.md,
     fontWeight: '600',
   },
   coverContainer: {
@@ -115,11 +140,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: theme.colors.text,
     marginBottom: theme.spacing.xs,
-  },
-  author: {
-    fontSize: theme.fontSize.md,
-    color: theme.colors.textSecondary,
-    marginBottom: theme.spacing.md,
   },
   badgeContainer: {
     flexDirection: 'row',

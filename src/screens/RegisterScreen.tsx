@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import { register } from '../services/auth';
 
-export const RegisterScreen = () => {
+export const RegisterScreen = ({ onGoToLogin }: { onGoToLogin: () => void }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -63,6 +63,11 @@ export const RegisterScreen = () => {
         ) : (
           <Text style={styles.buttonText}>S'inscrire</Text>
         )}
+      </TouchableOpacity>
+      <TouchableOpacity onPress={onGoToLogin} style={{ marginTop: 16 }}>
+        <Text style={{ color: '#D4547A', textAlign: 'center' }}>
+          Déjà un compte ? Se connecter
+        </Text>
       </TouchableOpacity>
     </View>
   );

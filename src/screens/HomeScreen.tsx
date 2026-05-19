@@ -12,7 +12,7 @@ import { logout } from '../services/auth';
 import { useAuth } from '../hooks/useAuth';
 import { theme } from '../config/theme';
 
-export const HomeScreen = () => {
+export const HomeScreen = ({ onGoToList }: { onGoToList: () => void }) => {
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
 
@@ -74,8 +74,8 @@ export const HomeScreen = () => {
       </View>
 
       {/* CTA */}
-      <TouchableOpacity style={styles.addButton}>
-        <Text style={styles.addButtonText}>+ Ajouter un manga</Text>
+      <TouchableOpacity style={styles.addButton} onPress={onGoToList}>
+        <Text style={styles.addButtonText}>Voir ma collection 🌸</Text>
       </TouchableOpacity>
     </SafeAreaView>
   );
