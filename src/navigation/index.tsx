@@ -15,6 +15,8 @@ import { Manga } from '../services/manga';
 import { deleteList, List } from '../services/lists';
 import { PasswordScreen } from '../screens/PasswordScreen';
 import { ImportListScreen } from '../screens/ImportListScreen';
+import { ImportResultScreen } from '../screens/ImportResultScreen';
+import { ImportResult } from '../services/lists';
 
 type Screen =
   | 'Auth'
@@ -23,6 +25,7 @@ type Screen =
   | 'AddList'
   | 'EditList'
   | 'ImportList'
+  | 'ImportResult'
   | 'Password'
   | 'MangaList'
   | 'AddManga'
@@ -36,6 +39,9 @@ export const Navigation = () => {
   const [selectedManga, setSelectedManga] = useState<Manga | null>(null);
   const [pendingList, setPendingList] = useState<List | null>(null);
   const [passwordMode, setPasswordMode] = useState<'access' | 'delete'>('access');
+  const [importResult, setImportResult] = useState<ImportResult | null>(null);
+  const [importMode, setImportMode] = useState<'new' | 'merge'>('new');
+  const [importTargetName, setImportTargetName] = useState('');
 
   if (loading) {
     return (
@@ -69,7 +75,25 @@ export const Navigation = () => {
     return (
       <ImportListScreen
         onBack={() => setScreen('ListsHome')}
-        onSuccess={() => setScreen('ListsHome')}
+        onSuccess={(result, mode, targetListName) => {
+          setImportResult(result);
+          setImportMode(mode);
+          setImportTargetName(targetListName);
+          setScreen('ImportResult');
+        }}
+      />
+    );
+  }
+  if (screen === 'ImportResult' && importResult) {
+    return (
+      <ImportResultScreen
+        result={importResult}
+        mode={importMode}
+        targetListName={importTargetName}
+        onDone={() => {
+          setImportResult(null);
+          setScreen('ListsHome');
+        }}
       />
     );
   }

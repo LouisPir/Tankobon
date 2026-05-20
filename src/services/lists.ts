@@ -165,3 +165,68 @@ export const importListAsNew = async (data: ImportedList, name: string) => {
 
   return list;
 };
+
+export type DuplicateBehavior = 'ignore' | 'overwrite';
+
+export type ImportResult = {
+  added: string[];
+  duplicates: string[];
+  overwritten: string[];
+};
+
+export const mergeImportIntoList = async (
+  data: ImportedList,
+  listId: string,
+  behavior: DuplicateBehavior
+): Promise<ImportResult> => {
+  const { data: { user } } = await supabase.auth.getUser();
+
+  const { data: existing, error: fetchError } = await supabase
+    .from('mangas')
+    .select('id, title')
+    .eq('list_id', listId);
+
+  if (fetchError) throw fetchError;
+
+  const existingMap = new Map(existing.map((m) => [m.title.toLowerCase(), m.id]));
+
+  const toInsert: ImportedManga[] = [];
+  const toOverwrite: { id: string; manga: ImportedManga }[] = [];
+  const duplicateTitles: string[] = [];
+  const addedTitles: string[] = [];
+  const overwrittenTitles: string[] = [];
+
+  for (const manga of data.mangas) {
+    const existingId = existingMap.get(manga.title.toLowerCase());
+    if (existingId) {
+      duplicateTitles.push(manga.title);
+      if (behavior === 'overwrite') toOverwrite.push({ id: existingId, manga });
+    } else {
+      toInsert.push(manga);
+      addedTitles.push(manga.title);
+    }
+  }
+
+  if (toInsert.length > 0) {
+    const { error } = await supabase
+      .from('mangas')
+      .insert(toInsert.map((m) => ({ ...m, list_id: listId, user_id: user?.id })));
+    if (error) throw error;
+  }
+
+  for (const { id, manga } of toOverwrite) {
+    const { error } = await supabase
+      .from('mangas')
+      .update({
+        status: manga.status,
+        current_chapter: manga.current_chapter,
+        rating: manga.rating,
+        review: manga.review,
+      })
+      .eq('id', id);
+    if (error) throw error;
+    overwrittenTitles.push(manga.title);
+  }
+
+  return { added: addedTitles, duplicates: duplicateTitles, overwritten: overwrittenTitles };
+};
