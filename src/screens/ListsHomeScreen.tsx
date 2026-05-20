@@ -53,10 +53,12 @@ export const ListsHomeScreen = ({
   onSelectList,
   onAddList,
   onDeleteProtected,
+  onImportList,
 }: {
   onSelectList: (list: List) => void;
   onAddList: () => void;
   onDeleteProtected: (list: List) => void;
+  onImportList: () => void;
 }) => {
   const [lists, setLists] = useState<List[]>([]);
   const [filtered, setFiltered] = useState<List[]>([]);
@@ -138,14 +140,17 @@ export const ListsHomeScreen = ({
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Header */}
       <View style={styles.header}>
         <Text style={styles.headerTitle}>🌸 Tankobon</Text>
-        <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-          <Text style={styles.logoutText}>Quitter</Text>
-        </TouchableOpacity>
+        <View style={{ flexDirection: 'row', gap: theme.spacing.md, alignItems: 'center' }}>
+          <TouchableOpacity onPress={onImportList}>
+            <Text style={{ fontSize: theme.fontSize.xl }}>📥</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+            <Text style={styles.logoutText}>Quitter</Text>
+          </TouchableOpacity>
+        </View>
       </View>
-
       {/* Search */}
       <View style={styles.searchContainer}>
         <TextInput

@@ -1,6 +1,8 @@
 import { supabase } from './supabase';
 import * as Sharing from 'expo-sharing';
 import * as FileSystem from 'expo-file-system/legacy';
+import * as DocumentPicker from 'expo-document-picker';
+
 
 export type List = {
   id: string;
@@ -99,4 +101,67 @@ export const exportListToJSON = async (listId: string) => {
     mimeType: 'application/json',
     dialogTitle: `Exporter ${list.name}`,
   });
+};
+
+
+export type ImportedManga = {
+  title: string;
+  status: string;
+  current_chapter: number;
+  rating: number | null;
+  review: string | null;
+};
+
+export type ImportedList = {
+  name: string;
+  description: string | null;
+  mangas: ImportedManga[];
+};
+
+export const pickJSONFile = async (): Promise<ImportedList | null> => {
+  const result = await DocumentPicker.getDocumentAsync({
+    type: 'application/json',
+    copyToCacheDirectory: true,
+  });
+
+  if (result.canceled) return null;
+
+  const content = await FileSystem.readAsStringAsync(result.assets[0].uri);
+  const parsed = JSON.parse(content);
+
+  return parsed as ImportedList;
+};
+
+export const importListAsNew = async (data: ImportedList, name: string) => {
+  const { data: { user } } = await supabase.auth.getUser();
+
+  // Crée la liste
+  const { data: list, error: listError } = await supabase
+    .from('lists')
+    .insert({
+      name,
+      description: data.description,
+      user_id: user?.id,
+    })
+    .select()
+    .single();
+
+  if (listError) throw listError;
+
+  // Ajoute les mangas
+  if (data.mangas.length > 0) {
+    const { error: mangasError } = await supabase
+      .from('mangas')
+      .insert(
+        data.mangas.map((m) => ({
+          ...m,
+          list_id: list.id,
+          user_id: user?.id,
+        }))
+      );
+
+    if (mangasError) throw mangasError;
+  }
+
+  return list;
 };
