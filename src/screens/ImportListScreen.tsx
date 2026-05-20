@@ -23,28 +23,40 @@ import {
 } from '../services/lists';
 
 type ImportMode = 'new' | 'merge';
+type Step = 'mode' | 'file' | 'confirm';
 
 export const ImportListScreen = ({
   onBack,
   onSuccess,
+  preselectedList,
 }: {
   onBack: () => void;
   onSuccess: (result: ImportResult, mode: ImportMode, targetListName: string) => void;
+  preselectedList?: List;
 }) => {
+  const [step, setStep] = useState<Step>(preselectedList ? 'file' : 'mode');
+  const [mode, setMode] = useState<ImportMode>(preselectedList ? 'merge' : 'new');
   const [importedData, setImportedData] = useState<ImportedList | null>(null);
   const [listName, setListName] = useState('');
-  const [mode, setMode] = useState<ImportMode>('new');
   const [existingLists, setExistingLists] = useState<List[]>([]);
   const [filteredLists, setFilteredLists] = useState<List[]>([]);
   const [search, setSearch] = useState('');
-  const [selectedList, setSelectedList] = useState<List | null>(null);
-  const [listsLoaded, setListsLoaded] = useState(false);
+  const [selectedList, setSelectedList] = useState<List | null>(preselectedList ?? null);
+  const [listsLoaded, setListsLoaded] = useState(!!preselectedList);
   const [loading, setLoading] = useState(false);
-
-  // Password gate
   const [passwordPending, setPasswordPending] = useState(false);
   const [passwordInput, setPasswordInput] = useState('');
-  const [pendingBehavior, setPendingBehavior] = useState<DuplicateBehavior | null>(null);
+
+  const handleSelectMode = async (selectedMode: ImportMode) => {
+    setMode(selectedMode);
+    if (selectedMode === 'merge' && !listsLoaded) {
+      const lists = await getLists();
+      setExistingLists(lists);
+      setFilteredLists(lists);
+      setListsLoaded(true);
+    }
+    setStep('file');
+  };
 
   const handlePickFile = async () => {
     try {
@@ -52,13 +64,7 @@ export const ImportListScreen = ({
       if (!data) return;
       setImportedData(data);
       setListName(data.name);
-
-      if (!listsLoaded) {
-        const lists = await getLists();
-        setExistingLists(lists);
-        setFilteredLists(lists);
-        setListsLoaded(true);
-      }
+      setStep('confirm');
     } catch {
       Alert.alert('Erreur', 'Fichier invalide ou corrompu');
     }
@@ -66,15 +72,11 @@ export const ImportListScreen = ({
 
   const handleSearch = (text: string) => {
     setSearch(text);
-    if (text.trim() === '') {
-      setFilteredLists(existingLists);
-    } else {
-      setFilteredLists(
-        existingLists.filter((l) =>
-          l.name.toLowerCase().includes(text.toLowerCase())
-        )
-      );
-    }
+    setFilteredLists(
+      text.trim() === ''
+        ? existingLists
+        : existingLists.filter((l) => l.name.toLowerCase().includes(text.toLowerCase()))
+    );
   };
 
   const runMerge = async (behavior: DuplicateBehavior) => {
@@ -88,14 +90,13 @@ export const ImportListScreen = ({
       setLoading(false);
       setPasswordPending(false);
       setPasswordInput('');
-      setPendingBehavior(null);
     }
   };
 
   const askDuplicateBehavior = () => {
     Alert.alert(
       'Doublons détectés ?',
-      'Si des mangas du fichier existent déjà dans la liste, que faire ?',
+      'Si des entrées du fichier existent déjà dans la liste, que faire ?',
       [
         { text: 'Ignorer', onPress: () => runMerge('ignore') },
         { text: 'Écraser', style: 'destructive', onPress: () => runMerge('overwrite') },
@@ -128,7 +129,6 @@ export const ImportListScreen = ({
       return;
     }
 
-    // Mode merge : vérification mot de passe si nécessaire
     if (selectedList?.password_hash) {
       setPasswordPending(true);
       setLoading(false);
@@ -150,7 +150,14 @@ export const ImportListScreen = ({
     askDuplicateBehavior();
   };
 
-  // --- Password gate overlay ---
+  const getBackAction = () => {
+    if (step === 'mode') return onBack;
+    if (step === 'file') return preselectedList ? onBack : () => setStep('mode');
+    if (step === 'confirm') return () => { setImportedData(null); setStep('file'); };
+    return onBack;
+  };
+
+  // Password overlay
   if (passwordPending && selectedList) {
     return (
       <SafeAreaView style={styles.passwordOverlay}>
@@ -179,10 +186,7 @@ export const ImportListScreen = ({
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.passwordCancelButton}
-            onPress={() => {
-              setPasswordPending(false);
-              setPasswordInput('');
-            }}
+            onPress={() => { setPasswordPending(false); setPasswordInput(''); }}
           >
             <Text style={styles.passwordCancelText}>Annuler</Text>
           </TouchableOpacity>
@@ -191,11 +195,10 @@ export const ImportListScreen = ({
     );
   }
 
-  // --- Écran principal ---
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={onBack}>
+        <TouchableOpacity onPress={getBackAction()}>
           <Text style={styles.backText}>← Retour</Text>
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Importer une liste</Text>
@@ -203,45 +206,60 @@ export const ImportListScreen = ({
       </View>
 
       <ScrollView contentContainerStyle={styles.content}>
-        {!importedData ? (
-          <View style={styles.pickContainer}>
+
+        {/* STEP 1 : Choix du mode */}
+        {step === 'mode' && (
+          <View style={styles.stepContainer}>
             <Text style={styles.emoji}>📥</Text>
-            <Text style={styles.title}>Importer un fichier JSON</Text>
-            <Text style={styles.subtitle}>
-              Sélectionne un fichier exporté depuis Tankobon
+            <Text style={styles.title}>Comment importer ?</Text>
+            <TouchableOpacity
+              style={styles.modeCard}
+              onPress={() => handleSelectMode('new')}
+            >
+              <Text style={styles.modeCardEmoji}>🆕</Text>
+              <View style={styles.modeCardText}>
+                <Text style={styles.modeCardTitle}>Nouvelle liste</Text>
+                <Text style={styles.modeCardSubtitle}>Créer une nouvelle liste depuis le fichier</Text>
+              </View>
+              <Text style={styles.modeCardArrow}>›</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.modeCard}
+              onPress={() => handleSelectMode('merge')}
+            >
+              <Text style={styles.modeCardEmoji}>🔀</Text>
+              <View style={styles.modeCardText}>
+                <Text style={styles.modeCardTitle}>Fusionner</Text>
+                <Text style={styles.modeCardSubtitle}>Ajouter dans une liste existante</Text>
+              </View>
+              <Text style={styles.modeCardArrow}>›</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+
+        {/* STEP 2 : Choix du fichier */}
+        {step === 'file' && (
+          <View style={styles.stepContainer}>
+            <Text style={styles.emoji}>📂</Text>
+            <Text style={styles.title}>
+              {mode === 'new' ? 'Nouvelle liste' : preselectedList ? `Fusionner dans "${preselectedList.name}"` : 'Fusionner'}
             </Text>
+            <Text style={styles.subtitle}>Sélectionne un fichier exporté depuis Tankobon</Text>
             <TouchableOpacity style={styles.pickButton} onPress={handlePickFile}>
               <Text style={styles.pickButtonText}>Choisir un fichier</Text>
             </TouchableOpacity>
           </View>
-        ) : (
+        )}
+
+        {/* STEP 3 : Confirmation */}
+        {step === 'confirm' && importedData && (
           <View style={styles.previewContainer}>
             <Text style={styles.previewTitle}>✅ Fichier chargé</Text>
             <Text style={styles.previewInfo}>
-              {importedData.mangas.length} manga
-              {importedData.mangas.length > 1 ? 's' : ''} trouvé
+              {importedData.mangas.length} entrée
+              {importedData.mangas.length > 1 ? 's' : ''} trouvée
               {importedData.mangas.length > 1 ? 's' : ''}
             </Text>
-
-            {/* Toggle mode */}
-            <View style={styles.modeToggle}>
-              <TouchableOpacity
-                style={[styles.modeButton, mode === 'new' && styles.modeButtonActive]}
-                onPress={() => setMode('new')}
-              >
-                <Text style={[styles.modeButtonText, mode === 'new' && styles.modeButtonTextActive]}>
-                  Nouvelle liste
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.modeButton, mode === 'merge' && styles.modeButtonActive]}
-                onPress={() => setMode('merge')}
-              >
-                <Text style={[styles.modeButtonText, mode === 'merge' && styles.modeButtonTextActive]}>
-                  Fusionner
-                </Text>
-              </TouchableOpacity>
-            </View>
 
             {mode === 'new' ? (
               <View style={styles.field}>
@@ -254,11 +272,14 @@ export const ImportListScreen = ({
                   placeholderTextColor={theme.colors.textSecondary}
                 />
               </View>
+            ) : preselectedList ? (
+              <View style={styles.preselectedCard}>
+                <Text style={styles.preselectedLabel}>Fusionner dans</Text>
+                <Text style={styles.preselectedName}>{preselectedList.name}</Text>
+              </View>
             ) : (
               <View style={styles.field}>
                 <Text style={styles.label}>Fusionner dans *</Text>
-
-                {/* Barre de recherche */}
                 <View style={styles.searchContainer}>
                   <TextInput
                     style={styles.searchInput}
@@ -273,7 +294,6 @@ export const ImportListScreen = ({
                     </TouchableOpacity>
                   )}
                 </View>
-
                 {filteredLists.length === 0 ? (
                   <Text style={styles.emptyText}>Aucune liste trouvée</Text>
                 ) : (
@@ -292,9 +312,7 @@ export const ImportListScreen = ({
                       ]}>
                         {list.name}
                       </Text>
-                      {list.password_hash && (
-                        <Text style={styles.lockIcon}>🔒</Text>
-                      )}
+                      {list.password_hash && <Text style={styles.lockIcon}>🔒</Text>}
                     </TouchableOpacity>
                   ))
                 )}
@@ -315,11 +333,15 @@ export const ImportListScreen = ({
               )}
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.changeFileButton} onPress={handlePickFile}>
+            <TouchableOpacity
+              style={styles.changeFileButton}
+              onPress={() => { setImportedData(null); setStep('file'); }}
+            >
               <Text style={styles.changeFileText}>Changer de fichier</Text>
             </TouchableOpacity>
           </View>
         )}
+
       </ScrollView>
     </SafeAreaView>
   );
@@ -339,10 +361,26 @@ const styles = StyleSheet.create({
   backText: { color: theme.colors.primary, fontSize: theme.fontSize.lg, fontWeight: '600', width: 60 },
   headerTitle: { fontSize: theme.fontSize.lg, fontWeight: 'bold', color: theme.colors.text },
   content: { padding: theme.spacing.lg, flexGrow: 1, justifyContent: 'center' },
-  pickContainer: { alignItems: 'center', gap: theme.spacing.md },
+  stepContainer: { alignItems: 'center', gap: theme.spacing.md },
   emoji: { fontSize: 64 },
   title: { fontSize: theme.fontSize.xl, fontWeight: 'bold', color: theme.colors.text, textAlign: 'center' },
   subtitle: { fontSize: theme.fontSize.md, color: theme.colors.textSecondary, textAlign: 'center' },
+  modeCard: {
+    width: '100%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: theme.colors.surface,
+    borderRadius: theme.borderRadius.md,
+    padding: theme.spacing.md,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+    gap: theme.spacing.md,
+  },
+  modeCardEmoji: { fontSize: 32 },
+  modeCardText: { flex: 1, gap: 2 },
+  modeCardTitle: { fontSize: theme.fontSize.md, fontWeight: 'bold', color: theme.colors.text },
+  modeCardSubtitle: { fontSize: theme.fontSize.sm, color: theme.colors.textSecondary },
+  modeCardArrow: { fontSize: theme.fontSize.xl, color: theme.colors.textSecondary },
   pickButton: {
     backgroundColor: theme.colors.primary,
     padding: theme.spacing.md,
@@ -354,16 +392,6 @@ const styles = StyleSheet.create({
   previewContainer: { gap: theme.spacing.lg },
   previewTitle: { fontSize: theme.fontSize.xl, fontWeight: 'bold', color: theme.colors.text, textAlign: 'center' },
   previewInfo: { fontSize: theme.fontSize.md, color: theme.colors.textSecondary, textAlign: 'center' },
-  modeToggle: {
-    flexDirection: 'row',
-    backgroundColor: theme.colors.accent,
-    borderRadius: theme.borderRadius.full,
-    padding: 4,
-  },
-  modeButton: { flex: 1, paddingVertical: theme.spacing.sm, borderRadius: theme.borderRadius.full, alignItems: 'center' },
-  modeButtonActive: { backgroundColor: theme.colors.primary },
-  modeButtonText: { color: theme.colors.textSecondary, fontWeight: '600' },
-  modeButtonTextActive: { color: '#fff' },
   field: { gap: theme.spacing.sm },
   label: { fontSize: theme.fontSize.md, fontWeight: '600', color: theme.colors.text },
   input: {
@@ -384,12 +412,7 @@ const styles = StyleSheet.create({
     borderColor: theme.colors.border,
     paddingHorizontal: theme.spacing.md,
   },
-  searchInput: {
-    flex: 1,
-    padding: theme.spacing.md,
-    fontSize: theme.fontSize.md,
-    color: theme.colors.text,
-  },
+  searchInput: { flex: 1, padding: theme.spacing.md, fontSize: theme.fontSize.md, color: theme.colors.text },
   clearSearch: { color: theme.colors.textSecondary, fontSize: theme.fontSize.lg, padding: theme.spacing.sm },
   emptyText: { color: theme.colors.textSecondary, fontSize: theme.fontSize.md },
   listOption: {
@@ -406,6 +429,16 @@ const styles = StyleSheet.create({
   listOptionText: { color: theme.colors.text, fontSize: theme.fontSize.md, flex: 1 },
   listOptionTextSelected: { color: theme.colors.primary, fontWeight: '600' },
   lockIcon: { fontSize: 14 },
+  preselectedCard: {
+    backgroundColor: theme.colors.surface,
+    borderRadius: theme.borderRadius.md,
+    padding: theme.spacing.md,
+    borderWidth: 1,
+    borderColor: theme.colors.primary,
+    gap: theme.spacing.xs,
+  },
+  preselectedLabel: { fontSize: theme.fontSize.sm, color: theme.colors.textSecondary },
+  preselectedName: { fontSize: theme.fontSize.lg, fontWeight: 'bold', color: theme.colors.primary },
   importButton: {
     backgroundColor: theme.colors.primary,
     padding: theme.spacing.md,
@@ -416,8 +449,6 @@ const styles = StyleSheet.create({
   importButtonText: { color: '#fff', fontSize: theme.fontSize.lg, fontWeight: 'bold' },
   changeFileButton: { alignItems: 'center', padding: theme.spacing.sm },
   changeFileText: { color: theme.colors.textSecondary, fontSize: theme.fontSize.md },
-
-  // Password overlay
   passwordOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.5)',

@@ -12,7 +12,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useEffect, useState } from 'react';
 import { theme } from '../config/theme';
 import { getMangas, deleteManga, Manga } from '../services/manga';
-import { exportListToJSON } from '../services/lists';
 
 const StatusBadge = ({ status }: { status: string }) => {
   const statusConfig = {
@@ -64,14 +63,14 @@ export const MangaListScreen = ({
   onSelectManga,
   onAddManga,
   onBack,
-  onEditList,
+  onSettings,
   listId,
 }: {
   listId: string;
   onSelectManga: (manga: Manga) => void;
   onAddManga: () => void;
   onBack: () => void;
-  onEditList: () => void;
+  onSettings: () => void;
 }) => {
   const [mangas, setMangas] = useState<Manga[]>([]);
   const [filtered, setFiltered] = useState<Manga[]>([]);
@@ -143,22 +142,9 @@ export const MangaListScreen = ({
           <Text style={styles.backText}>← Retour</Text>
         </TouchableOpacity>
         <Text style={styles.headerTitle}>🌸 Ma Collection</Text>
-        <View style={styles.headerActions}>
-          <TouchableOpacity
-            onPress={async () => {
-              try {
-                await exportListToJSON(listId);
-              } catch (error: any) {
-                Alert.alert('Erreur', error.message);
-              }
-            }}
-          >
-            <Text style={styles.exportText}>📤</Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={onEditList}>
-            <Text style={styles.editText}>✏️</Text>
-          </TouchableOpacity>
-        </View>
+        <TouchableOpacity onPress={onSettings}>
+          <Text style={{ fontSize: theme.fontSize.xl }}>⚙️</Text>
+        </TouchableOpacity>
       </View>
 
       <View style={styles.searchContainer}>
@@ -236,15 +222,6 @@ const styles = StyleSheet.create({
   headerCount: {
     fontSize: theme.fontSize.md,
     color: theme.colors.textSecondary,
-  },
-  headerActions: {
-    flexDirection: 'row',
-    gap: theme.spacing.md,
-    alignItems: 'center',
-  },
-  exportText: {
-    color: theme.colors.primary,
-    fontSize: theme.fontSize.xl,
   },
   searchContainer: {
     flexDirection: 'row',
@@ -365,10 +342,6 @@ const styles = StyleSheet.create({
     color: theme.colors.primary,
     fontSize: theme.fontSize.md,
     fontWeight: '600',
-  },
-  editText: {
-    color: theme.colors.primary,
-    fontSize: theme.fontSize.xl,
   },
   fabText: {
     color: '#fff',

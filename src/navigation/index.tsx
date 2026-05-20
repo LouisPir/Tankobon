@@ -17,6 +17,9 @@ import { PasswordScreen } from '../screens/PasswordScreen';
 import { ImportListScreen } from '../screens/ImportListScreen';
 import { ImportResultScreen } from '../screens/ImportResultScreen';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { SettingsScreen } from '../screens/SettingsScreen';
+import { ExportListScreen } from '../screens/ExportListScreen';
+import { SelectListScreen } from '../screens/SelectListScreen';
 
 type Screen =
   | 'Auth'
@@ -30,7 +33,10 @@ type Screen =
   | 'MangaList'
   | 'AddManga'
   | 'EditManga'
-  | 'MangaDetail';
+  | 'MangaDetail'
+  | 'Settings'
+  | 'ExportList'
+  | 'SelectList';
 
 export const Navigation = () => {
   const { user, loading } = useAuth();
@@ -42,6 +48,7 @@ export const Navigation = () => {
   const [importResult, setImportResult] = useState<ImportResult | null>(null);
   const [importMode, setImportMode] = useState<'new' | 'merge'>('new');
   const [importTargetName, setImportTargetName] = useState('');
+  const [settingsFrom, setSettingsFrom] = useState<'ListsHome' | 'MangaList'>('ListsHome');
 
   if (loading) {
     return (
@@ -67,12 +74,46 @@ export const Navigation = () => {
     );
   }
 
-  if (screen === 'AddList') {
+  if (screen === 'Settings') {
     return (
       <SafeAreaProvider>
-        <AddListScreen
-          onBack={() => setScreen('ListsHome')}
-          onSuccess={() => setScreen('ListsHome')}
+        <SettingsScreen
+          onBack={() => setScreen(settingsFrom)}
+          selectedList={selectedList ?? undefined}
+          onImportList={() => setScreen('ImportList')}
+          onExportList={() => setScreen('ExportList')}
+          onEditList={() => {
+            if (selectedList) {
+              setScreen('EditList');
+            } else {
+              setScreen('SelectList');
+            }
+          }}
+        />
+      </SafeAreaProvider>
+    );
+  }
+
+  if (screen === 'SelectList') {
+    return (
+      <SafeAreaProvider>
+        <SelectListScreen
+          onBack={() => setScreen('Settings')}
+          onSelectList={(list) => {
+            setSelectedList(list);
+            setScreen('EditList');
+          }}
+        />
+      </SafeAreaProvider>
+    );
+  }
+
+  if (screen === 'ExportList') {
+    return (
+      <SafeAreaProvider>
+        <ExportListScreen
+          onBack={() => setScreen('Settings')}
+          preselectedList={selectedList ?? undefined}
         />
       </SafeAreaProvider>
     );
@@ -82,7 +123,8 @@ export const Navigation = () => {
     return (
       <SafeAreaProvider>
         <ImportListScreen
-          onBack={() => setScreen('ListsHome')}
+          onBack={() => setScreen('Settings')}
+          preselectedList={selectedList ?? undefined}
           onSuccess={(result, mode, targetListName) => {
             setImportResult(result);
             setImportMode(mode);
@@ -103,8 +145,19 @@ export const Navigation = () => {
           targetListName={importTargetName}
           onDone={() => {
             setImportResult(null);
-            setScreen('ListsHome');
+            setScreen(settingsFrom);
           }}
+        />
+      </SafeAreaProvider>
+    );
+  }
+
+  if (screen === 'AddList') {
+    return (
+      <SafeAreaProvider>
+        <AddListScreen
+          onBack={() => setScreen('ListsHome')}
+          onSuccess={() => setScreen('ListsHome')}
         />
       </SafeAreaProvider>
     );
@@ -115,10 +168,10 @@ export const Navigation = () => {
       <SafeAreaProvider>
         <EditListScreen
           list={selectedList}
-          onBack={() => setScreen('MangaList')}
+          onBack={() => setScreen('Settings')}
           onSuccess={() => {
-            setScreen('ListsHome');
-            setSelectedList(null);
+            setScreen(settingsFrom);
+            if (settingsFrom === 'ListsHome') setSelectedList(null);
           }}
         />
       </SafeAreaProvider>
@@ -136,7 +189,10 @@ export const Navigation = () => {
           }}
           onAddManga={() => setScreen('AddManga')}
           onBack={() => setScreen('ListsHome')}
-          onEditList={() => setScreen('EditList')}
+          onSettings={() => {
+            setSettingsFrom('MangaList');
+            setScreen('Settings');
+          }}
         />
       </SafeAreaProvider>
     );
@@ -233,7 +289,11 @@ export const Navigation = () => {
           setPasswordMode('delete');
           setScreen('Password');
         }}
-        onImportList={() => setScreen('ImportList')}
+        onSettings={() => {
+          setSelectedList(null);
+          setSettingsFrom('ListsHome');
+          setScreen('Settings');
+        }}
       />
     </SafeAreaProvider>
   );
