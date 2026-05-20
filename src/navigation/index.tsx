@@ -14,6 +14,7 @@ import { MangaDetailScreen } from '../screens/MangaDetailScreen';
 import { Manga } from '../services/manga';
 import { deleteList, List } from '../services/lists';
 import { PasswordScreen } from '../screens/PasswordScreen';
+import { ImportListScreen } from '../screens/ImportListScreen';
 
 type Screen =
   | 'Auth'
@@ -21,6 +22,7 @@ type Screen =
   | 'ListsHome'
   | 'AddList'
   | 'EditList'
+  | 'ImportList'
   | 'Password'
   | 'MangaList'
   | 'AddManga'
@@ -63,7 +65,14 @@ export const Navigation = () => {
       />
     );
   }
-
+  if (screen === 'ImportList') {
+    return (
+      <ImportListScreen
+        onBack={() => setScreen('ListsHome')}
+        onSuccess={() => setScreen('ListsHome')}
+      />
+    );
+  }
   if (screen === 'EditList' && selectedList) {
     return (
       <EditListScreen
@@ -174,6 +183,7 @@ export const Navigation = () => {
         setPasswordMode('delete');
         setScreen('Password');
       }}
+      onImportList={() => setScreen('ImportList')}
     />
   );
 }
