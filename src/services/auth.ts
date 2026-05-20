@@ -29,3 +29,22 @@ export const getCurrentUser = async () => {
   const { data: { user } } = await supabase.auth.getUser();
   return user;
 };
+
+export const updateEmail = async (newEmail: string) => {
+  const { error } = await supabase.auth.updateUser({ email: newEmail });
+  if (error) throw error;
+};
+
+export const updatePassword = async (newPassword: string) => {
+  const { error } = await supabase.auth.updateUser({ password: newPassword });
+  if (error) throw error;
+};
+
+export const deleteAccount = async () => {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error('Utilisateur non connecté');
+
+  // Supprime toutes les données utilisateur (cascade via RLS)
+  const { error } = await supabase.rpc('delete_user');
+  if (error) throw error;
+};
