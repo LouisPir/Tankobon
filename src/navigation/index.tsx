@@ -20,6 +20,9 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { SettingsScreen } from '../screens/SettingsScreen';
 import { ExportListScreen } from '../screens/ExportListScreen';
 import { SelectListScreen } from '../screens/SelectListScreen';
+import { ChangeEmailScreen } from '../screens/ChangeEmailScreen';
+import { ChangePasswordScreen } from '../screens/ChangePasswordScreen';
+import { DeleteAccountScreen } from '../screens/DeleteAccountScreen';
 
 type Screen =
   | 'Auth'
@@ -36,6 +39,9 @@ type Screen =
   | 'MangaDetail'
   | 'Settings'
   | 'ExportList'
+  | 'ChangeEmail'
+  | 'ChangePassword'
+  | 'DeleteAccount'
   | 'SelectList';
 
 export const Navigation = () => {
@@ -82,6 +88,9 @@ export const Navigation = () => {
           selectedList={selectedList ?? undefined}
           onImportList={() => setScreen('ImportList')}
           onExportList={() => setScreen('ExportList')}
+          onChangeEmail={() => setScreen('ChangeEmail')}
+          onChangePassword={() => setScreen('ChangePassword')}
+          onDeleteAccount={() => setScreen('DeleteAccount')}
           onEditList={() => {
             if (selectedList) {
               setScreen('EditList');
@@ -90,6 +99,35 @@ export const Navigation = () => {
             }
           }}
         />
+      </SafeAreaProvider>
+    );
+  }
+  if (screen === 'ChangeEmail') {
+    return (
+      <SafeAreaProvider>
+        <ChangeEmailScreen
+          onBack={() => setScreen('Settings')}
+          onSuccess={() => setScreen('Settings')}
+        />
+      </SafeAreaProvider>
+    );
+  }
+
+  if (screen === 'ChangePassword') {
+    return (
+      <SafeAreaProvider>
+        <ChangePasswordScreen
+          onBack={() => setScreen('Settings')}
+          onSuccess={() => setScreen('Settings')}
+        />
+      </SafeAreaProvider>
+    );
+  }
+
+  if (screen === 'DeleteAccount') {
+    return (
+      <SafeAreaProvider>
+        <DeleteAccountScreen onBack={() => setScreen('Settings')} />
       </SafeAreaProvider>
     );
   }

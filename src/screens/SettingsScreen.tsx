@@ -16,12 +16,18 @@ export const SettingsScreen = ({
   onImportList,
   onExportList,
   onEditList,
+  onChangeEmail,
+  onChangePassword,
+  onDeleteAccount,
 }: {
   onBack: () => void;
   selectedList?: List;
   onImportList: () => void;
   onExportList: () => void;
   onEditList: () => void;
+  onChangeEmail: () => void;
+  onChangePassword: () => void;
+  onDeleteAccount: () => void;
 }) => {
   const handleLogout = async () => {
     Alert.alert(
@@ -86,12 +92,12 @@ export const SettingsScreen = ({
         {/* Section compte */}
         <Text style={styles.sectionTitle}>Compte</Text>
         <View style={styles.section}>
-          <TouchableOpacity style={styles.row} onPress={() => {}}>
+          <TouchableOpacity style={styles.row} onPress={onChangeEmail}>
             <Text style={styles.rowText}>✉️ Changer l'email</Text>
             <Text style={styles.rowArrow}>›</Text>
           </TouchableOpacity>
           <View style={styles.separator} />
-          <TouchableOpacity style={styles.row} onPress={() => {}}>
+          <TouchableOpacity style={styles.row} onPress={onChangePassword}>
             <Text style={styles.rowText}>🔑 Changer le mot de passe</Text>
             <Text style={styles.rowArrow}>›</Text>
           </TouchableOpacity>
@@ -109,7 +115,7 @@ export const SettingsScreen = ({
               <View style={styles.separator} />
             </>
           )}
-          <TouchableOpacity style={styles.row} onPress={() => {}}>
+          <TouchableOpacity style={styles.row} onPress={onDeleteAccount}>
             <Text style={[styles.rowText, { color: '#E53935' }]}>🗑️ Supprimer toutes mes données</Text>
             <Text style={styles.rowArrow}>›</Text>
           </TouchableOpacity>
