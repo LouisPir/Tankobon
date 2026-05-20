@@ -12,11 +12,11 @@ import { AddMangaScreen } from '../screens/AddMangaScreen';
 import { EditMangaScreen } from '../screens/EditMangaScreen';
 import { MangaDetailScreen } from '../screens/MangaDetailScreen';
 import { Manga } from '../services/manga';
-import { deleteList, List } from '../services/lists';
+import { deleteList, List, ImportResult } from '../services/lists';
 import { PasswordScreen } from '../screens/PasswordScreen';
 import { ImportListScreen } from '../screens/ImportListScreen';
 import { ImportResultScreen } from '../screens/ImportResultScreen';
-import { ImportResult } from '../services/lists';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 type Screen =
   | 'Auth'
@@ -45,169 +45,196 @@ export const Navigation = () => {
 
   if (loading) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <ActivityIndicator size="large" color="#D4547A" />
-      </View>
+      <SafeAreaProvider>
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <ActivityIndicator size="large" color="#D4547A" />
+        </View>
+      </SafeAreaProvider>
     );
   }
 
   if (!user) {
     return (
-      <NavigationContainer>
-        {screen === 'Register' ? (
-          <RegisterScreen onGoToLogin={() => setScreen('Auth')} />
-        ) : (
-          <LoginScreen onGoToRegister={() => setScreen('Register')} />
-        )}
-      </NavigationContainer>
+      <SafeAreaProvider>
+        <NavigationContainer>
+          {screen === 'Register' ? (
+            <RegisterScreen onGoToLogin={() => setScreen('Auth')} />
+          ) : (
+            <LoginScreen onGoToRegister={() => setScreen('Register')} />
+          )}
+        </NavigationContainer>
+      </SafeAreaProvider>
     );
   }
 
   if (screen === 'AddList') {
     return (
-      <AddListScreen
-        onBack={() => setScreen('ListsHome')}
-        onSuccess={() => setScreen('ListsHome')}
-      />
+      <SafeAreaProvider>
+        <AddListScreen
+          onBack={() => setScreen('ListsHome')}
+          onSuccess={() => setScreen('ListsHome')}
+        />
+      </SafeAreaProvider>
     );
   }
+
   if (screen === 'ImportList') {
     return (
-      <ImportListScreen
-        onBack={() => setScreen('ListsHome')}
-        onSuccess={(result, mode, targetListName) => {
-          setImportResult(result);
-          setImportMode(mode);
-          setImportTargetName(targetListName);
-          setScreen('ImportResult');
-        }}
-      />
+      <SafeAreaProvider>
+        <ImportListScreen
+          onBack={() => setScreen('ListsHome')}
+          onSuccess={(result, mode, targetListName) => {
+            setImportResult(result);
+            setImportMode(mode);
+            setImportTargetName(targetListName);
+            setScreen('ImportResult');
+          }}
+        />
+      </SafeAreaProvider>
     );
   }
+
   if (screen === 'ImportResult' && importResult) {
     return (
-      <ImportResultScreen
-        result={importResult}
-        mode={importMode}
-        targetListName={importTargetName}
-        onDone={() => {
-          setImportResult(null);
-          setScreen('ListsHome');
-        }}
-      />
+      <SafeAreaProvider>
+        <ImportResultScreen
+          result={importResult}
+          mode={importMode}
+          targetListName={importTargetName}
+          onDone={() => {
+            setImportResult(null);
+            setScreen('ListsHome');
+          }}
+        />
+      </SafeAreaProvider>
     );
   }
+
   if (screen === 'EditList' && selectedList) {
     return (
-      <EditListScreen
-        list={selectedList}
-        onBack={() => setScreen('MangaList')}
-        onSuccess={() => {
-          setScreen('ListsHome');
-          setSelectedList(null);
-        }}
-      />
+      <SafeAreaProvider>
+        <EditListScreen
+          list={selectedList}
+          onBack={() => setScreen('MangaList')}
+          onSuccess={() => {
+            setScreen('ListsHome');
+            setSelectedList(null);
+          }}
+        />
+      </SafeAreaProvider>
     );
   }
 
   if (screen === 'MangaList' && selectedList) {
     return (
-      <MangaListScreen
-        listId={selectedList.id}
-        onSelectManga={(manga) => {
-          setSelectedManga(manga);
-          setScreen('MangaDetail');
-        }}
-        onAddManga={() => setScreen('AddManga')}
-        onBack={() => setScreen('ListsHome')}
-        onEditList={() => setScreen('EditList')}
-      />
+      <SafeAreaProvider>
+        <MangaListScreen
+          listId={selectedList.id}
+          onSelectManga={(manga) => {
+            setSelectedManga(manga);
+            setScreen('MangaDetail');
+          }}
+          onAddManga={() => setScreen('AddManga')}
+          onBack={() => setScreen('ListsHome')}
+          onEditList={() => setScreen('EditList')}
+        />
+      </SafeAreaProvider>
     );
   }
 
   if (screen === 'AddManga' && selectedList) {
     return (
-      <AddMangaScreen
-        listId={selectedList.id}
-        onBack={() => setScreen('MangaList')}
-        onSuccess={() => setScreen('MangaList')}
-      />
+      <SafeAreaProvider>
+        <AddMangaScreen
+          listId={selectedList.id}
+          onBack={() => setScreen('MangaList')}
+          onSuccess={() => setScreen('MangaList')}
+        />
+      </SafeAreaProvider>
     );
   }
 
   if (screen === 'EditManga' && selectedManga) {
     return (
-      <EditMangaScreen
-        manga={selectedManga}
-        onBack={() => setScreen('MangaDetail')}
-        onSuccess={() => {
-          setScreen('MangaList');
-          setSelectedManga(null);
-        }}
-      />
+      <SafeAreaProvider>
+        <EditMangaScreen
+          manga={selectedManga}
+          onBack={() => setScreen('MangaDetail')}
+          onSuccess={() => {
+            setScreen('MangaList');
+            setSelectedManga(null);
+          }}
+        />
+      </SafeAreaProvider>
     );
   }
 
   if (screen === 'MangaDetail' && selectedManga) {
     return (
-      <MangaDetailScreen
-        manga={selectedManga}
-        onBack={() => setScreen('MangaList')}
-        onEdit={() => setScreen('EditManga')}
-      />
+      <SafeAreaProvider>
+        <MangaDetailScreen
+          manga={selectedManga}
+          onBack={() => setScreen('MangaList')}
+          onEdit={() => setScreen('EditManga')}
+        />
+      </SafeAreaProvider>
     );
   }
 
   if (screen === 'Password' && pendingList) {
     return (
-      <PasswordScreen
-        listName={pendingList.name}
-        onCancel={() => {
-          setScreen('ListsHome');
-          setPendingList(null);
-        }}
-        onConfirm={async (password) => {
-          if (password === pendingList.password_hash) {
-            if (passwordMode === 'access') {
-              setSelectedList(pendingList);
-              setPendingList(null);
-              setScreen('MangaList');
-            } else {
-              try {
-                await deleteList(pendingList.id);
+      <SafeAreaProvider>
+        <PasswordScreen
+          listName={pendingList.name}
+          onCancel={() => {
+            setScreen('ListsHome');
+            setPendingList(null);
+          }}
+          onConfirm={async (password) => {
+            if (password === pendingList.password_hash) {
+              if (passwordMode === 'access') {
+                setSelectedList(pendingList);
                 setPendingList(null);
-                setScreen('ListsHome');
-              } catch (error: any) {
-                Alert.alert('Erreur', error.message);
+                setScreen('MangaList');
+              } else {
+                try {
+                  await deleteList(pendingList.id);
+                  setPendingList(null);
+                  setScreen('ListsHome');
+                } catch (error: any) {
+                  Alert.alert('Erreur', error.message);
+                }
               }
+            } else {
+              Alert.alert('Erreur', 'Mot de passe incorrect');
             }
-          } else {
-            Alert.alert('Erreur', 'Mot de passe incorrect');
-          }
-        }}
-      />
+          }}
+        />
+      </SafeAreaProvider>
     );
   }
 
   return (
-    <ListsHomeScreen
-      onSelectList={(list) => {
-        if (list.password_hash) {
+    <SafeAreaProvider>
+      <ListsHomeScreen
+        onSelectList={(list) => {
+          if (list.password_hash) {
+            setPendingList(list);
+            setPasswordMode('access');
+            setScreen('Password');
+          } else {
+            setSelectedList(list);
+            setScreen('MangaList');
+          }
+        }}
+        onAddList={() => setScreen('AddList')}
+        onDeleteProtected={(list) => {
           setPendingList(list);
-          setPasswordMode('access');
+          setPasswordMode('delete');
           setScreen('Password');
-        } else {
-          setSelectedList(list);
-          setScreen('MangaList');
-        }
-      }}
-      onAddList={() => setScreen('AddList')}
-      onDeleteProtected={(list) => {
-        setPendingList(list);
-        setPasswordMode('delete');
-        setScreen('Password');
-      }}
-      onImportList={() => setScreen('ImportList')}
-    />
+        }}
+        onImportList={() => setScreen('ImportList')}
+      />
+    </SafeAreaProvider>
   );
-}
+};
