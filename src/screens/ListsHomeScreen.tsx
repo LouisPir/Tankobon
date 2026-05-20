@@ -12,7 +12,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useEffect, useState } from 'react';
 import { theme } from '../config/theme';
 import { getLists, deleteList, List } from '../services/lists';
-import { logout } from '../services/auth';
 
 const ListCard = ({
   list,
@@ -53,12 +52,12 @@ export const ListsHomeScreen = ({
   onSelectList,
   onAddList,
   onDeleteProtected,
-  onImportList,
+  onSettings,
 }: {
   onSelectList: (list: List) => void;
   onAddList: () => void;
   onDeleteProtected: (list: List) => void;
-  onImportList: () => void;
+  onSettings: () => void;
 }) => {
   const [lists, setLists] = useState<List[]>([]);
   const [filtered, setFiltered] = useState<List[]>([]);
@@ -122,14 +121,7 @@ export const ListsHomeScreen = ({
         ]
     );
     };
-  const handleLogout = async () => {
-    try {
-      await logout();
-    } catch (error: any) {
-      Alert.alert('Erreur', error.message);
-    }
-  };
-
+  
   if (loading) {
     return (
       <View style={styles.centered}>
@@ -142,14 +134,9 @@ export const ListsHomeScreen = ({
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.headerTitle}>🌸 Tankobon</Text>
-        <View style={{ flexDirection: 'row', gap: theme.spacing.md, alignItems: 'center' }}>
-          <TouchableOpacity onPress={onImportList}>
-            <Text style={{ fontSize: theme.fontSize.xl }}>📥</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-            <Text style={styles.logoutText}>Quitter</Text>
-          </TouchableOpacity>
-        </View>
+        <TouchableOpacity onPress={onSettings}>
+          <Text style={{ fontSize: theme.fontSize.xl }}>⚙️</Text>
+        </TouchableOpacity>
       </View>
       {/* Search */}
       <View style={styles.searchContainer}>
