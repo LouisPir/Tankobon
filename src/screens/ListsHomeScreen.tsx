@@ -1,13 +1,4 @@
-import {
-  View,
-  Text,
-  StyleSheet,
-  FlatList,
-  TouchableOpacity,
-  ActivityIndicator,
-  Alert,
-  TextInput,
-} from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator, Alert, TextInput } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useEffect, useState } from 'react';
 import { useTheme } from '../context/ThemeContext';
@@ -15,17 +6,9 @@ import { useLanguage } from '../context/LanguageContext';
 import { getLists, deleteList, List } from '../services/lists';
 import { Theme } from '../config/theme';
 
-const ListCard = ({
-  list,
-  onPress,
-  onDelete,
-}: {
-  list: List;
-  onPress: (list: List) => void;
-  onDelete: (id: string) => void;
-}) => {
+const ListCard = ({ list, onPress, onDelete }: { list: List; onPress: (list: List) => void; onDelete: (id: string) => void }) => {
   const { theme } = useTheme();
-  const { t } = useLanguage();
+  const { tr } = useLanguage();
   const styles = makeStyles(theme);
   return (
     <TouchableOpacity style={styles.card} onPress={() => onPress(list)}>
@@ -34,12 +17,8 @@ const ListCard = ({
           <Text style={styles.cardTitle}>{list.name}</Text>
           {list.password_hash && <Text style={styles.lockIcon}>🔒</Text>}
         </View>
-        {list.description && (
-          <Text style={styles.cardDescription} numberOfLines={2}>{list.description}</Text>
-        )}
-        <Text style={styles.cardDate}>
-          {t('list.created')} {new Date(list.created_at).toLocaleDateString('fr-FR')}
-        </Text>
+        {list.description && <Text style={styles.cardDescription} numberOfLines={2}>{list.description}</Text>}
+        <Text style={styles.cardDate}>{tr('list.created', 'Créée le')} {new Date(list.created_at).toLocaleDateString('fr-FR')}</Text>
       </View>
       <TouchableOpacity style={styles.deleteButton} onPress={() => onDelete(list.id)}>
         <Text style={styles.deleteText}>🗑️</Text>
@@ -48,123 +27,60 @@ const ListCard = ({
   );
 };
 
-export const ListsHomeScreen = ({
-  onSelectList,
-  onAddList,
-  onDeleteProtected,
-  onSettings,
-}: {
-  onSelectList: (list: List) => void;
-  onAddList: () => void;
-  onDeleteProtected: (list: List) => void;
-  onSettings: () => void;
-}) => {
+export const ListsHomeScreen = ({ onSelectList, onAddList, onDeleteProtected, onSettings }: { onSelectList: (list: List) => void; onAddList: () => void; onDeleteProtected: (list: List) => void; onSettings: () => void }) => {
   const [lists, setLists] = useState<List[]>([]);
   const [filtered, setFiltered] = useState<List[]>([]);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
   const { theme } = useTheme();
-  const { t } = useLanguage();
+  const { tr } = useLanguage();
   const styles = makeStyles(theme);
 
   const fetchLists = async () => {
-    try {
-      const data = await getLists();
-      setLists(data);
-      setFiltered(data);
-    } catch (error: any) {
-      Alert.alert(t('error'), error.message);
-    } finally {
-      setLoading(false);
-    }
+    try { const data = await getLists(); setLists(data); setFiltered(data); }
+    catch (error: any) { Alert.alert(tr('error', 'Erreur'), error.message); }
+    finally { setLoading(false); }
   };
 
   useEffect(() => { fetchLists(); }, []);
-
   useEffect(() => {
-    if (search.trim() === '') {
-      setFiltered(lists);
-    } else {
-      setFiltered(lists.filter((l) => l.name.toLowerCase().includes(search.toLowerCase())));
-    }
+    setFiltered(search.trim() === '' ? lists : lists.filter((l) => l.name.toLowerCase().includes(search.toLowerCase())));
   }, [search, lists]);
 
   const handleDelete = (id: string) => {
     const list = lists.find((l) => l.id === id);
     if (list?.password_hash) { onDeleteProtected(list); return; }
-    Alert.alert(t('delete'), t('lists.delete.confirm'), [
-      { text: t('cancel'), style: 'cancel' },
-      {
-        text: t('delete'),
-        style: 'destructive',
-        onPress: async () => {
-          try {
-            await deleteList(id);
-            setLists((prev) => prev.filter((l) => l.id !== id));
-          } catch (error: any) {
-            Alert.alert(t('error'), error.message);
-          }
-        },
-      },
+    Alert.alert(tr('delete', 'Supprimer'), tr('lists.delete.confirm', 'Es-tu sûr de vouloir supprimer cette liste et tous ses mangas ?'), [
+      { text: tr('cancel', 'Annuler'), style: 'cancel' },
+      { text: tr('delete', 'Supprimer'), style: 'destructive', onPress: async () => {
+        try { await deleteList(id); setLists((prev) => prev.filter((l) => l.id !== id)); }
+        catch (error: any) { Alert.alert(tr('error', 'Erreur'), error.message); }
+      }},
     ]);
   };
 
-  if (loading) {
-    return (
-      <View style={styles.centered}>
-        <ActivityIndicator size="large" color={theme.colors.primary} />
-      </View>
-    );
-  }
+  if (loading) return <View style={styles.centered}><ActivityIndicator size="large" color={theme.colors.primary} /></View>;
 
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>{t('lists.title')}</Text>
-        <TouchableOpacity onPress={onSettings}>
-          <Text style={{ fontSize: theme.fontSize.xl }}>⚙️</Text>
-        </TouchableOpacity>
+        <Text style={styles.headerTitle}>{tr('lists.title', '🌸 Tankobon')}</Text>
+        <TouchableOpacity onPress={onSettings}><Text style={{ fontSize: theme.fontSize.xl }}>⚙️</Text></TouchableOpacity>
       </View>
-
       <View style={styles.searchContainer}>
-        <TextInput
-          style={styles.searchInput}
-          placeholder={t('lists.search')}
-          value={search}
-          onChangeText={setSearch}
-          placeholderTextColor={theme.colors.textSecondary}
-        />
-        {search.length > 0 && (
-          <TouchableOpacity onPress={() => setSearch('')}>
-            <Text style={styles.clearSearch}>✕</Text>
-          </TouchableOpacity>
-        )}
+        <TextInput style={styles.searchInput} placeholder={tr('lists.search', '🔍 Rechercher une liste...')} value={search} onChangeText={setSearch} placeholderTextColor={theme.colors.textSecondary} />
+        {search.length > 0 && <TouchableOpacity onPress={() => setSearch('')}><Text style={styles.clearSearch}>✕</Text></TouchableOpacity>}
       </View>
-
       {filtered.length === 0 ? (
         <View style={styles.empty}>
           <Text style={styles.emptyEmoji}>🌸</Text>
-          <Text style={styles.emptyTitle}>
-            {search.length > 0 ? t('lists.no_results') : t('lists.empty')}
-          </Text>
-          <Text style={styles.emptySubtitle}>
-            {search.length > 0 ? `${t('lists.no_results_for')} "${search}"` : t('lists.empty.subtitle')}
-          </Text>
+          <Text style={styles.emptyTitle}>{search.length > 0 ? tr('lists.no_results', 'Aucun résultat') : tr('lists.empty', 'Aucune liste pour l\'instant')}</Text>
+          <Text style={styles.emptySubtitle}>{search.length > 0 ? `${tr('lists.no_results_for', 'Pas de liste pour')} "${search}"` : tr('lists.empty.subtitle', 'Crée ta première liste !')}</Text>
         </View>
       ) : (
-        <FlatList
-          data={filtered}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => (
-            <ListCard list={item} onPress={onSelectList} onDelete={handleDelete} />
-          )}
-          contentContainerStyle={styles.list}
-        />
+        <FlatList data={filtered} keyExtractor={(item) => item.id} renderItem={({ item }) => <ListCard list={item} onPress={onSelectList} onDelete={handleDelete} />} contentContainerStyle={styles.list} />
       )}
-
-      <TouchableOpacity style={styles.fab} onPress={onAddList}>
-        <Text style={styles.fabText}>+</Text>
-      </TouchableOpacity>
+      <TouchableOpacity style={styles.fab} onPress={onAddList}><Text style={styles.fabText}>+</Text></TouchableOpacity>
     </SafeAreaView>
   );
 };

@@ -1,6 +1,4 @@
-import {
-  View, Text, TouchableOpacity, StyleSheet, Alert, ScrollView,
-} from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Alert, ScrollView } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '../context/ThemeContext';
 import { useLanguage } from '../context/LanguageContext';
@@ -11,23 +9,24 @@ import { List } from '../services/lists';
 export const SettingsScreen = ({
   onBack, selectedList, onImportList, onExportList, onEditList,
   onChangeEmail, onChangePassword, onDeleteAccount, onExportAllLists,
-  onDeleteAllData, onAbout, onTheme, onLanguage,
+  onDeleteAllData, onAbout, onTheme, onLanguage, onReferral,
 }: {
   onBack: () => void; selectedList?: List; onImportList: () => void;
   onExportList: () => void; onEditList: () => void; onChangeEmail: () => void;
   onChangePassword: () => void; onDeleteAccount: () => void; onExportAllLists: () => void;
-  onDeleteAllData: () => void; onAbout: () => void; onTheme: () => void; onLanguage: () => void;
+  onDeleteAllData: () => void; onAbout: () => void; onTheme: () => void;
+  onLanguage: () => void; onReferral: () => void;
 }) => {
   const insets = useSafeAreaInsets();
   const { theme } = useTheme();
-  const { t } = useLanguage();
+  const { tr } = useLanguage();
   const styles = makeStyles(theme);
 
   const handleLogout = async () => {
-    Alert.alert(t('settings.logout.title'), t('settings.logout.confirm'), [
-      { text: t('cancel'), style: 'cancel' },
-      { text: t('settings.logout.title'), style: 'destructive', onPress: async () => {
-        try { await logout(); } catch (error: any) { Alert.alert(t('error'), error.message); }
+    Alert.alert(tr('settings.logout.title', 'Déconnexion'), tr('settings.logout.confirm', 'Es-tu sûr de vouloir te déconnecter ?'), [
+      { text: tr('cancel', 'Annuler'), style: 'cancel' },
+      { text: tr('settings.logout.title', 'Déconnexion'), style: 'destructive', onPress: async () => {
+        try { await logout(); } catch (error: any) { Alert.alert(tr('error', 'Erreur'), error.message); }
       }},
     ]);
   };
@@ -35,87 +34,92 @@ export const SettingsScreen = ({
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={onBack}><Text style={styles.backText}>{t('back')}</Text></TouchableOpacity>
-        <Text style={styles.headerTitle}>{t('settings')}</Text>
+        <TouchableOpacity onPress={onBack}><Text style={styles.backText}>{tr('back', '← Retour')}</Text></TouchableOpacity>
+        <Text style={styles.headerTitle}>{tr('settings', 'Paramètres')}</Text>
         <View style={{ width: 60 }} />
       </View>
       <ScrollView contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + theme.spacing.lg }]}>
-        <Text style={styles.sectionTitle}>{selectedList ? selectedList.name : t('settings.lists')}</Text>
+        <Text style={styles.sectionTitle}>{selectedList ? selectedList.name : tr('settings.lists', 'Listes')}</Text>
         <View style={styles.section}>
           <TouchableOpacity style={styles.row} onPress={onImportList}>
-            <Text style={styles.rowText}>📥 {selectedList ? t('settings.import.this') : t('settings.import')}</Text>
+            <Text style={styles.rowText}>📥 {selectedList ? tr('settings.import.this', 'Importer dans cette liste') : tr('settings.import', 'Importer une liste')}</Text>
             <Text style={styles.rowArrow}>›</Text>
           </TouchableOpacity>
           <View style={styles.separator} />
           <TouchableOpacity style={styles.row} onPress={onExportList}>
-            <Text style={styles.rowText}>📤 {selectedList ? t('settings.export.this') : t('settings.export')}</Text>
+            <Text style={styles.rowText}>📤 {selectedList ? tr('settings.export.this', 'Exporter cette liste') : tr('settings.export', 'Exporter une liste')}</Text>
             <Text style={styles.rowArrow}>›</Text>
           </TouchableOpacity>
           <View style={styles.separator} />
           <TouchableOpacity style={styles.row} onPress={onEditList}>
-            <Text style={styles.rowText}>✏️ {selectedList ? t('settings.edit.this') : t('settings.edit')}</Text>
+            <Text style={styles.rowText}>✏️ {selectedList ? tr('settings.edit.this', 'Modifier cette liste') : tr('settings.edit', 'Modifier une liste')}</Text>
             <Text style={styles.rowArrow}>›</Text>
           </TouchableOpacity>
         </View>
 
-        <Text style={styles.sectionTitle}>{t('settings.account')}</Text>
+        <Text style={styles.sectionTitle}>{tr('settings.account', 'Compte')}</Text>
         <View style={styles.section}>
           <TouchableOpacity style={styles.row} onPress={onChangeEmail}>
-            <Text style={styles.rowText}>{t('settings.email')}</Text>
+            <Text style={styles.rowText}>{tr('settings.email', '✉️ Changer l\'email')}</Text>
             <Text style={styles.rowArrow}>›</Text>
           </TouchableOpacity>
           <View style={styles.separator} />
           <TouchableOpacity style={styles.row} onPress={onChangePassword}>
-            <Text style={styles.rowText}>{t('settings.password')}</Text>
+            <Text style={styles.rowText}>{tr('settings.password', '🔑 Changer le mot de passe')}</Text>
+            <Text style={styles.rowArrow}>›</Text>
+          </TouchableOpacity>
+          <View style={styles.separator} />
+          <TouchableOpacity style={styles.row} onPress={onReferral}>
+            <Text style={styles.rowText}>{tr('settings.referral', '🎟️ Mon code de parrainage')}</Text>
             <Text style={styles.rowArrow}>›</Text>
           </TouchableOpacity>
           <View style={styles.separator} />
           <TouchableOpacity style={styles.row} onPress={onDeleteAccount}>
-            <Text style={[styles.rowText, { color: '#E53935' }]}>{t('settings.delete.account')}</Text>
+            <Text style={[styles.rowText, { color: '#E53935' }]}>{tr('settings.delete.account', '🗑️ Supprimer mon compte')}</Text>
             <Text style={styles.rowArrow}>›</Text>
           </TouchableOpacity>
         </View>
 
-        <Text style={styles.sectionTitle}>{t('settings.data')}</Text>
+        <Text style={styles.sectionTitle}>{tr('settings.data', 'Données')}</Text>
         <View style={styles.section}>
           {!selectedList && (
             <>
               <TouchableOpacity style={styles.row} onPress={onExportAllLists}>
-                <Text style={styles.rowText}>{t('settings.export.all')}</Text>
+                <Text style={styles.rowText}>{tr('settings.export.all', '📤 Exporter toutes les listes')}</Text>
                 <Text style={styles.rowArrow}>›</Text>
               </TouchableOpacity>
               <View style={styles.separator} />
             </>
           )}
           <TouchableOpacity style={styles.row} onPress={onDeleteAllData}>
-            <Text style={[styles.rowText, { color: '#E53935' }]}>{t('settings.delete.data')}</Text>
+            <Text style={[styles.rowText, { color: '#E53935' }]}>{tr('settings.delete.data', '🗑️ Supprimer toutes mes données')}</Text>
             <Text style={styles.rowArrow}>›</Text>
           </TouchableOpacity>
         </View>
 
-        <Text style={styles.sectionTitle}>{t('settings.preferences')}</Text>
+        <Text style={styles.sectionTitle}>{tr('settings.preferences', 'Préférences')}</Text>
         <View style={styles.section}>
           <TouchableOpacity style={styles.row} onPress={onTheme}>
-            <Text style={styles.rowText}>{t('settings.theme')}</Text>
+            <Text style={styles.rowText}>{tr('settings.theme', '🎨 Thème')}</Text>
             <Text style={styles.rowArrow}>›</Text>
           </TouchableOpacity>
           <View style={styles.separator} />
           <TouchableOpacity style={styles.row} onPress={onLanguage}>
-            <Text style={styles.rowText}>{t('settings.language')}</Text>
+            <Text style={styles.rowText}>{tr('settings.language', '🌍 Langue')}</Text>
             <Text style={styles.rowArrow}>›</Text>
           </TouchableOpacity>
         </View>
 
-        <Text style={styles.sectionTitle}>{t('settings.info')}</Text>
+        <Text style={styles.sectionTitle}>{tr('settings.info', 'Informations')}</Text>
         <View style={styles.section}>
           <TouchableOpacity style={styles.row} onPress={onAbout}>
-            <Text style={styles.rowText}>{t('settings.about')}</Text>
+            <Text style={styles.rowText}>{tr('settings.about', 'ℹ️ À propos')}</Text>
             <Text style={styles.rowArrow}>›</Text>
           </TouchableOpacity>
         </View>
 
         <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-          <Text style={styles.logoutText}>{t('settings.logout')}</Text>
+          <Text style={styles.logoutText}>{tr('settings.logout', 'Se déconnecter')}</Text>
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
