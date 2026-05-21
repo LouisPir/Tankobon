@@ -1,33 +1,29 @@
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-} from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from '../context/ThemeContext';
+import { useLanguage } from '../context/LanguageContext';
 import { ThemeName, themes } from '../config/theme';
 
-const THEME_OPTIONS: { name: ThemeName; label: string; emoji: string }[] = [
-  { name: 'sakura', label: 'Sakura', emoji: '🌸' },
-  { name: 'ninja', label: 'Ninja de l\'eau', emoji: '💧' },
-  { name: 'spicy', label: 'Spicy', emoji: '🌶️' },
-  { name: 'night', label: 'Nuit étoilée', emoji: '✨' },
+const THEME_OPTIONS: { name: ThemeName; labelKey: string; labelFr: string; emoji: string }[] = [
+  { name: 'sakura', labelKey: 'theme.sakura', labelFr: 'Sakura', emoji: '🌸' },
+  { name: 'ninja', labelKey: 'theme.ninja', labelFr: 'Ninja de l\'eau', emoji: '💧' },
+  { name: 'spicy', labelKey: 'theme.spicy', labelFr: 'Spicy', emoji: '🌶️' },
+  { name: 'night', labelKey: 'theme.night', labelFr: 'Nuit étoilée', emoji: '✨' },
 ];
 
 export const ThemeScreen = ({ onBack }: { onBack: () => void }) => {
   const { themeName, setTheme, theme } = useTheme();
+  const { tr } = useLanguage();
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <View style={[styles.header, { backgroundColor: theme.colors.surface, borderBottomColor: theme.colors.border }]}>
         <TouchableOpacity onPress={onBack}>
-          <Text style={[styles.backText, { color: theme.colors.primary }]}>← Retour</Text>
+          <Text style={[styles.backText, { color: theme.colors.primary }]}>{tr('back', '← Retour')}</Text>
         </TouchableOpacity>
-        <Text style={[styles.headerTitle, { color: theme.colors.text }]}>Thème</Text>
+        <Text style={[styles.headerTitle, { color: theme.colors.text }]}>{tr('theme.title', 'Thème')}</Text>
         <View style={{ width: 60 }} />
       </View>
-
       <View style={styles.content}>
         {THEME_OPTIONS.map((option) => {
           const isSelected = themeName === option.name;
@@ -35,14 +31,7 @@ export const ThemeScreen = ({ onBack }: { onBack: () => void }) => {
           return (
             <TouchableOpacity
               key={option.name}
-              style={[
-                styles.themeCard,
-                {
-                  backgroundColor: previewTheme.colors.surface,
-                  borderColor: isSelected ? theme.colors.primary : theme.colors.border,
-                  borderWidth: isSelected ? 2 : 1,
-                },
-              ]}
+              style={[styles.themeCard, { backgroundColor: previewTheme.colors.surface, borderColor: isSelected ? theme.colors.primary : theme.colors.border, borderWidth: isSelected ? 2 : 1 }]}
               onPress={() => setTheme(option.name)}
             >
               <View style={[styles.preview, { backgroundColor: previewTheme.colors.background }]}>
@@ -54,10 +43,8 @@ export const ThemeScreen = ({ onBack }: { onBack: () => void }) => {
               </View>
               <View style={styles.themeInfo}>
                 <Text style={styles.themeEmoji}>{option.emoji}</Text>
-                <Text style={[styles.themeLabel, { color: previewTheme.colors.text }]}>{option.label}</Text>
-                {isSelected && (
-                  <Text style={[styles.selectedBadge, { color: theme.colors.primary }]}>✓ Actif</Text>
-                )}
+                <Text style={[styles.themeLabel, { color: previewTheme.colors.text }]}>{tr(option.labelKey, option.labelFr)}</Text>
+                {isSelected && <Text style={[styles.selectedBadge, { color: theme.colors.primary }]}>{tr('theme.active', '✓ Actif')}</Text>}
               </View>
             </TouchableOpacity>
           );
@@ -69,42 +56,16 @@ export const ThemeScreen = ({ onBack }: { onBack: () => void }) => {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 24,
-    borderBottomWidth: 1,
-  },
+  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 24, borderBottomWidth: 1 },
   backText: { fontSize: 16, fontWeight: '600', width: 60 },
   headerTitle: { fontSize: 16, fontWeight: 'bold' },
   content: { flex: 1, padding: 24, gap: 16 },
-  themeCard: {
-    borderRadius: 12,
-    overflow: 'hidden',
-  },
-  preview: {
-    height: 80,
-    overflow: 'hidden',
-  },
+  themeCard: { borderRadius: 12, overflow: 'hidden' },
+  preview: { height: 80, overflow: 'hidden' },
   previewBar: { height: 20, width: '100%' },
-  previewContent: {
-    flexDirection: 'row',
-    gap: 8,
-    padding: 8,
-  },
-  previewCard: {
-    flex: 1,
-    height: 40,
-    borderRadius: 8,
-    borderWidth: 1,
-  },
-  themeInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 12,
-    gap: 8,
-  },
+  previewContent: { flexDirection: 'row', gap: 8, padding: 8 },
+  previewCard: { flex: 1, height: 40, borderRadius: 8, borderWidth: 1 },
+  themeInfo: { flexDirection: 'row', alignItems: 'center', padding: 12, gap: 8 },
   themeEmoji: { fontSize: 24 },
   themeLabel: { flex: 1, fontSize: 16, fontWeight: '600' },
   selectedBadge: { fontSize: 14, fontWeight: 'bold' },
