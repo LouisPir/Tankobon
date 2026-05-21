@@ -158,7 +158,7 @@ export default {
   'theme.sakura': 'Sakura',
   'theme.ninja': 'Water Ninja',
   'theme.spicy': 'Spicy',
-
+  'theme.night': 'Starry Night',
   // Language
   'language.title': 'Language',
   'language.fr': '🇫🇷 French',

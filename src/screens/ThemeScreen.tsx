@@ -12,6 +12,7 @@ const THEME_OPTIONS: { name: ThemeName; label: string; emoji: string }[] = [
   { name: 'sakura', label: 'Sakura', emoji: '🌸' },
   { name: 'ninja', label: 'Ninja de l\'eau', emoji: '💧' },
   { name: 'spicy', label: 'Spicy', emoji: '🌶️' },
+  { name: 'night', label: 'Nuit étoilée', emoji: '✨' },
 ];
 
 export const ThemeScreen = ({ onBack }: { onBack: () => void }) => {
