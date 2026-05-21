@@ -202,17 +202,22 @@ export const Navigation = () => {
                 const { data: { user } } = await supabase.auth.getUser();
                 if (!user) throw new Error('Utilisateur non connecté');
 
-                const { error } = await supabase.auth.signInWithPassword({
+                const { error: signInError } = await supabase.auth.signInWithPassword({
                   email: user.email!,
                   password,
                 });
-                if (error) {
+                if (signInError) {
                   Alert.alert('Erreur', 'Mot de passe incorrect');
                   return;
                 }
+                const { data: { session } } = await supabase.auth.getSession();
+                const { error: fnError } = await supabase.functions.invoke('delete-account', {
+                  headers: {
+                    Authorization: `Bearer ${session?.access_token}`,
+                  },
+                });
+                if (fnError) throw fnError;
 
-                await supabase.from('mangas').delete().eq('user_id', user.id);
-                await supabase.from('lists').delete().eq('user_id', user.id);
                 await logout();
               } catch (error: any) {
                 Alert.alert('Erreur', error.message);
@@ -220,6 +225,7 @@ export const Navigation = () => {
             } else {
               try {
                 const { data: { user } } = await supabase.auth.getUser();
+
                 if (!user) throw new Error('Utilisateur non connecté');
 
                 const { error } = await supabase.auth.signInWithPassword({
