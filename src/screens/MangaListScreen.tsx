@@ -56,14 +56,24 @@ export const MangaListScreen = ({ onSelectManga, onAddManga, onBack, onSettings,
   useEffect(() => {
     setFiltered(search.trim() === '' ? mangas : mangas.filter((m) => m.title.toLowerCase().includes(search.toLowerCase())));
   }, [search, mangas]);
-
+  
   const handleDelete = (id: string) => {
-    Alert.alert(tr('delete', 'Supprimer'), tr('manga.delete.confirm', 'Es-tu sûr de vouloir supprimer ce manga ?'), [
+    Alert.alert(tr('delete', 'Supprimer'), tr('manga.delete.confirm', 'Es-tu sûr ?'), [
       { text: tr('cancel', 'Annuler'), style: 'cancel' },
-      { text: tr('delete', 'Supprimer'), style: 'destructive', onPress: async () => {
-        try { await deleteManga(id); setMangas((prev) => prev.filter((m) => m.id !== id)); }
-        catch (error: any) { Alert.alert(tr('error', 'Erreur'), error.message); }
-      }},
+      {
+        text: tr('delete', 'Supprimer'),
+        style: 'destructive',
+        onPress: async () => {
+          try {
+            await deleteManga(id);
+            console.log('Supprimé avec succès:', id); // ← ajoute ça
+            setMangas((prev) => prev.filter((m) => m.id !== id));
+          } catch (error: any) {
+            console.log('Erreur suppression:', error); // ← et ça
+            Alert.alert(tr('error', 'Erreur'), error.message);
+          }
+        },
+      },
     ]);
   };
 
