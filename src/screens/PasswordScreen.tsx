@@ -14,10 +14,16 @@ export const PasswordScreen = ({
   listName,
   onConfirm,
   onCancel,
+  subtitle,
+  confirmText,
+  title,
 }: {
   listName: string;
   onConfirm: (password: string) => void;
   onCancel: () => void;
+  subtitle?: string;
+  confirmText?: string;
+  title?: string;
 }) => {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -33,10 +39,10 @@ export const PasswordScreen = ({
     <SafeAreaView style={styles.container}>
       <View style={styles.card}>
         <Text style={styles.emoji}>🔒</Text>
-        <Text style={styles.title}>Liste protégée</Text>
+        <Text style={styles.title}>{title ?? 'Liste protégée'}</Text>
         <Text style={styles.subtitle}>
-          Entrez le mot de passe pour accéder à{' '}
-          <Text style={styles.listName}>{listName}</Text>
+          {subtitle ?? `Entrez le mot de passe pour accéder à `}
+          {!subtitle && <Text style={styles.listName}>{listName}</Text>}
         </Text>
 
         <TextInput
@@ -56,7 +62,7 @@ export const PasswordScreen = ({
           {loading ? (
             <ActivityIndicator color="#fff" />
           ) : (
-            <Text style={styles.confirmText}>Accéder</Text>
+            <Text style={styles.confirmText}>{confirmText ?? 'Accéder'}</Text>
           )}
         </TouchableOpacity>
 

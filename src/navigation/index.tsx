@@ -12,7 +12,7 @@ import { AddMangaScreen } from '../screens/AddMangaScreen';
 import { EditMangaScreen } from '../screens/EditMangaScreen';
 import { MangaDetailScreen } from '../screens/MangaDetailScreen';
 import { Manga } from '../services/manga';
-import { deleteList, List, ImportResult } from '../services/lists';
+import { deleteList, List, ImportResult, exportAllListsToJSON, deleteAllUserData } from '../services/lists';
 import { PasswordScreen } from '../screens/PasswordScreen';
 import { ImportListScreen } from '../screens/ImportListScreen';
 import { ImportResultScreen } from '../screens/ImportResultScreen';
@@ -22,7 +22,8 @@ import { ExportListScreen } from '../screens/ExportListScreen';
 import { SelectListScreen } from '../screens/SelectListScreen';
 import { ChangeEmailScreen } from '../screens/ChangeEmailScreen';
 import { ChangePasswordScreen } from '../screens/ChangePasswordScreen';
-import { DeleteAccountScreen } from '../screens/DeleteAccountScreen';
+import { supabase } from '../services/supabase';
+import { logout } from '../services/auth';
 
 type Screen =
   | 'Auth'
@@ -42,7 +43,9 @@ type Screen =
   | 'ChangeEmail'
   | 'ChangePassword'
   | 'DeleteAccount'
+  | 'PasswordAccount'
   | 'SelectList';
+  
 
 export const Navigation = () => {
   const { user, loading } = useAuth();
@@ -55,6 +58,7 @@ export const Navigation = () => {
   const [importMode, setImportMode] = useState<'new' | 'merge'>('new');
   const [importTargetName, setImportTargetName] = useState('');
   const [settingsFrom, setSettingsFrom] = useState<'ListsHome' | 'MangaList'>('ListsHome');
+  const [accountPasswordMode, setAccountPasswordMode] = useState<'deleteAccount' | 'deleteData'>('deleteAccount');
 
   if (loading) {
     return (
@@ -90,13 +94,27 @@ export const Navigation = () => {
           onExportList={() => setScreen('ExportList')}
           onChangeEmail={() => setScreen('ChangeEmail')}
           onChangePassword={() => setScreen('ChangePassword')}
-          onDeleteAccount={() => setScreen('DeleteAccount')}
           onEditList={() => {
             if (selectedList) {
               setScreen('EditList');
             } else {
               setScreen('SelectList');
             }
+          }}
+          onExportAllLists={async () => {
+            try {
+              await exportAllListsToJSON();
+            } catch (error: any) {
+              Alert.alert('Erreur', error.message);
+            }
+          }}
+          onDeleteAccount={() => {
+            setAccountPasswordMode('deleteAccount');
+            setScreen('PasswordAccount');
+          }}
+          onDeleteAllData={() => {
+            setAccountPasswordMode('deleteData');
+            setScreen('PasswordAccount');
           }}
         />
       </SafeAreaProvider>
@@ -124,10 +142,63 @@ export const Navigation = () => {
     );
   }
 
-  if (screen === 'DeleteAccount') {
+  if (screen === 'PasswordAccount') {
     return (
       <SafeAreaProvider>
-        <DeleteAccountScreen onBack={() => setScreen('Settings')} />
+        <PasswordScreen
+          listName={accountPasswordMode === 'deleteAccount' ? 'ton compte' : 'toutes tes données'}
+          subtitle={
+            accountPasswordMode === 'deleteAccount'
+              ? 'Confirme ton mot de passe pour supprimer définitivement ton compte.'
+              : 'Confirme ton mot de passe pour supprimer toutes tes données.'
+          }
+          title={accountPasswordMode === 'deleteAccount' ? 'Supprimer le compte' : 'Supprimer les données'}
+          confirmText="Confirmer"
+          onCancel={() => setScreen('Settings')}
+          onConfirm={async (password) => {
+            if (accountPasswordMode === 'deleteAccount') {
+              try {
+                const { data: { user } } = await supabase.auth.getUser();
+                if (!user) throw new Error('Utilisateur non connecté');
+
+                const { error } = await supabase.auth.signInWithPassword({
+                  email: user.email!,
+                  password,
+                });
+                if (error) {
+                  Alert.alert('Erreur', 'Mot de passe incorrect');
+                  return;
+                }
+
+                await supabase.from('mangas').delete().eq('user_id', user.id);
+                await supabase.from('lists').delete().eq('user_id', user.id);
+                await logout();
+              } catch (error: any) {
+                Alert.alert('Erreur', error.message);
+              }
+            } else {
+              try {
+                const { data: { user } } = await supabase.auth.getUser();
+                if (!user) throw new Error('Utilisateur non connecté');
+
+                const { error } = await supabase.auth.signInWithPassword({
+                  email: user.email!,
+                  password,
+                });
+                if (error) {
+                  Alert.alert('Erreur', 'Mot de passe incorrect');
+                  return;
+                }
+
+                await deleteAllUserData();
+                Alert.alert('Succès', 'Toutes tes données ont été supprimées.');
+                setScreen('Settings');
+              } catch (error: any) {
+                Alert.alert('Erreur', error.message);
+              }
+            }
+          }}
+        />
       </SafeAreaProvider>
     );
   }
