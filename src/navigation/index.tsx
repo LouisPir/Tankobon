@@ -27,6 +27,7 @@ import { logout } from '../services/auth';
 import { AboutScreen } from '../screens/AboutScreen';
 import { ThemeScreen } from '../screens/ThemeScreen';
 import { LanguageScreen } from '../screens/LanguageScreen';
+import { ReferralScreen } from '../screens/ReferralScreen';
 
 type Screen =
   | 'Auth'
@@ -35,6 +36,7 @@ type Screen =
   | 'AddList'
   | 'EditList'
   | 'ImportList'
+  | 'Referral'
   | 'ImportResult'
   | 'Password'
   | 'MangaList'
@@ -104,6 +106,7 @@ export const Navigation = () => {
           onTheme={() => setScreen('Theme')}
           onAbout={() => setScreen('About')}
           onLanguage={() => setScreen('Language')}
+          onReferral={() => setScreen('Referral')}
           onEditList={() => {
             if (selectedList) {
               setScreen('EditList');
@@ -138,12 +141,19 @@ export const Navigation = () => {
     );
   }
   if (screen === 'Language') {
-  return (
-    <SafeAreaProvider>
-      <LanguageScreen onBack={() => setScreen('Settings')} />
-    </SafeAreaProvider>
-  );
-}
+    return (
+      <SafeAreaProvider>
+        <LanguageScreen onBack={() => setScreen('Settings')} />
+      </SafeAreaProvider>
+    );
+  }
+  if (screen === 'Referral') {
+    return (
+      <SafeAreaProvider>
+        <ReferralScreen onBack={() => setScreen('Settings')} />
+      </SafeAreaProvider>
+    );
+  }
   if (screen === 'ChangeEmail') {
     return (
       <SafeAreaProvider>

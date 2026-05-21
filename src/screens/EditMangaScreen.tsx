@@ -1,7 +1,4 @@
-import {
-  View, Text, TextInput, TouchableOpacity, StyleSheet,
-  ScrollView, ActivityIndicator, Alert, KeyboardAvoidingView, Platform,
-} from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, ActivityIndicator, Alert, KeyboardAvoidingView, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useState } from 'react';
 import { useTheme } from '../context/ThemeContext';
@@ -11,7 +8,7 @@ import { Theme } from '../config/theme';
 
 export const EditMangaScreen = ({ manga, onBack, onSuccess }: { manga: Manga; onBack: () => void; onSuccess: () => void }) => {
   const { theme } = useTheme();
-  const { t } = useLanguage();
+  const { tr } = useLanguage();
   const styles = makeStyles(theme);
   const [title, setTitle] = useState(manga.title);
   const [status, setStatus] = useState<MangaStatus>(manga.status);
@@ -21,39 +18,37 @@ export const EditMangaScreen = ({ manga, onBack, onSuccess }: { manga: Manga; on
   const [loading, setLoading] = useState(false);
 
   const STATUS_OPTIONS: { label: string; value: MangaStatus }[] = [
-    { label: t('status.ongoing'), value: 'ongoing' },
-    { label: t('status.completed'), value: 'completed' },
-    { label: t('status.dropped'), value: 'dropped' },
+    { label: tr('status.ongoing', 'EN COURS'), value: 'ongoing' },
+    { label: tr('status.completed', 'TERMINÉ'), value: 'completed' },
+    { label: tr('status.dropped', 'ABANDONNÉ'), value: 'dropped' },
   ];
 
   const handleSubmit = async () => {
-    if (!title.trim()) { Alert.alert(t('error'), t('manga.title_required')); return; }
+    if (!title.trim()) { Alert.alert(tr('error', 'Erreur'), tr('manga.title_required', 'Le titre est obligatoire')); return; }
     try {
       setLoading(true);
       await updateManga(manga.id, { title: title.trim(), status, current_chapter: parseInt(currentChapter) || 0, rating, review: review.trim() || null });
       onSuccess();
     } catch (error: any) {
-      Alert.alert(t('error'), error.message);
-    } finally {
-      setLoading(false);
-    }
+      Alert.alert(tr('error', 'Erreur'), error.message);
+    } finally { setLoading(false); }
   };
 
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={onBack}><Text style={styles.backText}>{t('back')}</Text></TouchableOpacity>
-        <Text style={styles.headerTitle}>{t('manga.edit.title')}</Text>
+        <TouchableOpacity onPress={onBack}><Text style={styles.backText}>{tr('back', '← Retour')}</Text></TouchableOpacity>
+        <Text style={styles.headerTitle}>{tr('manga.edit.title', 'Modifier')}</Text>
         <View style={{ width: 60 }} />
       </View>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
         <ScrollView contentContainerStyle={styles.form} keyboardShouldPersistTaps="handled">
           <View style={styles.field}>
-            <Text style={styles.label}>{t('manga.title')}</Text>
+            <Text style={styles.label}>{tr('manga.title', 'Titre *')}</Text>
             <TextInput style={styles.input} placeholder="Ex: Naruto, One Piece..." value={title} onChangeText={setTitle} placeholderTextColor={theme.colors.textSecondary} />
           </View>
           <View style={styles.field}>
-            <Text style={styles.label}>{t('manga.status')}</Text>
+            <Text style={styles.label}>{tr('manga.status', 'Statut')}</Text>
             <View style={styles.statusOptions}>
               {STATUS_OPTIONS.map((option) => (
                 <TouchableOpacity key={option.value} style={[styles.statusOption, status === option.value && styles.statusOptionActive]} onPress={() => setStatus(option.value)}>
@@ -63,11 +58,11 @@ export const EditMangaScreen = ({ manga, onBack, onSuccess }: { manga: Manga; on
             </View>
           </View>
           <View style={styles.field}>
-            <Text style={styles.label}>{t('manga.chapter')}</Text>
+            <Text style={styles.label}>{tr('manga.chapter', 'Dernier chapitre lu')}</Text>
             <TextInput style={styles.input} placeholder="0" value={currentChapter} onChangeText={setCurrentChapter} keyboardType="numeric" placeholderTextColor={theme.colors.textSecondary} />
           </View>
           <View style={styles.field}>
-            <Text style={styles.label}>{t('manga.rating')}</Text>
+            <Text style={styles.label}>{tr('manga.rating', 'Note')}</Text>
             <View style={styles.starsContainer}>
               {[1, 2, 3, 4, 5].map((star) => (
                 <TouchableOpacity key={star} onPress={() => setRating(rating === star ? null : star)}>
@@ -77,11 +72,11 @@ export const EditMangaScreen = ({ manga, onBack, onSuccess }: { manga: Manga; on
             </View>
           </View>
           <View style={styles.field}>
-            <Text style={styles.label}>{t('manga.review')}</Text>
-            <TextInput style={[styles.input, styles.textArea]} placeholder={t('manga.review.placeholder')} value={review} onChangeText={setReview} multiline numberOfLines={4} placeholderTextColor={theme.colors.textSecondary} />
+            <Text style={styles.label}>{tr('manga.review', 'Mon avis')}</Text>
+            <TextInput style={[styles.input, styles.textArea]} placeholder={tr('manga.review.placeholder', 'Qu\'as-tu pensé de ce manga ?')} value={review} onChangeText={setReview} multiline numberOfLines={4} placeholderTextColor={theme.colors.textSecondary} />
           </View>
           <TouchableOpacity style={styles.submitButton} onPress={handleSubmit} disabled={loading}>
-            {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.submitText}>{t('save')}</Text>}
+            {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.submitText}>{tr('save', 'Sauvegarder 🌸')}</Text>}
           </TouchableOpacity>
         </ScrollView>
       </KeyboardAvoidingView>

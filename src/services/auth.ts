@@ -48,3 +48,37 @@ export const deleteAccount = async () => {
   const { error } = await supabase.rpc('delete_user');
   if (error) throw error;
 };
+
+export const getReferralCode = async (): Promise<string | null> => {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return null;
+
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('referral_code')
+    .eq('id', user.id)
+    .single();
+
+  if (error) throw error;
+  return data?.referral_code ?? null;
+};
+
+export const validateReferralCode = async (code: string): Promise<boolean> => {
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('id')
+    .eq('referral_code', code.toUpperCase())
+    .single();
+
+  if (error) return false;
+  return !!data;
+};
+
+export const getUserCount = async (): Promise<number> => {
+  const { count, error } = await supabase
+    .from('profiles')
+    .select('*', { count: 'exact', head: true });
+
+  if (error) throw error;
+  return count ?? 0;
+};

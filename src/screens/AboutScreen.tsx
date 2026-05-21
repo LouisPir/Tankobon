@@ -1,10 +1,4 @@
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-  Linking,
-} from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Linking } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Constants from 'expo-constants';
 import { useTheme } from '../context/ThemeContext';
@@ -13,56 +7,43 @@ import { Theme } from '../config/theme';
 
 const version = Constants.expoConfig?.version ?? '0.0.0';
 
-export const AboutScreen = ({
-  onBack,
-}: {
-  onBack: () => void;
-}) => {
+export const AboutScreen = ({ onBack }: { onBack: () => void }) => {
   const { theme } = useTheme();
-  const { t } = useLanguage();
+  const { tr } = useLanguage();
   const styles = makeStyles(theme);
 
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={onBack}>
-          <Text style={styles.backText}>{t('back')}</Text>
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>{t('about.title')}</Text>
+        <TouchableOpacity onPress={onBack}><Text style={styles.backText}>{tr('back', '← Retour')}</Text></TouchableOpacity>
+        <Text style={styles.headerTitle}>{tr('about.title', 'À propos')}</Text>
         <View style={{ width: 60 }} />
       </View>
-
       <View style={styles.content}>
         <View style={styles.appInfo}>
           <Text style={styles.emoji}>🌸</Text>
           <Text style={styles.appName}>Tankobon</Text>
           <Text style={styles.appVersion}>Version {version}</Text>
-          <Text style={styles.appDescription}>{t('about.description')}</Text>
+          <Text style={styles.appDescription}>{tr('about.description', 'Suis ta progression de lecture de mangas, anime, films et bien plus encore.')}</Text>
         </View>
-
         <View style={styles.section}>
-          <TouchableOpacity
-            style={styles.row}
-            onPress={() => Linking.openURL('https://github.com/LouisPir/manga-tracker')}
-          >
-            <Text style={styles.rowText}>{t('about.source')}</Text>
+          <TouchableOpacity style={styles.row} onPress={() => Linking.openURL('https://github.com/LouisPir/manga-tracker')}>
+            <Text style={styles.rowText}>{tr('about.source', '📦 Code source')}</Text>
             <Text style={styles.rowArrow}>›</Text>
           </TouchableOpacity>
         </View>
-
         <View style={styles.section}>
           <View style={styles.row}>
-            <Text style={styles.rowText}>{t('about.dev')}</Text>
+            <Text style={styles.rowText}>{tr('about.dev', '👨‍💻 Développé par')}</Text>
             <Text style={styles.rowValue}>Louis Pirot</Text>
           </View>
           <View style={styles.separator} />
           <View style={styles.row}>
-            <Text style={styles.rowText}>{t('about.stack')}</Text>
+            <Text style={styles.rowText}>{tr('about.stack', '🛠️ Stack')}</Text>
             <Text style={styles.rowValue}>Expo + Supabase</Text>
           </View>
         </View>
-
-        <Text style={styles.footer}>{t('about.footer')}</Text>
+        <Text style={styles.footer}>{tr('about.footer', 'Fait avec 🌸 et beaucoup de manga')}</Text>
       </View>
     </SafeAreaView>
   );
@@ -70,15 +51,7 @@ export const AboutScreen = ({
 
 const makeStyles = (theme: Theme) => StyleSheet.create({
   container: { flex: 1, backgroundColor: theme.colors.background },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: theme.spacing.lg,
-    backgroundColor: theme.colors.surface,
-    borderBottomWidth: 1,
-    borderBottomColor: theme.colors.border,
-  },
+  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: theme.spacing.lg, backgroundColor: theme.colors.surface, borderBottomWidth: 1, borderBottomColor: theme.colors.border },
   backText: { color: theme.colors.primary, fontSize: theme.fontSize.lg, fontWeight: '600', width: 60 },
   headerTitle: { fontSize: theme.fontSize.lg, fontWeight: 'bold', color: theme.colors.text },
   content: { flex: 1, padding: theme.spacing.lg, gap: theme.spacing.lg },
