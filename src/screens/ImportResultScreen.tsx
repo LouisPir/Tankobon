@@ -6,8 +6,9 @@ import {
   ScrollView,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { theme } from '../config/theme';
+import { useTheme } from '../context/ThemeContext';
 import { ImportResult } from '../services/lists';
+import { Theme } from '../config/theme';
 
 type ImportMode = 'new' | 'merge';
 
@@ -23,7 +24,8 @@ export const ImportResultScreen = ({
   onDone: () => void;
 }) => {
   const ignoredCount = result.duplicates.length - result.overwritten.length;
-
+  const { theme } = useTheme();
+  const styles = makeStyles(theme);
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.content}>
@@ -108,7 +110,7 @@ export const ImportResultScreen = ({
   );
 };
 
-const styles = StyleSheet.create({
+const makeStyles = (theme: Theme) => StyleSheet.create({
   container: { flex: 1, backgroundColor: theme.colors.background },
   content: {
     padding: theme.spacing.lg,

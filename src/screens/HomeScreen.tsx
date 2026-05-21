@@ -10,12 +10,14 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useState } from 'react';
 import { logout } from '../services/auth';
 import { useAuth } from '../hooks/useAuth';
-import { theme } from '../config/theme';
+import { useTheme } from '../context/ThemeContext';
+import { Theme } from '../config/theme';
 
 export const HomeScreen = ({ onGoToList }: { onGoToList: () => void }) => {
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
-
+  const { theme } = useTheme();
+  const styles = makeStyles(theme);
   const handleLogout = async () => {
     try {
       setLoading(true);
@@ -81,7 +83,7 @@ export const HomeScreen = ({ onGoToList }: { onGoToList: () => void }) => {
   );
 };
 
-const styles = StyleSheet.create({
+const makeStyles = (theme: Theme) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: theme.colors.background,

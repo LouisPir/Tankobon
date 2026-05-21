@@ -25,8 +25,8 @@ import { ChangePasswordScreen } from '../screens/ChangePasswordScreen';
 import { supabase } from '../services/supabase';
 import { logout } from '../services/auth';
 import { AboutScreen } from '../screens/AboutScreen';
-
-
+import { ThemeScreen } from '../screens/ThemeScreen';
+import { LanguageScreen } from '../screens/LanguageScreen';
 
 type Screen =
   | 'Auth'
@@ -48,6 +48,8 @@ type Screen =
   | 'DeleteAccount'
   | 'PasswordAccount'
   | 'About'
+  | 'Theme'
+  | 'Language'
   | 'SelectList';
   
   
@@ -99,7 +101,9 @@ export const Navigation = () => {
           onExportList={() => setScreen('ExportList')}
           onChangeEmail={() => setScreen('ChangeEmail')}
           onChangePassword={() => setScreen('ChangePassword')}
+          onTheme={() => setScreen('Theme')}
           onAbout={() => setScreen('About')}
+          onLanguage={() => setScreen('Language')}
           onEditList={() => {
             if (selectedList) {
               setScreen('EditList');
@@ -126,6 +130,20 @@ export const Navigation = () => {
       </SafeAreaProvider>
     );
   }
+  if (screen === 'Theme') {
+    return (
+      <SafeAreaProvider>
+        <ThemeScreen onBack={() => setScreen('Settings')} />
+      </SafeAreaProvider>
+    );
+  }
+  if (screen === 'Language') {
+  return (
+    <SafeAreaProvider>
+      <LanguageScreen onBack={() => setScreen('Settings')} />
+    </SafeAreaProvider>
+  );
+}
   if (screen === 'ChangeEmail') {
     return (
       <SafeAreaProvider>

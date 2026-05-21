@@ -9,8 +9,9 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useState } from 'react';
-import { theme } from '../config/theme';
+import { useTheme } from '../context/ThemeContext';
 import { updatePassword } from '../services/auth';
+import { Theme } from '../config/theme';
 
 export const ChangePasswordScreen = ({
   onBack,
@@ -22,7 +23,8 @@ export const ChangePasswordScreen = ({
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
   const [loading, setLoading] = useState(false);
-
+  const { theme } = useTheme();
+  const styles = makeStyles(theme);
   const handleSubmit = async () => {
     if (!password.trim()) {
       Alert.alert('Erreur', 'Le mot de passe est requis');
@@ -103,7 +105,7 @@ export const ChangePasswordScreen = ({
   );
 };
 
-const styles = StyleSheet.create({
+const makeStyles = (theme: Theme) => StyleSheet.create({
   container: { flex: 1, backgroundColor: theme.colors.background },
   header: {
     flexDirection: 'row',

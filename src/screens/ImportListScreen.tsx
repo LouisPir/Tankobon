@@ -10,7 +10,8 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useState } from 'react';
-import { theme } from '../config/theme';
+import { useTheme } from '../context/ThemeContext';
+import { Theme } from '../config/theme';
 import {
   pickAndParseJSONFile,
   importListAsNew,
@@ -36,6 +37,8 @@ export const ImportListScreen = ({
   onSuccess: (result: ImportResult, mode: ImportMode, targetListName: string) => void;
   preselectedList?: List;
 }) => {
+  const { theme } = useTheme();
+  const styles = makeStyles(theme);
   const [step, setStep] = useState<Step>(preselectedList ? 'file' : 'mode');
   const [mode, setMode] = useState<ImportMode>(preselectedList ? 'merge' : 'new');
   const [importedData, setImportedData] = useState<ImportedList | null>(null);
@@ -385,7 +388,7 @@ export const ImportListScreen = ({
   );
 };
 
-const styles = StyleSheet.create({
+const makeStyles = (theme: Theme) => StyleSheet.create({
   container: { flex: 1, backgroundColor: theme.colors.background },
   header: {
     flexDirection: 'row',

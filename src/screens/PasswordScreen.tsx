@@ -8,7 +8,8 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useState } from 'react';
-import { theme } from '../config/theme';
+import { useTheme } from '../context/ThemeContext';
+import { Theme } from '../config/theme';
 
 export const PasswordScreen = ({
   listName,
@@ -27,7 +28,8 @@ export const PasswordScreen = ({
 }) => {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-
+  const { theme } = useTheme();
+  const styles = makeStyles(theme);
   const handleConfirm = () => {
     if (!password.trim()) return;
     setLoading(true);
@@ -74,7 +76,7 @@ export const PasswordScreen = ({
   );
 };
 
-const styles = StyleSheet.create({
+const makeStyles = (theme: Theme) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.5)',

@@ -9,8 +9,9 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useState } from 'react';
-import { theme } from '../config/theme';
+import { useTheme } from '../context/ThemeContext';
 import { updateEmail } from '../services/auth';
+import { Theme } from '../config/theme';
 
 export const ChangeEmailScreen = ({
   onBack,
@@ -19,9 +20,11 @@ export const ChangeEmailScreen = ({
   onBack: () => void;
   onSuccess: () => void;
 }) => {
+  
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
-
+  const { theme } = useTheme();
+  const styles = makeStyles(theme);
   const handleSubmit = async () => {
     if (!email.trim()) {
       Alert.alert('Erreur', 'L\'email est requis');
@@ -87,7 +90,7 @@ export const ChangeEmailScreen = ({
   );
 };
 
-const styles = StyleSheet.create({
+const makeStyles = (theme: Theme) => StyleSheet.create({
   container: { flex: 1, backgroundColor: theme.colors.background },
   header: {
     flexDirection: 'row',
