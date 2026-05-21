@@ -10,8 +10,9 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useState, useEffect } from 'react';
-import { theme } from '../config/theme';
+import { useTheme } from '../context/ThemeContext';
 import { getLists, exportListToJSON, List } from '../services/lists';
+import { Theme } from '../config/theme';
 
 export const ExportListScreen = ({
   onBack,
@@ -26,7 +27,8 @@ export const ExportListScreen = ({
   const [selectedList, setSelectedList] = useState<List | null>(preselectedList ?? null);
   const [loading, setLoading] = useState(false);
   const [listsLoading, setListsLoading] = useState(!preselectedList);
-
+  const { theme } = useTheme();
+  const styles = makeStyles(theme);
   useEffect(() => {
     if (preselectedList) return;
     const fetchLists = async () => {
@@ -142,7 +144,7 @@ export const ExportListScreen = ({
   );
 };
 
-const styles = StyleSheet.create({
+const makeStyles = (theme: Theme) => StyleSheet.create({
   container: { flex: 1, backgroundColor: theme.colors.background },
   header: {
     flexDirection: 'row',

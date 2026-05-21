@@ -10,7 +10,8 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useState, useEffect } from 'react';
-import { theme } from '../config/theme';
+import { useTheme } from '../context/ThemeContext';
+import { Theme } from '../config/theme';
 import { getLists, List } from '../services/lists';
 
 export const SelectListScreen = ({
@@ -24,7 +25,8 @@ export const SelectListScreen = ({
   const [filtered, setFiltered] = useState<List[]>([]);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
-
+  const { theme } = useTheme();
+  const styles = makeStyles(theme);
   useEffect(() => {
     const fetchLists = async () => {
       try {
@@ -102,7 +104,7 @@ export const SelectListScreen = ({
   );
 };
 
-const styles = StyleSheet.create({
+const makeStyles = (theme: Theme) => StyleSheet.create({
   container: { flex: 1, backgroundColor: theme.colors.background },
   header: {
     flexDirection: 'row',

@@ -6,8 +6,9 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { theme } from '../config/theme';
+import { useTheme } from '../context/ThemeContext';
 import { Manga } from '../services/manga';
+import { Theme } from '../config/theme';
 
 export const MangaDetailScreen = ({
   manga,
@@ -18,6 +19,8 @@ export const MangaDetailScreen = ({
   onBack: () => void;
   onEdit: () => void;
 }) => {
+  const { theme } = useTheme();
+  const styles = makeStyles(theme);
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView>
@@ -85,7 +88,7 @@ export const MangaDetailScreen = ({
   );
 };
 
-const styles = StyleSheet.create({
+const makeStyles = (theme: Theme) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: theme.colors.background,
