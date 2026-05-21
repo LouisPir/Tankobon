@@ -2,7 +2,7 @@
   "expo": {
     "name": "Tankobon",
     "slug": "tankobon",
-    "version": "X.X.X",
+    "version": "0.3.4",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
