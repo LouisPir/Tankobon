@@ -1,107 +1,71 @@
-# 📚 Tankobon
+# 🌸 Tankobon
 
-> Mobile app to track manga reading progress, chapters and personal reviews.
+> Track your manga, anime, movies and more — all in one place.
+
+<p align="center">
+  <img src="./assets/icon.png" width="120" alt="Tankobon icon" />
+</p>
+
+---
+
+## ✨ Features
+
+- 📚 **Multi-type lists** — manga, anime, film, series, video games, books, music, board games
+- 📖 **Track your progress** — chapters, episodes, hours played, pages read
+- ⭐ **Rate & review** — personal ratings and reviews for each entry
+- 🔍 **Search** — quickly find any list or entry
+- 🔒 **Password protection** — lock sensitive lists
+- 📤 **Import / Export** — JSON format, single list or all at once
+- 🎨 **4 themes** — Sakura 🌸, Water Ninja 💧, Spicy 🌶️, Starry Night ✨
+- 🌍 **Multilingual** — French & English (more coming)
+- 🎟️ **Referral system** — invite-only after 20,000 users
+- 👤 **Account management** — change email, password, delete account
+
+---
 
 ## 🛠️ Tech Stack
 
-- **Frontend** : React Native (Expo)
-- **Backend** : Supabase (PostgreSQL + REST API)
-- **Language** : TypeScript
-- **CI/CD** : GitHub Actions
+| Layer    | Technology                         |
+| -------- | ---------------------------------- |
+| Frontend | React Native (Expo)                |
+| Backend  | Supabase (PostgreSQL + Auth + RLS) |
+| Language | TypeScript (strict)                |
+| Storage  | expo-secure-store                  |
+| CI/CD    | GitHub Actions                     |
+| Build    | EAS Build                          |
 
-## 📋 Features
-
-- ✅ Track manga reading progress
-- ✅ Save chapter advancement
-- ✅ Add personal ratings and reviews
-- ✅ Search through your manga list
-- ✅ Add, edit and delete entries
+---
 
 ## 🚀 Getting Started
 
 ### Prerequisites
 
-- Node.js 18+
-- Expo CLI
-- A Supabase account
-- Expo Go app on your phone ([Android](https://play.google.com/store/apps/details?id=host.exp.exponent) / [iOS](https://apps.apple.com/app/expo-go/id982107779))
+- Node.js 20+
+- A Supabase account → [supabase.com](https://supabase.com)
+- Expo Go on your phone ([Android](https://play.google.com/store/apps/details?id=host.exp.exponent) / [iOS](https://apps.apple.com/app/expo-go/id982107779))
 
----
-
-## ☁️ Supabase Setup
-
-### 1. Create a Supabase project
-
-1. Go to [supabase.com](https://supabase.com) and sign in with GitHub
-2. Click **New project**
-3. Fill in the project name and choose a region close to you
-4. Save your database password somewhere safe
-5. Wait for the project to initialize (~2 minutes)
-
-### 2. Create the mangas table
-
-In your Supabase dashboard, go to **Table Editor → New table** and create a table named `mangas` with the following columns:
-
-| Column | Type | Default | Required |
-|---|---|---|---|
-| id | uuid | gen_random_uuid() | ✅ (Primary Key) |
-| user_id | uuid | — | ✅ |
-| title | text | — | ✅ |
-| status | text | ongoing | ✅ |
-| current_chapter | int4 | 0 | ✅ |
-| rating | int4 | — | ❌ |
-| review | text | — | ❌ |
-| created_at | timestamptz | now() | ✅ |
-
-Enable **Row Level Security (RLS)** on the table.
-
-### 3. Configure RLS policies
-
-In **Authentication → Policies**, create the following 4 policies for the `mangas` table :
-
-|             Policy name           |  Command  |       Expression       |
-|-----------------------------------|-----------|------------------------|
-| Users can view their own mangas   |  SELECT   | `auth.uid() = user_id` |
-| Users can insert their own mangas |  INSERT   | `auth.uid() = user_id` |
-| Users can update their own mangas |  UPDATE   | `auth.uid() = user_id` |
-| Users can delete their own mangas |  DELETE   | `auth.uid() = user_id` |
-
-### 4. Get your API keys
-
-In **Settings → API**, copy:
-- **Project URL**
-- **Publishable (anon) key**
-
----
-
-## 💻 Installation
-
-### 1. Clone and install
+### Installation
 
 ```bash
 # Clone the repository
 git clone https://github.com/LouisPir/Tankobon.git
-cd manga-tracker
+cd Tankobon
 
 # Install dependencies
 npm install
-```
 
-### 2. Configure environment variables
-
-```bash
-# Copy the example file
+# Configure environment variables
 cp .env.example .env
 ```
 
-Open the `.env` file and fill in your Supabase credentials:
+Open `.env` and fill in your Supabase credentials:
 
 ```bash
 EXPO_PUBLIC_SUPABASE_URL=your_project_url
 EXPO_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
 ```
 
-### 3. Start the app
+### Start the app
 
 ```bash
 npx expo start
@@ -109,41 +73,78 @@ npx expo start
 
 Scan the QR code with **Expo Go** on your phone.
 
+> 📖 For the complete Supabase setup (tables, RLS, triggers, Edge Functions), see the [Wiki](../../wiki).
+
+---
+
+## 📁 Project Structure
+
+```
+src/
+├── config/         # Theme and environment config
+├── context/        # React contexts (Theme, Language)
+│   ├── themes/     # One file per theme
+│   └── languages/  # One file per language
+├── hooks/          # Custom hooks
+├── navigation/     # Navigation config
+├── screens/        # App screens
+└── services/       # Supabase API calls
+```
+
 ---
 
 ## 🗄️ Database Schema
-```bash
-mangas
-├── id              uuid (PK)
-├── user_id         uuid (FK → auth.users)
-├── title           text
-├── status          text (ongoing | completed | dropped)
-├── current_chapter int4
-├── rating          int4 (nullable, 1-5)
-├── review          text (nullable)
-└── created_at      timestamptz
+
 ```
-## 📁 Project Structure
-```bash
-src/
-├── components/     # Reusable components
-├── screens/        # App screens
-├── services/       # Supabase API calls
-├── hooks/          # Custom hooks
-├── navigation/     # Navigation config
-└── types/          # TypeScript types
+auth.users
+└── profiles          (id, referral_code, referred_by, created_at)
+
+lists                 (id, user_id, name, description, password_hash, created_at)
+└── mangas            (id, user_id, list_id, title, status, current_chapter, rating, review, created_at)
 ```
+
+---
+
 ## 🔐 Environment Variables
 
+| Variable                        | Description               |
+| ------------------------------- | ------------------------- |
+| `EXPO_PUBLIC_SUPABASE_URL`      | Your Supabase project URL |
+| `EXPO_PUBLIC_SUPABASE_ANON_KEY` | Your Supabase anon key    |
+
+---
+
+## 📦 Build
+
+To generate an Android APK:
+
 ```bash
-EXPO_PUBLIC_SUPABASE_URL=your_supabase_url
-EXPO_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+eas build --profile preview --platform android
 ```
 
-## 📌 Project Board
+> See the [Build & Deploy](../../wiki/Build-&-Deploy) wiki page for details.
 
-Toutes les tâches sont gérées via [GitHub Projects](../../projects).
+---
+
+## 🗺️ Roadmap
+
+| Version | Status | Description                        |
+| ------- | ------ | ---------------------------------- |
+| v0.3.0  | ✅     | Import / Export JSON               |
+| v0.4.0  | ✅     | Settings screen                    |
+| v0.5.0  | ✅     | Referral system + i18n refactor    |
+| v1.0.0  | 🔄     | Stable release + EAS Build         |
+| v1.1.0  | ⬜     | List types (manga, anime, film...) |
+| v1.2.0  | ⬜     | Sort & filters                     |
+| v1.3.0  | ⬜     | Dashboard stats                    |
+| v1.4.0  | ⬜     | Grade system                       |
+| v2.0.0  | ⬜     | Grand release                      |
+| v2.1.0  | ⬜     | User profiles                      |
+| v2.2.0  | ⬜     | Friends & sharing                  |
+| v3.0.0  | ⬜     | Social grand release               |
+
+---
 
 ## 📄 License
 
-MIT
+MIT — Louis Pirot

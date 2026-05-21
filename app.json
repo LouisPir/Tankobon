@@ -2,7 +2,7 @@
   "expo": {
     "name": "Tankobon",
     "slug": "tankobon",
-    "version": "0.4.0",
+    "version": "0.5.2",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -21,13 +21,19 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.louispir.tankobon"
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
       "expo-secure-store"
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "b7be01b7-2869-4cb2-b51b-13141bb4ca0b"
+      }
+    }
   }
 }
