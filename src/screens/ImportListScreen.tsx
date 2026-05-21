@@ -12,8 +12,10 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useState } from 'react';
 import { theme } from '../config/theme';
 import {
-  pickJSONFile,
+  pickAndParseJSONFile,
   importListAsNew,
+  importAllListsFromJSON,
+  isMultiListFile,
   mergeImportIntoList,
   ImportedList,
   ImportResult,
@@ -60,15 +62,51 @@ export const ImportListScreen = ({
 
   const handlePickFile = async () => {
     try {
-      const data = await pickJSONFile();
-      if (!data) return;
-      setImportedData(data);
-      setListName(data.name);
-      setStep('confirm');
-    } catch {
-      Alert.alert('Erreur', 'Fichier invalide ou corrompu');
-    }
-  };
+      const parsed = await pickAndParseJSONFile();
+      if (!parsed) return;
+
+      if (isMultiListFile(parsed)) {
+        // Format multi-listes — import direct, pas de choix
+        Alert.alert(
+          `${parsed.lists.length} liste(s) détectée(s)`,
+          'Ce fichier contient plusieurs listes. Elles seront toutes importées comme nouvelles listes.',
+          [
+            { text: 'Annuler', style: 'cancel' },
+            {
+              text: 'Importer tout',
+              onPress: async () => {
+                try {
+                  const count = await importAllListsFromJSON(parsed);
+                  onSuccess(
+                    { added: parsed.lists.map((l: any) => l.name), duplicates: [], overwritten: [] },
+                    'new',
+                    `${count} liste(s) importée(s)`
+                  );
+                } catch (error: any) {
+                  Alert.alert('Erreur', error.message);
+                }
+              },
+            },
+          ]
+        );
+        return;
+      }
+
+          setImportedData(parsed as ImportedList);
+        setListName(parsed.name);
+
+        if (!listsLoaded) {
+          const lists = await getLists();
+          setExistingLists(lists);
+          setFilteredLists(lists);
+          setListsLoaded(true);
+        }
+
+        setStep('confirm');
+      } catch {
+        Alert.alert('Erreur', 'Fichier invalide ou corrompu');
+      }
+    };
 
   const handleSearch = (text: string) => {
     setSearch(text);
