@@ -22,6 +22,7 @@ export const SettingsScreen = ({
   onDeleteAccount,
   onExportAllLists,
   onDeleteAllData,
+  onAbout,
 }: {
   onBack: () => void;
   selectedList?: List;
@@ -33,6 +34,7 @@ export const SettingsScreen = ({
   onDeleteAccount: () => void;
   onExportAllLists: () => void;
   onDeleteAllData: () => void;
+  onAbout: () => void;
 }) => {
   const insets = useSafeAreaInsets();
   const handleLogout = async () => {
@@ -155,7 +157,7 @@ export const SettingsScreen = ({
         {/* Section à propos */}
         <Text style={styles.sectionTitle}>Informations</Text>
         <View style={styles.section}>
-          <TouchableOpacity style={styles.row} onPress={() => {}}>
+          <TouchableOpacity style={styles.row} onPress={onAbout}>
             <Text style={styles.rowText}>ℹ️ À propos</Text>
             <Text style={styles.rowArrow}>›</Text>
           </TouchableOpacity>
