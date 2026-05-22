@@ -10,7 +10,7 @@ import { updateEntry, Entry } from '../services/entries';
 import { Theme } from '../config/theme';
 import { ListType, EntryStatus, getListTypeConfig } from '../config/listTypes';
 
-export const EditMangaScreen = ({
+export const EditEntryScreen = ({
   entry,
   listType,
   onBack,
@@ -36,7 +36,7 @@ export const EditMangaScreen = ({
 
   const handleSubmit = async () => {
     if (!title.trim()) {
-      Alert.alert(tr('error', 'Erreur'), tr('manga.title_required', 'Le titre est obligatoire'));
+      Alert.alert(tr('error', 'Erreur'), tr('entry.title_required', 'Le titre est obligatoire'));
       return;
     }
     try {
@@ -66,7 +66,7 @@ export const EditMangaScreen = ({
           <Text style={styles.backText}>{tr('back', '← Retour')}</Text>
         </TouchableOpacity>
         <Text style={styles.headerTitle}>
-          {typeConfig.icon} {tr('manga.edit.title', 'Modifier')} {entryLabel}
+          {typeConfig.icon} {tr('entry.edit.title', 'Modifier')} {entryLabel}
         </Text>
         <View style={{ width: 60 }} />
       </View>
@@ -74,9 +74,8 @@ export const EditMangaScreen = ({
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
         <ScrollView contentContainerStyle={styles.form} keyboardShouldPersistTaps="handled">
 
-          {/* Titre */}
           <View style={styles.field}>
-            <Text style={styles.label}>{tr('manga.title', 'Titre *')}</Text>
+            <Text style={styles.label}>{tr('entry.title', 'Titre *')}</Text>
             <TextInput
               style={styles.input}
               value={title}
@@ -85,10 +84,9 @@ export const EditMangaScreen = ({
             />
           </View>
 
-          {/* Statut — caché si musique */}
           {typeConfig.statuses.length > 0 && (
             <View style={styles.field}>
-              <Text style={styles.label}>{tr('manga.status', 'Statut')}</Text>
+              <Text style={styles.label}>{tr('entry.status', 'Statut')}</Text>
               <View style={styles.statusOptions}>
                 {typeConfig.statuses.map((s) => {
                   const labelConfig = typeConfig.statusLabelKeys[s];
@@ -109,7 +107,6 @@ export const EditMangaScreen = ({
             </View>
           )}
 
-          {/* Progression — Saison + Épisode */}
           {typeConfig.progressionType === 'season_episode' && (
             <View style={styles.field}>
               <Text style={styles.label}>{tr('entry.progression', 'Progression')}</Text>
@@ -138,7 +135,6 @@ export const EditMangaScreen = ({
             </View>
           )}
 
-          {/* Progression — champ unique */}
           {typeConfig.progressionType !== 'none' && typeConfig.progressionType !== 'season_episode' && (
             <View style={styles.field}>
               <Text style={styles.label}>
@@ -156,9 +152,8 @@ export const EditMangaScreen = ({
             </View>
           )}
 
-          {/* Note */}
           <View style={styles.field}>
-            <Text style={styles.label}>{tr('manga.rating', 'Note')}</Text>
+            <Text style={styles.label}>{tr('entry.rating', 'Note')}</Text>
             <View style={styles.starsContainer}>
               {[1, 2, 3, 4, 5].map((star) => (
                 <TouchableOpacity key={star} onPress={() => setRating(rating === star ? null : star)}>
@@ -168,9 +163,8 @@ export const EditMangaScreen = ({
             </View>
           </View>
 
-          {/* Avis */}
           <View style={styles.field}>
-            <Text style={styles.label}>{tr('manga.review', 'Mon avis')}</Text>
+            <Text style={styles.label}>{tr('entry.review', 'Mon avis')}</Text>
             <TextInput
               style={[styles.input, styles.textArea]}
               placeholder={tr('entry.review.placeholder', 'Qu\'as-tu pensé ?')}
