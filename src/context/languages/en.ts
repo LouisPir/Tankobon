@@ -277,4 +277,6 @@ export default {
   'modal.sort.count.asc': 'Ascending',
   'modal.sort.count.desc': 'Descending',
   'modal.close': 'Close',
+  'modal.filter.entries': 'entry(ies)',
+  'modal.reset': 'Reset',
 };
