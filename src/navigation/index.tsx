@@ -7,7 +7,7 @@ import { RegisterScreen } from '../screens/RegisterScreen';
 import { ListsHomeScreen } from '../screens/ListsHomeScreen';
 import { AddListScreen } from '../screens/AddListScreen';
 import { EditListScreen } from '../screens/EditListScreen';
-import { MangaListScreen } from '../screens/EntryListScreen';
+import { EntryListScreen } from '../screens/EntryListScreen';
 import { AddMangaScreen } from '../screens/AddEntryScreen';
 import { EditMangaScreen } from '../screens/EditEntryScreen';
 import { MangaDetailScreen } from '../screens/EntryDetailScreen';
@@ -337,14 +337,14 @@ export const Navigation = () => {
   if (screen === 'MangaList' && selectedList) {
     return (
       <SafeAreaProvider>
-        <MangaListScreen
+        <EntryListScreen
           listId={selectedList.id}
           listType={selectedList.type}
-          onSelectManga={(manga) => {
+          onSelectEntry={(manga) => {
             setSelectedManga(manga);
             setScreen('MangaDetail');
           }}
-          onAddManga={() => setScreen('AddManga')}
+          onAddEntry={() => setScreen('AddManga')}
           onBack={() => setScreen('ListsHome')}
           onSettings={() => {
             setSettingsFrom('MangaList');
