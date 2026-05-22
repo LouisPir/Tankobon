@@ -27,7 +27,7 @@ export const AboutScreen = ({ onBack }: { onBack: () => void }) => {
           <Text style={styles.appDescription}>{tr('about.description', 'Suis ta progression de lecture de mangas, anime, films et bien plus encore.')}</Text>
         </View>
         <View style={styles.section}>
-          <TouchableOpacity style={styles.row} onPress={() => Linking.openURL('https://github.com/LouisPir/manga-tracker')}>
+          <TouchableOpacity style={styles.row} onPress={() => Linking.openURL('https://github.com/LouisPir/Tankobon')}>
             <Text style={styles.rowText}>{tr('about.source', '📦 Code source')}</Text>
             <Text style={styles.rowArrow}>›</Text>
           </TouchableOpacity>
@@ -43,7 +43,7 @@ export const AboutScreen = ({ onBack }: { onBack: () => void }) => {
             <Text style={styles.rowValue}>Expo + Supabase</Text>
           </View>
         </View>
-        <Text style={styles.footer}>{tr('about.footer', 'Fait avec 🌸 et beaucoup de manga')}</Text>
+        <Text style={styles.footer}>{tr('about.footer', 'Fait avec 🌸')}</Text>
       </View>
     </SafeAreaView>
   );

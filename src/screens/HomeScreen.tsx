@@ -1,23 +1,22 @@
 import {
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-  ActivityIndicator,
-  Alert,
+  View, Text, TouchableOpacity, StyleSheet,
+  ActivityIndicator, Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useState } from 'react';
 import { logout } from '../services/auth';
 import { useAuth } from '../hooks/useAuth';
 import { useTheme } from '../context/ThemeContext';
+import { useLanguage } from '../context/LanguageContext';
 import { Theme } from '../config/theme';
 
 export const HomeScreen = ({ onGoToList }: { onGoToList: () => void }) => {
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
   const { theme } = useTheme();
+  const { tr } = useLanguage();
   const styles = makeStyles(theme);
+
   const handleLogout = async () => {
     try {
       setLoading(true);
@@ -31,53 +30,44 @@ export const HomeScreen = ({ onGoToList }: { onGoToList: () => void }) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Header */}
       <View style={styles.header}>
         <View>
-          <Text style={styles.headerTitle}>🌸 Manga Tracker</Text>
+          <Text style={styles.headerTitle}>🌸 Tankobon</Text>
           <Text style={styles.headerSubtitle}>{user?.email}</Text>
         </View>
-        <TouchableOpacity
-          style={styles.logoutButton}
-          onPress={handleLogout}
-          disabled={loading}
-        >
-          {loading ? (
-            <ActivityIndicator color={theme.colors.primary} size="small" />
-          ) : (
-            <Text style={styles.logoutText}>Quitter</Text>
-          )}
+        <TouchableOpacity style={styles.logoutButton} onPress={handleLogout} disabled={loading}>
+          {loading
+            ? <ActivityIndicator color={theme.colors.primary} size="small" />
+            : <Text style={styles.logoutText}>Quitter</Text>
+          }
         </TouchableOpacity>
       </View>
 
-      {/* Hero */}
       <View style={styles.hero}>
         <Text style={styles.heroEmoji}>🌸</Text>
         <Text style={styles.heroTitle}>Ma Collection</Text>
         <Text style={styles.heroSubtitle}>
-          Suis tes mangas, note tes chapitres et garde tes avis
+          {tr('about.description', 'Suis tes listes, note ta progression et garde tes avis')}
         </Text>
       </View>
 
-      {/* Stats */}
       <View style={styles.statsContainer}>
         <View style={styles.statCard}>
           <Text style={styles.statNumber}>0</Text>
-          <Text style={styles.statLabel}>Mangas lus</Text>
+          <Text style={styles.statLabel}>{tr('home.entries', 'Entrées')}</Text>
         </View>
         <View style={styles.statCard}>
           <Text style={styles.statNumber}>0</Text>
-          <Text style={styles.statLabel}>En cours</Text>
+          <Text style={styles.statLabel}>{tr('home.ongoing', 'En cours')}</Text>
         </View>
         <View style={styles.statCard}>
           <Text style={styles.statNumber}>0</Text>
-          <Text style={styles.statLabel}>Terminés</Text>
+          <Text style={styles.statLabel}>{tr('home.completed', 'Terminés')}</Text>
         </View>
       </View>
 
-      {/* CTA */}
       <TouchableOpacity style={styles.addButton} onPress={onGoToList}>
-        <Text style={styles.addButtonText}>Voir ma collection 🌸</Text>
+        <Text style={styles.addButtonText}>{tr('home.cta', 'Voir ma collection 🌸')}</Text>
       </TouchableOpacity>
     </SafeAreaView>
   );

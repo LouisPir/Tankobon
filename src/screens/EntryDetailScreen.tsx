@@ -6,7 +6,7 @@ import { Entry } from '../services/entries';
 import { Theme } from '../config/theme';
 import { ListType, getListTypeConfig } from '../config/listTypes';
 
-export const MangaDetailScreen = ({
+export const EntryDetailScreen = ({
   entry,
   listType,
   onBack,
@@ -33,7 +33,7 @@ export const MangaDetailScreen = ({
     if (typeConfig.progressionType === 'season_episode') {
       return (
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>{tr('manga.progression', '📚 Progression')}</Text>
+          <Text style={styles.sectionTitle}>{tr('entry.progression.title', '📚 Progression')}</Text>
           <View style={styles.chapterCard}>
             <Text style={styles.chapterLabel}>
               {`S${entry.current_season}E${entry.current_chapter}`}
@@ -49,7 +49,7 @@ export const MangaDetailScreen = ({
 
     return (
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>{tr('manga.progression', '📚 Progression')}</Text>
+        <Text style={styles.sectionTitle}>{tr('entry.progression.title', '📚 Progression')}</Text>
         <View style={styles.chapterCard}>
           <Text style={styles.chapterLabel}>{progressionLabel}</Text>
           <Text style={styles.chapterNumber}>{entry.current_chapter}</Text>
@@ -66,7 +66,7 @@ export const MangaDetailScreen = ({
             <Text style={styles.backText}>{tr('back', '← Retour')}</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.editButton} onPress={onEdit}>
-            <Text style={styles.editText}>{tr('manga.edit.button', 'Modifier ✏️')}</Text>
+            <Text style={styles.editText}>{tr('entry.edit.button', 'Modifier ✏️')}</Text>
           </TouchableOpacity>
         </View>
 
@@ -79,7 +79,6 @@ export const MangaDetailScreen = ({
         <View style={styles.infoContainer}>
           <Text style={styles.title}>{entry.title.toUpperCase()}</Text>
 
-          {/* Badge statut — caché si musique */}
           {typeConfig.statuses.length > 0 && (
             <View style={styles.badgeContainer}>
               <View style={styles.badge}>
@@ -88,12 +87,10 @@ export const MangaDetailScreen = ({
             </View>
           )}
 
-          {/* Progression */}
           {renderProgression()}
 
-          {/* Note */}
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>{tr('manga.personal_rating', '⭐ Note personnelle')}</Text>
+            <Text style={styles.sectionTitle}>{tr('entry.personal_rating', '⭐ Note personnelle')}</Text>
             <View style={styles.starsContainer}>
               {[1, 2, 3, 4, 5].map((star) => (
                 <Text key={star} style={styles.star}>
@@ -103,12 +100,11 @@ export const MangaDetailScreen = ({
             </View>
           </View>
 
-          {/* Avis */}
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>{tr('manga.my_review', '💭 Mon avis')}</Text>
+            <Text style={styles.sectionTitle}>{tr('entry.my_review', '💭 Mon avis')}</Text>
             <View style={styles.reviewCard}>
               <Text style={styles.reviewText}>
-                {entry.review ?? tr('manga.no_review', 'Aucun avis pour l\'instant...')}
+                {entry.review ?? tr('entry.no_review', 'Aucun avis pour l\'instant...')}
               </Text>
             </View>
           </View>
