@@ -8,9 +8,9 @@ import { ListsHomeScreen } from '../screens/ListsHomeScreen';
 import { AddListScreen } from '../screens/AddListScreen';
 import { EditListScreen } from '../screens/EditListScreen';
 import { EntryListScreen } from '../screens/EntryListScreen';
-import { AddMangaScreen } from '../screens/AddEntryScreen';
-import { EditMangaScreen } from '../screens/EditEntryScreen';
-import { MangaDetailScreen } from '../screens/EntryDetailScreen';
+import { AddEntryScreen } from '../screens/AddEntryScreen';
+import { EditEntryScreen } from '../screens/EditEntryScreen';
+import { EntryDetailScreen } from '../screens/EntryDetailScreen';
 import { Entry } from '../services/entries';
 import { deleteList, List, ImportResult, exportAllListsToJSON, deleteAllUserData } from '../services/lists';
 import { PasswordScreen } from '../screens/PasswordScreen';
@@ -39,10 +39,10 @@ type Screen =
   | 'Referral'
   | 'ImportResult'
   | 'Password'
-  | 'MangaList'
-  | 'AddManga'
-  | 'EditManga'
-  | 'MangaDetail'
+  | 'EntryList'
+  | 'AddEntry'
+  | 'EditEntry'
+  | 'EntryDetail'
   | 'Settings'
   | 'ExportList'
   | 'ChangeEmail'
@@ -60,13 +60,13 @@ export const Navigation = () => {
   const { user, loading } = useAuth();
   const [screen, setScreen] = useState<Screen>('ListsHome');
   const [selectedList, setSelectedList] = useState<List | null>(null);
-  const [selectedManga, setSelectedManga] = useState<Entry | null>(null);
+  const [selectedEntry, setSelectedEntry] = useState<Entry | null>(null);
   const [pendingList, setPendingList] = useState<List | null>(null);
   const [passwordMode, setPasswordMode] = useState<'access' | 'delete'>('access');
   const [importResult, setImportResult] = useState<ImportResult | null>(null);
   const [importMode, setImportMode] = useState<'new' | 'merge'>('new');
   const [importTargetName, setImportTargetName] = useState('');
-  const [settingsFrom, setSettingsFrom] = useState<'ListsHome' | 'MangaList'>('ListsHome');
+  const [settingsFrom, setSettingsFrom] = useState<'ListsHome' | 'EntryList'>('ListsHome');
   const [accountPasswordMode, setAccountPasswordMode] = useState<'deleteAccount' | 'deleteData'>('deleteAccount');
 
   if (loading) {
@@ -334,20 +334,20 @@ export const Navigation = () => {
     );
   }
 
-  if (screen === 'MangaList' && selectedList) {
+  if (screen === 'EntryList' && selectedList) {
     return (
       <SafeAreaProvider>
         <EntryListScreen
           listId={selectedList.id}
           listType={selectedList.type}
-          onSelectEntry={(manga) => {
-            setSelectedManga(manga);
-            setScreen('MangaDetail');
+          onSelectEntry={(entry) => {
+            setSelectedEntry(entry);
+            setScreen('EntryDetail');
           }}
-          onAddEntry={() => setScreen('AddManga')}
+          onAddEntry={() => setScreen('AddEntry')}
           onBack={() => setScreen('ListsHome')}
           onSettings={() => {
-            setSettingsFrom('MangaList');
+            setSettingsFrom('EntryList');
             setScreen('Settings');
           }}
         />
@@ -355,43 +355,43 @@ export const Navigation = () => {
     );
   }
 
-  if (screen === 'AddManga' && selectedList) {
+  if (screen === 'AddEntry' && selectedList) {
     return (
       <SafeAreaProvider>
-        <AddMangaScreen
+        <AddEntryScreen
           listId={selectedList.id}
           listType={selectedList.type}
-          onBack={() => setScreen('MangaList')}
-          onSuccess={() => setScreen('MangaList')}
+          onBack={() => setScreen('EntryList')}
+          onSuccess={() => setScreen('EntryList')}
         />
       </SafeAreaProvider>
     );
   }
 
-  if (screen === 'EditManga' && selectedManga) {
+  if (screen === 'EditEntry' && selectedEntry) {
     return (
       <SafeAreaProvider>
-        <EditMangaScreen
-          entry={selectedManga}
+        <EditEntryScreen
+          entry={selectedEntry}
           listType={selectedList!.type}
-          onBack={() => setScreen('MangaDetail')}
+          onBack={() => setScreen('EntryDetail')}
           onSuccess={() => {
-            setScreen('MangaList');
-            setSelectedManga(null);
+            setScreen('EntryList');
+            setSelectedEntry(null);
           }}
         />
       </SafeAreaProvider>
     );
   }
 
-  if (screen === 'MangaDetail' && selectedManga) {
+  if (screen === 'EntryDetail' && selectedEntry) {
     return (
       <SafeAreaProvider>
-        <MangaDetailScreen
-          entry={selectedManga}
+        <EntryDetailScreen
+          entry={selectedEntry}
           listType={selectedList!.type}
-          onBack={() => setScreen('MangaList')}
-          onEdit={() => setScreen('EditManga')}
+          onBack={() => setScreen('EntryList')}
+          onEdit={() => setScreen('EditEntry')}
         />
       </SafeAreaProvider>
     );
@@ -411,7 +411,7 @@ export const Navigation = () => {
               if (passwordMode === 'access') {
                 setSelectedList(pendingList);
                 setPendingList(null);
-                setScreen('MangaList');
+                setScreen('EntryList');
               } else {
                 try {
                   await deleteList(pendingList.id);
@@ -440,7 +440,7 @@ export const Navigation = () => {
             setScreen('Password');
           } else {
             setSelectedList(list);
-            setScreen('MangaList');
+            setScreen('EntryList');
           }
         }}
         onAddList={() => setScreen('AddList')}

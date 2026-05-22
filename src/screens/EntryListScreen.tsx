@@ -4,6 +4,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useEffect, useState } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useTheme } from '../context/ThemeContext';
 import { useLanguage } from '../context/LanguageContext';
 import { Theme } from '../config/theme';
@@ -12,6 +13,12 @@ import { ListType, getListTypeConfig, EntryStatus } from '../config/listTypes';
 
 type ModalTab = 'filter' | 'sort';
 type SortOption = 'title_asc' | 'title_desc' | 'date_newest' | 'date_oldest' | 'rating_asc' | 'rating_desc' | 'progression_asc' | 'progression_desc';
+
+type SavedPrefs = {
+  activeStatuses: EntryStatus[];
+  activeRating: number | null;
+  activeSort: SortOption | null;
+};
 
 const EntryCard = ({
   entry,
@@ -84,6 +91,7 @@ export const EntryListScreen = ({
   const [filtered, setFiltered] = useState<Entry[]>([]);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
+  const [prefsLoaded, setPrefsLoaded] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [activeTab, setActiveTab] = useState<ModalTab>('filter');
 
@@ -98,6 +106,42 @@ export const EntryListScreen = ({
   const { tr } = useLanguage();
   const styles = makeStyles(theme);
   const typeConfig = getListTypeConfig(listType);
+
+  const STORAGE_KEY = `sort_filter_${listId}`;
+
+  // Chargement des préférences sauvegardées
+  useEffect(() => {
+    const loadPrefs = async () => {
+      try {
+        const saved = await AsyncStorage.getItem(STORAGE_KEY);
+        if (saved) {
+          const prefs: SavedPrefs = JSON.parse(saved);
+          setActiveStatuses(prefs.activeStatuses ?? []);
+          setActiveRating(prefs.activeRating ?? null);
+          setActiveSort(prefs.activeSort ?? null);
+        }
+      } catch {
+        // silencieux — pas bloquant
+      } finally {
+        setPrefsLoaded(true);
+      }
+    };
+    loadPrefs();
+  }, [listId]);
+
+  // Sauvegarde des préférences à chaque changement
+  useEffect(() => {
+    if (!prefsLoaded) return;
+    const savePrefs = async () => {
+      try {
+        const prefs: SavedPrefs = { activeStatuses, activeRating, activeSort };
+        await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(prefs));
+      } catch {
+        // silencieux — pas bloquant
+      }
+    };
+    savePrefs();
+  }, [activeStatuses, activeRating, activeSort, prefsLoaded]);
 
   const fetchEntries = async () => {
     try {
@@ -115,22 +159,15 @@ export const EntryListScreen = ({
   useEffect(() => {
     let result = [...entries];
 
-    // Recherche textuelle
     if (search.trim()) {
       result = result.filter((e) => e.title.toLowerCase().includes(search.toLowerCase()));
     }
-
-    // Filtre par statut
     if (activeStatuses.length > 0) {
       result = result.filter((e) => activeStatuses.includes(e.status));
     }
-
-    // Filtre par note
     if (activeRating !== null) {
       result = result.filter((e) => e.rating === activeRating);
     }
-
-    // Tri
     if (activeSort) {
       result.sort((a, b) => {
         if (activeSort === 'title_asc') return a.title.localeCompare(b.title);
@@ -176,10 +213,15 @@ export const EntryListScreen = ({
     );
   };
 
-  const handleReset = () => {
+  const handleReset = async () => {
     setActiveStatuses([]);
     setActiveRating(null);
     setActiveSort(null);
+    try {
+      await AsyncStorage.removeItem(STORAGE_KEY);
+    } catch {
+      // silencieux
+    }
   };
 
   const hasActiveFilters = activeStatuses.length > 0 || activeRating !== null || activeSort !== null;
@@ -215,7 +257,6 @@ export const EntryListScreen = ({
         </TouchableOpacity>
       </View>
 
-      {/* Barre de recherche + bouton filtre */}
       <View style={styles.searchRow}>
         <View style={styles.searchContainer}>
           <TextInput
@@ -273,7 +314,6 @@ export const EntryListScreen = ({
         <Text style={styles.fabText}>+</Text>
       </TouchableOpacity>
 
-      {/* Modal filtre/tri */}
       <Modal
         visible={modalVisible}
         transparent
@@ -283,7 +323,6 @@ export const EntryListScreen = ({
         <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={() => setModalVisible(false)}>
           <TouchableOpacity style={styles.modalCard} activeOpacity={1}>
 
-            {/* Onglets */}
             <View style={styles.modalTabs}>
               <TouchableOpacity
                 style={[styles.modalTab, activeTab === 'filter' && styles.modalTabActive]}
@@ -305,11 +344,8 @@ export const EntryListScreen = ({
 
             <ScrollView showsVerticalScrollIndicator={false}>
 
-              {/* Contenu Filtrer */}
               {activeTab === 'filter' && (
                 <View style={styles.modalContent}>
-
-                  {/* Filtre par statut — uniquement si le type a des statuts */}
                   {typeConfig.statuses.length > 0 && (
                     <>
                       <Text style={styles.modalSectionTitle}>{tr('modal.filter.status', 'Par statut')}</Text>
@@ -333,7 +369,6 @@ export const EntryListScreen = ({
                     </>
                   )}
 
-                  {/* Filtre par note */}
                   <Text style={styles.modalSectionTitle}>{tr('modal.filter.rating', 'Par note')}</Text>
                   <View style={styles.modalChipsRow}>
                     {[1, 2, 3, 4, 5].map((star) => (
@@ -346,11 +381,9 @@ export const EntryListScreen = ({
                       </TouchableOpacity>
                     ))}
                   </View>
-
                 </View>
               )}
 
-              {/* Contenu Trier */}
               {activeTab === 'sort' && (
                 <View style={styles.modalContent}>
                   <Text style={styles.modalSectionTitle}>{tr('modal.sort.name', 'Par titre')}</Text>
@@ -398,7 +431,6 @@ export const EntryListScreen = ({
                     ))}
                   </View>
 
-                  {/* Tri par progression — caché si type sans progression */}
                   {typeConfig.progressionType !== 'none' && (
                     <>
                       <Text style={styles.modalSectionTitle}>{tr('modal.sort.progression', 'Par progression')}</Text>
@@ -422,7 +454,6 @@ export const EntryListScreen = ({
 
             </ScrollView>
 
-            {/* Actions */}
             <View style={styles.modalActions}>
               {hasActiveFilters && (
                 <TouchableOpacity style={styles.modalResetButton} onPress={handleReset}>
@@ -441,6 +472,7 @@ export const EntryListScreen = ({
     </SafeAreaView>
   );
 };
+
 const makeStyles = (theme: Theme) => StyleSheet.create({
   container: { flex: 1, backgroundColor: theme.colors.background },
   centered: { flex: 1, justifyContent: 'center', alignItems: 'center' },
