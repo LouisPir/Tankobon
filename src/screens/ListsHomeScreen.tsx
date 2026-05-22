@@ -5,20 +5,30 @@ import { useTheme } from '../context/ThemeContext';
 import { useLanguage } from '../context/LanguageContext';
 import { getLists, deleteList, List } from '../services/lists';
 import { Theme } from '../config/theme';
+import { getListTypeConfig } from '../config/listTypes';
 
 const ListCard = ({ list, onPress, onDelete }: { list: List; onPress: (list: List) => void; onDelete: (id: string) => void }) => {
   const { theme } = useTheme();
   const { tr } = useLanguage();
   const styles = makeStyles(theme);
+  const typeConfig = getListTypeConfig(list.type);
+
   return (
     <TouchableOpacity style={styles.card} onPress={() => onPress(list)}>
+      <View style={styles.typeIconContainer}>
+        <Text style={styles.typeIcon}>{typeConfig.icon}</Text>
+      </View>
       <View style={styles.cardContent}>
         <View style={styles.cardHeader}>
           <Text style={styles.cardTitle}>{list.name}</Text>
           {list.password_hash && <Text style={styles.lockIcon}>🔒</Text>}
         </View>
-        {list.description && <Text style={styles.cardDescription} numberOfLines={2}>{list.description}</Text>}
-        <Text style={styles.cardDate}>{tr('list.created', 'Créée le')} {new Date(list.created_at).toLocaleDateString('fr-FR')}</Text>
+        {list.description && (
+          <Text style={styles.cardDescription} numberOfLines={2}>{list.description}</Text>
+        )}
+        <Text style={styles.cardDate}>
+          {tr('list.created', 'Créée le')} {new Date(list.created_at).toLocaleDateString('fr-FR')}
+        </Text>
       </View>
       <TouchableOpacity style={styles.deleteButton} onPress={() => onDelete(list.id)}>
         <Text style={styles.deleteText}>🗑️</Text>
@@ -111,4 +121,9 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
   fabText: { color: '#fff', fontSize: 32, fontWeight: 'bold', lineHeight: 36 },
   logoutButton: { backgroundColor: theme.colors.accent, paddingHorizontal: theme.spacing.md, paddingVertical: theme.spacing.sm, borderRadius: theme.borderRadius.full },
   logoutText: { color: theme.colors.primary, fontSize: theme.fontSize.md, fontWeight: '600' },
+  typeIconContainer: {
+    width: 44, height: 44, borderRadius: theme.borderRadius.md,
+    backgroundColor: theme.colors.accent, justifyContent: 'center', alignItems: 'center',
+  },
+  typeIcon: { fontSize: 24 },
 });

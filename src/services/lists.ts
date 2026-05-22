@@ -2,12 +2,13 @@ import { supabase } from './supabase';
 import * as Sharing from 'expo-sharing';
 import * as FileSystem from 'expo-file-system/legacy';
 import * as DocumentPicker from 'expo-document-picker';
-
+import { ListType } from '../config/listTypes';
 
 export type List = {
   id: string;
   user_id: string;
   name: string;
+  type: ListType;
   description: string | null;
   password_hash: string | null;
   created_at: string;
@@ -59,7 +60,6 @@ export const deleteList = async (id: string) => {
 };
 
 export const exportListToJSON = async (listId: string) => {
-  // Récupère la liste
   const { data: list, error: listError } = await supabase
     .from('lists')
     .select('*')
@@ -68,7 +68,6 @@ export const exportListToJSON = async (listId: string) => {
 
   if (listError) throw listError;
 
-  // Récupère les mangas de la liste
   const { data: mangas, error: mangasError } = await supabase
     .from('mangas')
     .select('*')
@@ -76,47 +75,48 @@ export const exportListToJSON = async (listId: string) => {
 
   if (mangasError) throw mangasError;
 
-  // Crée le JSON
   const exportData = {
     name: list.name,
+    type: list.type,
     description: list.description,
     exported_at: new Date().toISOString(),
     mangas: mangas.map((m) => ({
       title: m.title,
       status: m.status,
       current_chapter: m.current_chapter,
+      current_season: m.current_season,
       rating: m.rating,
       review: m.review,
     })),
   };
 
-  // Écrit le fichier
   const fileName = `${list.name.replace(/\s+/g, '_')}.json`;
   const filePath = `${(FileSystem as any).cacheDirectory}${fileName}`;
 
   await FileSystem.writeAsStringAsync(filePath, JSON.stringify(exportData, null, 2));
 
-  // Partage le fichier
   await Sharing.shareAsync(filePath, {
     mimeType: 'application/json',
     dialogTitle: `Exporter ${list.name}`,
   });
 };
 
-
-export type ImportedManga = {
+export type ImportedEntry = {
   title: string;
   status: string;
   current_chapter: number;
+  current_season: number;
   rating: number | null;
   review: string | null;
 };
 
 export type ImportedList = {
   name: string;
+  type?: ListType;
   description: string | null;
-  mangas: ImportedManga[];
+  mangas: ImportedEntry[];
 };
+
 export const pickAndParseJSONFile = async (): Promise<any | null> => {
   const result = await DocumentPicker.getDocumentAsync({
     type: 'application/json',
@@ -132,11 +132,11 @@ export const pickAndParseJSONFile = async (): Promise<any | null> => {
 export const importListAsNew = async (data: ImportedList, name: string) => {
   const { data: { user } } = await supabase.auth.getUser();
 
-  // Crée la liste
   const { data: list, error: listError } = await supabase
     .from('lists')
     .insert({
       name,
+      type: data.type ?? 'manga',
       description: data.description,
       user_id: user?.id,
     })
@@ -145,7 +145,6 @@ export const importListAsNew = async (data: ImportedList, name: string) => {
 
   if (listError) throw listError;
 
-  // Ajoute les mangas
   if (data.mangas.length > 0) {
     const { error: mangasError } = await supabase
       .from('mangas')
@@ -187,20 +186,20 @@ export const mergeImportIntoList = async (
 
   const existingMap = new Map(existing.map((m) => [m.title.toLowerCase(), m.id]));
 
-  const toInsert: ImportedManga[] = [];
-  const toOverwrite: { id: string; manga: ImportedManga }[] = [];
+  const toInsert: ImportedEntry[] = [];
+  const toOverwrite: { id: string; entry: ImportedEntry }[] = [];
   const duplicateTitles: string[] = [];
   const addedTitles: string[] = [];
   const overwrittenTitles: string[] = [];
 
-  for (const manga of data.mangas) {
-    const existingId = existingMap.get(manga.title.toLowerCase());
+  for (const entry of data.mangas) {
+    const existingId = existingMap.get(entry.title.toLowerCase());
     if (existingId) {
-      duplicateTitles.push(manga.title);
-      if (behavior === 'overwrite') toOverwrite.push({ id: existingId, manga });
+      duplicateTitles.push(entry.title);
+      if (behavior === 'overwrite') toOverwrite.push({ id: existingId, entry });
     } else {
-      toInsert.push(manga);
-      addedTitles.push(manga.title);
+      toInsert.push(entry);
+      addedTitles.push(entry.title);
     }
   }
 
@@ -211,22 +210,24 @@ export const mergeImportIntoList = async (
     if (error) throw error;
   }
 
-  for (const { id, manga } of toOverwrite) {
+  for (const { id, entry } of toOverwrite) {
     const { error } = await supabase
       .from('mangas')
       .update({
-        status: manga.status,
-        current_chapter: manga.current_chapter,
-        rating: manga.rating,
-        review: manga.review,
+        status: entry.status,
+        current_chapter: entry.current_chapter,
+        current_season: entry.current_season,
+        rating: entry.rating,
+        review: entry.review,
       })
       .eq('id', id);
     if (error) throw error;
-    overwrittenTitles.push(manga.title);
+    overwrittenTitles.push(entry.title);
   }
 
   return { added: addedTitles, duplicates: duplicateTitles, overwritten: overwrittenTitles };
 };
+
 export const exportAllListsToJSON = async () => {
   const { data: { user } } = await supabase.auth.getUser();
 
@@ -249,6 +250,7 @@ export const exportAllListsToJSON = async () => {
     exported_at: new Date().toISOString(),
     lists: lists.map((list) => ({
       name: list.name,
+      type: list.type,
       description: list.description,
       mangas: mangas
         .filter((m) => m.list_id === list.id)
@@ -256,6 +258,7 @@ export const exportAllListsToJSON = async () => {
           title: m.title,
           status: m.status,
           current_chapter: m.current_chapter,
+          current_season: m.current_season,
           rating: m.rating,
           review: m.review,
         })),
@@ -304,7 +307,6 @@ export const isMultiListFile = (parsed: any): parsed is ExportedAllLists => {
 export const importAllListsFromJSON = async (data: ExportedAllLists): Promise<number> => {
   const { data: { user } } = await supabase.auth.getUser();
 
-  // Récupère les noms existants
   const { data: existingLists, error: fetchError } = await supabase
     .from('lists')
     .select('name')
@@ -324,12 +326,13 @@ export const importAllListsFromJSON = async (data: ExportedAllLists): Promise<nu
   let count = 0;
   for (const list of data.lists) {
     const uniqueName = getUniqueName(list.name);
-    existingNames.add(uniqueName.toLowerCase()); // évite les doublons entre les listes du fichier
+    existingNames.add(uniqueName.toLowerCase());
 
     const { data: createdList, error: listError } = await supabase
       .from('lists')
       .insert({
         name: uniqueName,
+        type: list.type ?? 'manga',
         description: list.description,
         user_id: user?.id,
       })

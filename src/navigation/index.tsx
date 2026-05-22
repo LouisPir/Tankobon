@@ -11,7 +11,7 @@ import { MangaListScreen } from '../screens/MangaListScreen';
 import { AddMangaScreen } from '../screens/AddMangaScreen';
 import { EditMangaScreen } from '../screens/EditMangaScreen';
 import { MangaDetailScreen } from '../screens/MangaDetailScreen';
-import { Manga } from '../services/manga';
+import { Entry } from '../services/entries';
 import { deleteList, List, ImportResult, exportAllListsToJSON, deleteAllUserData } from '../services/lists';
 import { PasswordScreen } from '../screens/PasswordScreen';
 import { ImportListScreen } from '../screens/ImportListScreen';
@@ -60,7 +60,7 @@ export const Navigation = () => {
   const { user, loading } = useAuth();
   const [screen, setScreen] = useState<Screen>('ListsHome');
   const [selectedList, setSelectedList] = useState<List | null>(null);
-  const [selectedManga, setSelectedManga] = useState<Manga | null>(null);
+  const [selectedManga, setSelectedManga] = useState<Entry | null>(null);
   const [pendingList, setPendingList] = useState<List | null>(null);
   const [passwordMode, setPasswordMode] = useState<'access' | 'delete'>('access');
   const [importResult, setImportResult] = useState<ImportResult | null>(null);
@@ -339,6 +339,7 @@ export const Navigation = () => {
       <SafeAreaProvider>
         <MangaListScreen
           listId={selectedList.id}
+          listType={selectedList.type}
           onSelectManga={(manga) => {
             setSelectedManga(manga);
             setScreen('MangaDetail');
@@ -359,6 +360,7 @@ export const Navigation = () => {
       <SafeAreaProvider>
         <AddMangaScreen
           listId={selectedList.id}
+          listType={selectedList.type}
           onBack={() => setScreen('MangaList')}
           onSuccess={() => setScreen('MangaList')}
         />
@@ -370,7 +372,8 @@ export const Navigation = () => {
     return (
       <SafeAreaProvider>
         <EditMangaScreen
-          manga={selectedManga}
+          entry={selectedManga}
+          listType={selectedList!.type}
           onBack={() => setScreen('MangaDetail')}
           onSuccess={() => {
             setScreen('MangaList');
@@ -385,7 +388,8 @@ export const Navigation = () => {
     return (
       <SafeAreaProvider>
         <MangaDetailScreen
-          manga={selectedManga}
+          entry={selectedManga}
+          listType={selectedList!.type}
           onBack={() => setScreen('MangaList')}
           onEdit={() => setScreen('EditManga')}
         />
