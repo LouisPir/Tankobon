@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator, Alert, TextInput, Modal } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator, Alert, TextInput, Modal, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useEffect, useState } from 'react';
 import { useTheme } from '../context/ThemeContext';
@@ -38,6 +38,8 @@ const ListCard = ({ list, onPress, onDelete }: { list: List; onPress: (list: Lis
 };
 
 type ModalTab = 'filter' | 'sort';
+type SortOption = 'name_asc' | 'name_desc' | 'date_newest' | 'date_oldest' | 'count_asc' | 'count_desc';
+type CountRange = '0' | '1-10' | '10-50' | '50+';
 
 export const ListsHomeScreen = ({ onSelectList, onAddList, onDeleteProtected, onSettings }: { onSelectList: (list: List) => void; onAddList: () => void; onDeleteProtected: (list: List) => void; onSettings: () => void }) => {
   const [lists, setLists] = useState<List[]>([]);
@@ -46,12 +48,20 @@ export const ListsHomeScreen = ({ onSelectList, onAddList, onDeleteProtected, on
   const [loading, setLoading] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
   const [activeTab, setActiveTab] = useState<ModalTab>('filter');
+
+  // Filtres
+  const [activeTypes, setActiveTypes] = useState<ListType[]>([]);
+  const [activeCountRange, setActiveCountRange] = useState<CountRange | null>(null);
+
+  // Tri
+  const [activeSort, setActiveSort] = useState<SortOption | null>(null);
+
   const { theme } = useTheme();
   const { tr } = useLanguage();
   const styles = makeStyles(theme);
 
   const fetchLists = async () => {
-    try { const data = await getLists(); setLists(data); setFiltered(data); }
+    try { const data = await getLists(); setLists(data); }
     catch (error: any) { Alert.alert(tr('error', 'Erreur'), error.message); }
     finally { setLoading(false); }
   };
@@ -59,10 +69,51 @@ export const ListsHomeScreen = ({ onSelectList, onAddList, onDeleteProtected, on
   useEffect(() => { fetchLists(); }, []);
 
   useEffect(() => {
-    let result = lists;
-    if (search.trim()) result = result.filter((l) => l.name.toLowerCase().includes(search.toLowerCase()));
+    let result = [...lists];
+
+    // Recherche textuelle
+    if (search.trim()) {
+      result = result.filter((l) => l.name.toLowerCase().includes(search.toLowerCase()));
+    }
+
+    // Filtre par type
+    if (activeTypes.length > 0) {
+      result = result.filter((l) => activeTypes.includes(l.type));
+    }
+
+    // Filtre par nombre d'entrées
+    if (activeCountRange) {
+      result = result.filter((l) => {
+        const count = l.manga_count ?? 0;
+        if (activeCountRange === '0') return count === 0;
+        if (activeCountRange === '1-10') return count >= 1 && count <= 10;
+        if (activeCountRange === '10-50') return count >= 10 && count <= 50;
+        if (activeCountRange === '50+') return count > 50;
+        return true;
+      });
+    }
+
+    // Tri
+    if (activeSort) {
+      result.sort((a, b) => {
+        if (activeSort === 'name_asc') return a.name.localeCompare(b.name);
+        if (activeSort === 'name_desc') return b.name.localeCompare(a.name);
+        if (activeSort === 'date_newest') return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+        if (activeSort === 'date_oldest') return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+        if (activeSort === 'count_asc') return (a.manga_count ?? 0) - (b.manga_count ?? 0);
+        if (activeSort === 'count_desc') return (b.manga_count ?? 0) - (a.manga_count ?? 0);
+        return 0;
+      });
+    }
+
     setFiltered(result);
-  }, [search, lists]);
+  }, [search, lists, activeTypes, activeCountRange, activeSort]);
+
+  const toggleType = (type: ListType) => {
+    setActiveTypes((prev) =>
+      prev.includes(type) ? prev.filter((t) => t !== type) : [...prev, type]
+    );
+  };
 
   const handleDelete = (id: string) => {
     const list = lists.find((l) => l.id === id);
@@ -76,6 +127,25 @@ export const ListsHomeScreen = ({ onSelectList, onAddList, onDeleteProtected, on
     ]);
   };
 
+  const handleReset = () => {
+    setActiveTypes([]);
+    setActiveCountRange(null);
+    setActiveSort(null);
+  };
+
+  const hasActiveFilters = activeTypes.length > 0 || activeCountRange !== null || activeSort !== null;
+
+  const COUNT_RANGES: CountRange[] = ['0', '1-10', '10-50', '50+'];
+
+  const SORT_OPTIONS: { label: string; value: SortOption }[] = [
+    { label: tr('modal.sort.az', 'A → Z'), value: 'name_asc' },
+    { label: tr('modal.sort.za', 'Z → A'), value: 'name_desc' },
+    { label: tr('modal.sort.newest', 'Plus récent'), value: 'date_newest' },
+    { label: tr('modal.sort.oldest', 'Plus ancien'), value: 'date_oldest' },
+    { label: tr('modal.sort.count.asc', 'Moins d\'entrées'), value: 'count_asc' },
+    { label: tr('modal.sort.count.desc', 'Plus d\'entrées'), value: 'count_desc' },
+  ];
+
   if (loading) return <View style={styles.centered}><ActivityIndicator size="large" color={theme.colors.primary} /></View>;
 
   return (
@@ -85,7 +155,6 @@ export const ListsHomeScreen = ({ onSelectList, onAddList, onDeleteProtected, on
         <TouchableOpacity onPress={onSettings}><Text style={{ fontSize: theme.fontSize.xl }}>⚙️</Text></TouchableOpacity>
       </View>
 
-      {/* Barre de recherche + bouton filtre */}
       <View style={styles.searchRow}>
         <View style={styles.searchContainer}>
           <TextInput
@@ -101,7 +170,10 @@ export const ListsHomeScreen = ({ onSelectList, onAddList, onDeleteProtected, on
             </TouchableOpacity>
           )}
         </View>
-        <TouchableOpacity style={styles.filterButton} onPress={() => setModalVisible(true)}>
+        <TouchableOpacity
+          style={[styles.filterButton, hasActiveFilters && styles.filterButtonActive]}
+          onPress={() => setModalVisible(true)}
+        >
           <Text style={styles.filterButtonIcon}>🪄</Text>
         </TouchableOpacity>
       </View>
@@ -110,12 +182,12 @@ export const ListsHomeScreen = ({ onSelectList, onAddList, onDeleteProtected, on
         <View style={styles.empty}>
           <Text style={styles.emptyEmoji}>🌸</Text>
           <Text style={styles.emptyTitle}>
-            {search.length > 0
+            {search.length > 0 || hasActiveFilters
               ? tr('lists.no_results', 'Aucun résultat')
               : tr('lists.empty', 'Aucune liste pour l\'instant')}
           </Text>
           <Text style={styles.emptySubtitle}>
-            {search.length > 0
+            {search.length > 0 || hasActiveFilters
               ? tr('lists.no_results_for', 'Aucune liste ne correspond à ta recherche')
               : tr('lists.empty.subtitle', 'Crée ta première liste !')}
           </Text>
@@ -163,66 +235,107 @@ export const ListsHomeScreen = ({ onSelectList, onAddList, onDeleteProtected, on
               </TouchableOpacity>
             </View>
 
-            {/* Contenu Filtrer */}
-            {activeTab === 'filter' && (
-              <View style={styles.modalContent}>
-                <Text style={styles.modalSectionTitle}>{tr('modal.filter.type', 'Par type')}</Text>
-                <View style={styles.modalChipsRow}>
-                  {Object.values(LIST_TYPES).map((config) => (
-                    <TouchableOpacity key={config.type} style={styles.modalChip} disabled>
-                      <Text style={styles.modalChipIcon}>{config.icon}</Text>
-                      <Text style={styles.modalChipLabel}>{tr(config.labelKey, config.labelFr)}</Text>
-                    </TouchableOpacity>
-                  ))}
-                </View>
-                <Text style={styles.modalSectionTitle}>{tr('modal.filter.count', 'Par nombre d\'entrées')}</Text>
-                <View style={styles.modalOptionsCol}>
-                  {['0', '1-10', '10-50', '50+'].map((range) => (
-                    <TouchableOpacity key={range} style={styles.modalOption} disabled>
-                      <Text style={styles.modalOptionText}>{range}</Text>
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              </View>
-            )}
+            <ScrollView showsVerticalScrollIndicator={false}>
 
-            {/* Contenu Trier */}
-            {activeTab === 'sort' && (
-              <View style={styles.modalContent}>
-                <Text style={styles.modalSectionTitle}>{tr('modal.sort.name', 'Par nom')}</Text>
-                <View style={styles.modalOptionsCol}>
-                  <TouchableOpacity style={styles.modalOption} disabled>
-                    <Text style={styles.modalOptionText}>{tr('modal.sort.az', 'A → Z')}</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={styles.modalOption} disabled>
-                    <Text style={styles.modalOptionText}>{tr('modal.sort.za', 'Z → A')}</Text>
-                  </TouchableOpacity>
-                </View>
-                <Text style={styles.modalSectionTitle}>{tr('modal.sort.date', 'Par date de création')}</Text>
-                <View style={styles.modalOptionsCol}>
-                  <TouchableOpacity style={styles.modalOption} disabled>
-                    <Text style={styles.modalOptionText}>{tr('modal.sort.newest', 'Plus récent')}</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={styles.modalOption} disabled>
-                    <Text style={styles.modalOptionText}>{tr('modal.sort.oldest', 'Plus ancien')}</Text>
-                  </TouchableOpacity>
-                </View>
-                <Text style={styles.modalSectionTitle}>{tr('modal.sort.count', 'Par nombre d\'entrées')}</Text>
-                <View style={styles.modalOptionsCol}>
-                  <TouchableOpacity style={styles.modalOption} disabled>
-                    <Text style={styles.modalOptionText}>{tr('modal.sort.count.asc', 'Croissant')}</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={styles.modalOption} disabled>
-                    <Text style={styles.modalOptionText}>{tr('modal.sort.count.desc', 'Décroissant')}</Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-            )}
+              {/* Contenu Filtrer */}
+              {activeTab === 'filter' && (
+                <View style={styles.modalContent}>
+                  <Text style={styles.modalSectionTitle}>{tr('modal.filter.type', 'Par type')}</Text>
+                  <View style={styles.modalChipsRow}>
+                    {Object.values(LIST_TYPES).map((config) => (
+                      <TouchableOpacity
+                        key={config.type}
+                        style={[styles.modalChip, activeTypes.includes(config.type) && styles.modalChipActive]}
+                        onPress={() => toggleType(config.type)}
+                      >
+                        <Text style={styles.modalChipIcon}>{config.icon}</Text>
+                        <Text style={[styles.modalChipLabel, activeTypes.includes(config.type) && styles.modalChipLabelActive]}>
+                          {tr(config.labelKey, config.labelFr)}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
 
-            {/* Bouton fermer */}
-            <TouchableOpacity style={styles.modalCloseButton} onPress={() => setModalVisible(false)}>
-              <Text style={styles.modalCloseText}>{tr('modal.close', 'Fermer')}</Text>
-            </TouchableOpacity>
+                  <Text style={styles.modalSectionTitle}>{tr('modal.filter.count', 'Par nombre d\'entrées')}</Text>
+                  <View style={styles.modalOptionsCol}>
+                    {COUNT_RANGES.map((range) => (
+                      <TouchableOpacity
+                        key={range}
+                        style={[styles.modalOption, activeCountRange === range && styles.modalOptionActive]}
+                        onPress={() => setActiveCountRange(activeCountRange === range ? null : range)}
+                      >
+                        <Text style={[styles.modalOptionText, activeCountRange === range && styles.modalOptionTextActive]}>
+                          {range} {tr('modal.filter.entries', 'entrée(s)')}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                </View>
+              )}
+
+              {/* Contenu Trier */}
+              {activeTab === 'sort' && (
+                <View style={styles.modalContent}>
+                  <Text style={styles.modalSectionTitle}>{tr('modal.sort.name', 'Par nom')}</Text>
+                  <View style={styles.modalOptionsCol}>
+                    {SORT_OPTIONS.slice(0, 2).map((opt) => (
+                      <TouchableOpacity
+                        key={opt.value}
+                        style={[styles.modalOption, activeSort === opt.value && styles.modalOptionActive]}
+                        onPress={() => setActiveSort(activeSort === opt.value ? null : opt.value)}
+                      >
+                        <Text style={[styles.modalOptionText, activeSort === opt.value && styles.modalOptionTextActive]}>
+                          {opt.label}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+
+                  <Text style={styles.modalSectionTitle}>{tr('modal.sort.date', 'Par date de création')}</Text>
+                  <View style={styles.modalOptionsCol}>
+                    {SORT_OPTIONS.slice(2, 4).map((opt) => (
+                      <TouchableOpacity
+                        key={opt.value}
+                        style={[styles.modalOption, activeSort === opt.value && styles.modalOptionActive]}
+                        onPress={() => setActiveSort(activeSort === opt.value ? null : opt.value)}
+                      >
+                        <Text style={[styles.modalOptionText, activeSort === opt.value && styles.modalOptionTextActive]}>
+                          {opt.label}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+
+                  <Text style={styles.modalSectionTitle}>{tr('modal.sort.count', 'Par nombre d\'entrées')}</Text>
+                  <View style={styles.modalOptionsCol}>
+                    {SORT_OPTIONS.slice(4).map((opt) => (
+                      <TouchableOpacity
+                        key={opt.value}
+                        style={[styles.modalOption, activeSort === opt.value && styles.modalOptionActive]}
+                        onPress={() => setActiveSort(activeSort === opt.value ? null : opt.value)}
+                      >
+                        <Text style={[styles.modalOptionText, activeSort === opt.value && styles.modalOptionTextActive]}>
+                          {opt.label}
+                        </Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                </View>
+              )}
+
+            </ScrollView>
+
+            {/* Actions */}
+            <View style={styles.modalActions}>
+              {hasActiveFilters && (
+                <TouchableOpacity style={styles.modalResetButton} onPress={handleReset}>
+                  <Text style={styles.modalResetText}>{tr('modal.reset', 'Réinitialiser')}</Text>
+                </TouchableOpacity>
+              )}
+              <TouchableOpacity style={styles.modalCloseButton} onPress={() => setModalVisible(false)}>
+                <Text style={styles.modalCloseText}>{tr('modal.close', 'Fermer')}</Text>
+              </TouchableOpacity>
+            </View>
 
           </TouchableOpacity>
         </TouchableOpacity>
@@ -231,6 +344,7 @@ export const ListsHomeScreen = ({ onSelectList, onAddList, onDeleteProtected, on
     </SafeAreaView>
   );
 };
+
 
 const makeStyles = (theme: Theme) => StyleSheet.create({
   container: { flex: 1, backgroundColor: theme.colors.background },
@@ -282,12 +396,20 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
   modalContent: { gap: theme.spacing.md },
   modalSectionTitle: { fontSize: theme.fontSize.sm, fontWeight: '700', color: theme.colors.textSecondary, textTransform: 'uppercase', letterSpacing: 1 },
   modalChipsRow: { flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.sm },
-  modalChip: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.xs, paddingHorizontal: theme.spacing.md, paddingVertical: theme.spacing.sm, borderRadius: theme.borderRadius.full, borderWidth: 1, borderColor: theme.colors.border, backgroundColor: theme.colors.background, opacity: 0.5 },
   modalChipIcon: { fontSize: 14 },
   modalChipLabel: { fontSize: theme.fontSize.sm, color: theme.colors.textSecondary },
   modalOptionsCol: { gap: theme.spacing.sm },
-  modalOption: { padding: theme.spacing.md, borderRadius: theme.borderRadius.md, borderWidth: 1, borderColor: theme.colors.border, backgroundColor: theme.colors.background, opacity: 0.5 },
   modalOptionText: { fontSize: theme.fontSize.md, color: theme.colors.textSecondary },
   modalCloseButton: { backgroundColor: theme.colors.primary, padding: theme.spacing.md, borderRadius: theme.borderRadius.full, alignItems: 'center' },
   modalCloseText: { color: '#fff', fontSize: theme.fontSize.md, fontWeight: '700' },
+  filterButtonActive: { borderColor: theme.colors.primary, backgroundColor: theme.colors.accent },
+  modalChip: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.xs, paddingHorizontal: theme.spacing.md, paddingVertical: theme.spacing.sm, borderRadius: theme.borderRadius.full, borderWidth: 1, borderColor: theme.colors.border, backgroundColor: theme.colors.background },
+  modalChipActive: { borderColor: theme.colors.primary, backgroundColor: theme.colors.accent },
+  modalChipLabelActive: { color: theme.colors.primary },
+  modalOption: { padding: theme.spacing.md, borderRadius: theme.borderRadius.md, borderWidth: 1, borderColor: theme.colors.border, backgroundColor: theme.colors.background },
+  modalOptionActive: { borderColor: theme.colors.primary, backgroundColor: theme.colors.accent },
+  modalOptionTextActive: { color: theme.colors.primary, fontWeight: '600' },
+  modalActions: { flexDirection: 'row', gap: theme.spacing.sm, marginTop: theme.spacing.sm },
+  modalResetButton: { flex: 1, padding: theme.spacing.md, borderRadius: theme.borderRadius.full, alignItems: 'center', borderWidth: 1, borderColor: theme.colors.border },
+  modalResetText: { color: theme.colors.textSecondary, fontSize: theme.fontSize.md, fontWeight: '600' },
 });
