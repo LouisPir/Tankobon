@@ -1,66 +1,167 @@
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, ActivityIndicator, Alert, KeyboardAvoidingView, Platform } from 'react-native';
+import {
+  View, Text, TextInput, TouchableOpacity, StyleSheet,
+  ScrollView, ActivityIndicator, Alert, KeyboardAvoidingView, Platform,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useState } from 'react';
 import { useTheme } from '../context/ThemeContext';
 import { useLanguage } from '../context/LanguageContext';
-import { addManga, MangaStatus } from '../services/manga';
+import { addEntry } from '../services/entries';
+import { ListType, EntryStatus, getListTypeConfig } from '../config/listTypes';
 import { Theme } from '../config/theme';
 
-export const AddMangaScreen = ({ onBack, onSuccess, listId }: { listId: string; onBack: () => void; onSuccess: () => void }) => {
+export const AddMangaScreen = ({
+  onBack,
+  onSuccess,
+  listId,
+  listType,
+}: {
+  listId: string;
+  listType: ListType;
+  onBack: () => void;
+  onSuccess: () => void;
+}) => {
   const { theme } = useTheme();
   const { tr } = useLanguage();
   const styles = makeStyles(theme);
+  const typeConfig = getListTypeConfig(listType);
+
   const [title, setTitle] = useState('');
-  const [status, setStatus] = useState<MangaStatus>('ongoing');
+  const [status, setStatus] = useState<EntryStatus>(typeConfig.statuses[0] ?? 'ongoing');
   const [currentChapter, setCurrentChapter] = useState('0');
+  const [currentSeason, setCurrentSeason] = useState('1');
   const [rating, setRating] = useState<number | null>(null);
   const [review, setReview] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const STATUS_OPTIONS: { label: string; value: MangaStatus }[] = [
-    { label: tr('status.ongoing', 'EN COURS'), value: 'ongoing' },
-    { label: tr('status.completed', 'TERMINÉ'), value: 'completed' },
-    { label: tr('status.dropped', 'ABANDONNÉ'), value: 'dropped' },
-  ];
-
   const handleSubmit = async () => {
-    if (!title.trim()) { Alert.alert(tr('error', 'Erreur'), tr('manga.title_required', 'Le titre est obligatoire')); return; }
+    if (!title.trim()) {
+      Alert.alert(tr('error', 'Erreur'), tr('manga.title_required', 'Le titre est obligatoire'));
+      return;
+    }
     try {
       setLoading(true);
-      await addManga({ title: title.trim(), status, current_chapter: parseInt(currentChapter) || 0, rating, review: review.trim() || null, list_id: listId });
+      await addEntry({
+        title: title.trim(),
+        status,
+        current_chapter: parseInt(currentChapter) || 0,
+        current_season: parseInt(currentSeason) || 1,
+        rating,
+        review: review.trim() || null,
+        list_id: listId,
+      });
       onSuccess();
     } catch (error: any) {
       Alert.alert(tr('error', 'Erreur'), error.message);
-    } finally { setLoading(false); }
+    } finally {
+      setLoading(false);
+    }
   };
+
+  const entryLabel = tr('entry.label', typeConfig.labelFr);
 
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={onBack}><Text style={styles.backText}>{tr('back', '← Retour')}</Text></TouchableOpacity>
-        <Text style={styles.headerTitle}>{tr('manga.add.title', 'Nouveau manga')}</Text>
+        <TouchableOpacity onPress={onBack}>
+          <Text style={styles.backText}>{tr('back', '← Retour')}</Text>
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>
+          {typeConfig.icon} {tr('entry.add.title', 'Nouveau')} {entryLabel}
+        </Text>
         <View style={{ width: 60 }} />
       </View>
+
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
         <ScrollView contentContainerStyle={styles.form} keyboardShouldPersistTaps="handled">
+
+          {/* Titre */}
           <View style={styles.field}>
             <Text style={styles.label}>{tr('manga.title', 'Titre *')}</Text>
-            <TextInput style={styles.input} placeholder="Ex: Naruto, One Piece..." value={title} onChangeText={setTitle} placeholderTextColor={theme.colors.textSecondary} />
+            <TextInput
+              style={styles.input}
+              placeholder={tr('entry.title.placeholder', 'Ex: One Piece, Breaking Bad...')}
+              value={title}
+              onChangeText={setTitle}
+              placeholderTextColor={theme.colors.textSecondary}
+            />
           </View>
-          <View style={styles.field}>
-            <Text style={styles.label}>{tr('manga.status', 'Statut')}</Text>
-            <View style={styles.statusOptions}>
-              {STATUS_OPTIONS.map((option) => (
-                <TouchableOpacity key={option.value} style={[styles.statusOption, status === option.value && styles.statusOptionActive]} onPress={() => setStatus(option.value)}>
-                  <Text style={[styles.statusOptionText, status === option.value && styles.statusOptionTextActive]}>{option.label}</Text>
-                </TouchableOpacity>
-              ))}
+
+          {/* Statut — caché si musique */}
+          {typeConfig.statuses.length > 0 && (
+            <View style={styles.field}>
+              <Text style={styles.label}>{tr('manga.status', 'Statut')}</Text>
+              <View style={styles.statusOptions}>
+                {typeConfig.statuses.map((s) => {
+                  const labelConfig = typeConfig.statusLabelKeys[s];
+                  const label = labelConfig ? tr(labelConfig.key, labelConfig.fr) : s;
+                  return (
+                    <TouchableOpacity
+                      key={s}
+                      style={[styles.statusOption, status === s && styles.statusOptionActive]}
+                      onPress={() => setStatus(s)}
+                    >
+                      <Text style={[styles.statusOptionText, status === s && styles.statusOptionTextActive]}>
+                        {label.toUpperCase()}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
             </View>
-          </View>
-          <View style={styles.field}>
-            <Text style={styles.label}>{tr('manga.chapter', 'Dernier chapitre lu')}</Text>
-            <TextInput style={styles.input} placeholder="0" value={currentChapter} onChangeText={setCurrentChapter} keyboardType="numeric" placeholderTextColor={theme.colors.textSecondary} />
-          </View>
+          )}
+
+          {/* Progression — Saison + Épisode pour anime/série */}
+          {typeConfig.progressionType === 'season_episode' && (
+            <View style={styles.field}>
+              <Text style={styles.label}>{tr('entry.progression', 'Progression')}</Text>
+              <View style={styles.seasonEpisodeRow}>
+                <View style={styles.seasonEpisodeField}>
+                  <Text style={styles.subLabel}>{tr('entry.season', 'Saison')}</Text>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="1"
+                    value={currentSeason}
+                    onChangeText={setCurrentSeason}
+                    keyboardType="numeric"
+                    placeholderTextColor={theme.colors.textSecondary}
+                  />
+                </View>
+                <View style={styles.seasonEpisodeField}>
+                  <Text style={styles.subLabel}>{tr('entry.episode', 'Épisode')}</Text>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="0"
+                    value={currentChapter}
+                    onChangeText={setCurrentChapter}
+                    keyboardType="numeric"
+                    placeholderTextColor={theme.colors.textSecondary}
+                  />
+                </View>
+              </View>
+            </View>
+          )}
+
+          {/* Progression — champ unique pour chapter/hours/pages/plays */}
+          {typeConfig.progressionType !== 'none' && typeConfig.progressionType !== 'season_episode' && (
+            <View style={styles.field}>
+              <Text style={styles.label}>
+                {typeConfig.progressionLabelKey
+                  ? tr(typeConfig.progressionLabelKey, typeConfig.progressionLabelFr ?? '')
+                  : typeConfig.progressionLabelFr}
+              </Text>
+              <TextInput
+                style={styles.input}
+                placeholder="0"
+                value={currentChapter}
+                onChangeText={setCurrentChapter}
+                keyboardType="numeric"
+                placeholderTextColor={theme.colors.textSecondary}
+              />
+            </View>
+          )}
+
+          {/* Note */}
           <View style={styles.field}>
             <Text style={styles.label}>{tr('manga.rating', 'Note')}</Text>
             <View style={styles.starsContainer}>
@@ -71,13 +172,28 @@ export const AddMangaScreen = ({ onBack, onSuccess, listId }: { listId: string; 
               ))}
             </View>
           </View>
+
+          {/* Avis */}
           <View style={styles.field}>
             <Text style={styles.label}>{tr('manga.review', 'Mon avis')}</Text>
-            <TextInput style={[styles.input, styles.textArea]} placeholder={tr('manga.review.placeholder', 'Qu\'as-tu pensé de ce manga ?')} value={review} onChangeText={setReview} multiline numberOfLines={4} placeholderTextColor={theme.colors.textSecondary} />
+            <TextInput
+              style={[styles.input, styles.textArea]}
+              placeholder={tr('entry.review.placeholder', 'Qu\'as-tu pensé ?')}
+              value={review}
+              onChangeText={setReview}
+              multiline
+              numberOfLines={4}
+              placeholderTextColor={theme.colors.textSecondary}
+            />
           </View>
+
           <TouchableOpacity style={styles.submitButton} onPress={handleSubmit} disabled={loading}>
-            {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.submitText}>{tr('manga.add.button', 'Ajouter 🌸')}</Text>}
+            {loading
+              ? <ActivityIndicator color="#fff" />
+              : <Text style={styles.submitText}>{tr('manga.add.button', 'Ajouter 🌸')}</Text>
+            }
           </TouchableOpacity>
+
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
@@ -86,21 +202,39 @@ export const AddMangaScreen = ({ onBack, onSuccess, listId }: { listId: string; 
 
 const makeStyles = (theme: Theme) => StyleSheet.create({
   container: { flex: 1, backgroundColor: theme.colors.background },
-  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: theme.spacing.lg, backgroundColor: theme.colors.surface, borderBottomWidth: 1, borderBottomColor: theme.colors.border },
+  header: {
+    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
+    padding: theme.spacing.lg, backgroundColor: theme.colors.surface,
+    borderBottomWidth: 1, borderBottomColor: theme.colors.border,
+  },
   backText: { color: theme.colors.primary, fontSize: theme.fontSize.lg, fontWeight: '600', width: 60 },
   headerTitle: { fontSize: theme.fontSize.lg, fontWeight: 'bold', color: theme.colors.text },
   form: { padding: theme.spacing.lg, gap: theme.spacing.lg },
   field: { gap: theme.spacing.sm },
   label: { fontSize: theme.fontSize.md, fontWeight: '600', color: theme.colors.text },
-  input: { backgroundColor: theme.colors.surface, borderWidth: 1, borderColor: theme.colors.border, borderRadius: theme.borderRadius.md, padding: theme.spacing.md, fontSize: theme.fontSize.md, color: theme.colors.text },
+  subLabel: { fontSize: theme.fontSize.sm, fontWeight: '600', color: theme.colors.textSecondary, marginBottom: theme.spacing.xs },
+  input: {
+    backgroundColor: theme.colors.surface, borderWidth: 1, borderColor: theme.colors.border,
+    borderRadius: theme.borderRadius.md, padding: theme.spacing.md,
+    fontSize: theme.fontSize.md, color: theme.colors.text,
+  },
   textArea: { height: 100, textAlignVertical: 'top' },
-  statusOptions: { flexDirection: 'row', gap: theme.spacing.sm },
-  statusOption: { flex: 1, padding: theme.spacing.sm, borderRadius: theme.borderRadius.full, borderWidth: 1, borderColor: theme.colors.border, alignItems: 'center' },
+  statusOptions: { flexDirection: 'row', gap: theme.spacing.sm, flexWrap: 'wrap' },
+  statusOption: {
+    flex: 1, padding: theme.spacing.sm, borderRadius: theme.borderRadius.full,
+    borderWidth: 1, borderColor: theme.colors.border, alignItems: 'center',
+    minWidth: 80,
+  },
   statusOptionActive: { backgroundColor: theme.colors.primary, borderColor: theme.colors.primary },
   statusOptionText: { fontSize: 10, fontWeight: 'bold', color: theme.colors.textSecondary },
   statusOptionTextActive: { color: '#fff' },
+  seasonEpisodeRow: { flexDirection: 'row', gap: theme.spacing.md },
+  seasonEpisodeField: { flex: 1 },
   starsContainer: { flexDirection: 'row', gap: theme.spacing.sm },
   star: { fontSize: 32, color: theme.colors.primary },
-  submitButton: { backgroundColor: theme.colors.primary, padding: theme.spacing.md, borderRadius: theme.borderRadius.full, alignItems: 'center', marginTop: theme.spacing.md },
+  submitButton: {
+    backgroundColor: theme.colors.primary, padding: theme.spacing.md,
+    borderRadius: theme.borderRadius.full, alignItems: 'center', marginTop: theme.spacing.md,
+  },
   submitText: { color: '#fff', fontSize: theme.fontSize.lg, fontWeight: 'bold' },
 });
