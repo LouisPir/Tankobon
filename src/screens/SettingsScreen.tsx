@@ -9,13 +9,14 @@ import { List } from '../services/lists';
 export const SettingsScreen = ({
   onBack, selectedList, onImportList, onExportList, onEditList,
   onChangeEmail, onChangePassword, onDeleteAccount, onExportAllLists,
-  onDeleteAllData, onAbout, onTheme, onLanguage, onReferral,
+  onDeleteAllData, onAbout, onTheme, onLanguage, onReferral, onStats,
 }: {
   onBack: () => void; selectedList?: List; onImportList: () => void;
   onExportList: () => void; onEditList: () => void; onChangeEmail: () => void;
   onChangePassword: () => void; onDeleteAccount: () => void; onExportAllLists: () => void;
   onDeleteAllData: () => void; onAbout: () => void; onTheme: () => void;
   onLanguage: () => void; onReferral: () => void;
+  onStats: () => void;
 }) => {
   const insets = useSafeAreaInsets();
   const { theme } = useTheme();
@@ -106,6 +107,11 @@ export const SettingsScreen = ({
           <View style={styles.separator} />
           <TouchableOpacity style={styles.row} onPress={onLanguage}>
             <Text style={styles.rowText}>{tr('settings.language', '🌍 Langue')}</Text>
+            <Text style={styles.rowArrow}>›</Text>
+          </TouchableOpacity>
+          <View style={styles.separator} />
+          <TouchableOpacity style={styles.row} onPress={onStats}>
+            <Text style={styles.rowText}>{tr('settings.stats', '📊 Statistiques')}</Text>
             <Text style={styles.rowArrow}>›</Text>
           </TouchableOpacity>
         </View>

@@ -290,4 +290,19 @@ export default {
   'home.ongoing': 'Ongoing',
   'home.completed': 'Completed',
   'home.cta': 'View my collection 🌸',
+
+  // Statistics
+  'stats.title': 'Statistics',
+  'stats.global': 'Overview',
+  'stats.lists': 'Lists',
+  'stats.entries': 'Entries',
+  'stats.progression': 'Chapters',
+  'stats.by.type': 'By type',
+  'stats.by.list': 'By list',
+  'stats.avg.rating': 'Average rating',
+  'stats.empty': 'Add entries to your lists to see your statistics.',
+  'settings.stats': 'Statistics',
+  'stats.completed': 'Completed',
+  'stats.rating.dist': 'Ratings',
+  'stats.progression.dist': 'Progression',
 };
