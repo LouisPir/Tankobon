@@ -4,6 +4,9 @@ import { useState } from 'react';
 import { useTheme } from '../context/ThemeContext';
 import { useLanguage } from '../context/LanguageContext';
 import { Theme } from '../config/theme';
+import { useAchievementToast } from '../context/AchievementToastContext';
+import { unlockAndCheck, computeGrades } from '../services/grades';
+
 import {
   pickAndParseJSONFile, importListAsNew, importAllListsFromJSON,
   isMultiListFile, mergeImportIntoList, ImportedList, ImportResult,
@@ -33,6 +36,17 @@ export const ImportListScreen = ({ onBack, onSuccess, preselectedList }: {
   const [loading, setLoading] = useState(false);
   const [passwordPending, setPasswordPending] = useState(false);
   const [passwordInput, setPasswordInput] = useState('');
+  const { showAchievements } = useAchievementToast();
+
+
+  const triggerImportAchievements = async () => {
+    try {
+      const newAch = await unlockAndCheck('ie_import1');
+      const result = await computeGrades();
+      const toShow = [...(newAch ? [newAch] : []), ...result.newlyUnlocked];
+      if (toShow.length > 0) showAchievements(toShow);
+    } catch (e) {}
+  };
 
   const handleSelectMode = async (selectedMode: ImportMode) => {
     setMode(selectedMode);
@@ -57,6 +71,7 @@ export const ImportListScreen = ({ onBack, onSuccess, preselectedList }: {
             { text: tr('import.all.button', 'Importer tout'), onPress: async () => {
               try {
                 const count = await importAllListsFromJSON(parsed);
+                await triggerImportAchievements();
                 onSuccess({ added: parsed.lists.map((l: any) => l.name), duplicates: [], overwritten: [] }, 'new', `${count} ${tr('import.all.detected', 'liste(s) importée(s)')}`);
               } catch (error: any) { Alert.alert(tr('error', 'Erreur'), error.message); }
             }},
@@ -86,6 +101,7 @@ export const ImportListScreen = ({ onBack, onSuccess, preselectedList }: {
     if (!importedData || !selectedList) return;
     try {
       const result = await mergeImportIntoList(importedData, selectedList.id, behavior);
+      await triggerImportAchievements();
       onSuccess(result, 'merge', selectedList.name);
     } catch (error: any) { Alert.alert(tr('error', 'Erreur'), error.message); }
     finally { setLoading(false); setPasswordPending(false); setPasswordInput(''); }
@@ -109,8 +125,15 @@ export const ImportListScreen = ({ onBack, onSuccess, preselectedList }: {
     if (mode === 'merge' && !selectedList) { Alert.alert(tr('error', 'Erreur'), tr('import.target.required', 'Sélectionne une liste cible')); return; }
     setLoading(true);
     if (mode === 'new') {
-      try { const result = await importListAsNew(importedData, listName.trim()); onSuccess(result, 'new', listName.trim()); }
-      catch (error: any) { Alert.alert(tr('error', 'Erreur'), error.message); setLoading(false); }
+      try {
+        await importListAsNew(importedData, listName.trim());
+        await triggerImportAchievements();
+        onSuccess(
+          { added: importedData.entries.map(e => e.title), duplicates: [], overwritten: [] },
+          'new',
+          listName.trim()
+        );
+      } catch (error: any) { Alert.alert(tr('error', 'Erreur'), error.message); setLoading(false); }
       return;
     }
     if (selectedList?.password_hash) { setPasswordPending(true); setLoading(false); return; }

@@ -9,6 +9,8 @@ import { useLanguage } from '../context/LanguageContext';
 import { addEntry } from '../services/entries';
 import { ListType, EntryStatus, getListTypeConfig } from '../config/listTypes';
 import { Theme } from '../config/theme';
+import { useAchievementToast } from '../context/AchievementToastContext';
+import { computeGrades } from '../services/grades';
 
 export const AddEntryScreen = ({
   onBack,
@@ -25,7 +27,7 @@ export const AddEntryScreen = ({
   const { tr } = useLanguage();
   const styles = makeStyles(theme);
   const typeConfig = getListTypeConfig(listType);
-
+  const { showAchievements } = useAchievementToast();
   const [title, setTitle] = useState('');
   const [status, setStatus] = useState<EntryStatus>(typeConfig.statuses[0] ?? 'ongoing');
   const [currentChapter, setCurrentChapter] = useState('0');
@@ -50,6 +52,8 @@ export const AddEntryScreen = ({
         review: review.trim() || null,
         list_id: listId,
       });
+      const result = await computeGrades();
+      if (result.newlyUnlocked.length > 0) showAchievements(result.newlyUnlocked);
       onSuccess();
     } catch (error: any) {
       Alert.alert(tr('error', 'Erreur'), error.message);

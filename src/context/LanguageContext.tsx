@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import en from './languages/en';
+import { unlockAchievement } from '../services/grades';
 
 export type Language = 'fr' | 'en';
 
@@ -32,6 +33,7 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
   const setLanguage = async (lang: Language) => {
     setLanguageState(lang);
     await AsyncStorage.setItem('language', lang);
+    unlockAchievement('app_lang');
   };
 
   const tr = (key: string, defaultFr: string): string => {

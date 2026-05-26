@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { themes, ThemeName, Theme } from '../config/theme';
+import { unlockAchievement } from '../services/grades';
 
 type ThemeContextType = {
   themeName: ThemeName;
@@ -28,6 +29,7 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
   const setTheme = async (name: ThemeName) => {
     setThemeName(name);
     await AsyncStorage.setItem('theme', name);
+    unlockAchievement('app_thm');
   };
 
   return (
