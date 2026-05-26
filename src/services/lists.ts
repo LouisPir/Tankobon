@@ -68,19 +68,19 @@ export const exportListToJSON = async (listId: string) => {
 
   if (listError) throw listError;
 
-  const { data: mangas, error: mangasError } = await supabase
-    .from('mangas')
+  const { data: entries, error: entriesError } = await supabase
+    .from('entries')
     .select('*')
     .eq('list_id', listId);
 
-  if (mangasError) throw mangasError;
+  if (entriesError) throw entriesError;
 
   const exportData = {
     name: list.name,
     type: list.type,
     description: list.description,
     exported_at: new Date().toISOString(),
-    mangas: mangas.map((m) => ({
+    entries: entries.map((m) => ({
       title: m.title,
       status: m.status,
       current_chapter: m.current_chapter,
@@ -114,7 +114,7 @@ export type ImportedList = {
   name: string;
   type?: ListType;
   description: string | null;
-  mangas: ImportedEntry[];
+  entries: ImportedEntry[];
 };
 
 export const pickAndParseJSONFile = async (): Promise<any | null> => {
@@ -145,18 +145,18 @@ export const importListAsNew = async (data: ImportedList, name: string) => {
 
   if (listError) throw listError;
 
-  if (data.mangas.length > 0) {
-    const { error: mangasError } = await supabase
-      .from('mangas')
+  if (data.entries.length > 0) {
+    const { error: entriesError } = await supabase
+      .from('entries')
       .insert(
-        data.mangas.map((m) => ({
+        data.entries.map((m) => ({
           ...m,
           list_id: list.id,
           user_id: user?.id,
         }))
       );
 
-    if (mangasError) throw mangasError;
+    if (entriesError) throw entriesError;
   }
 
   return list;
@@ -178,7 +178,7 @@ export const mergeImportIntoList = async (
   const { data: { user } } = await supabase.auth.getUser();
 
   const { data: existing, error: fetchError } = await supabase
-    .from('mangas')
+    .from('entries')
     .select('id, title')
     .eq('list_id', listId);
 
@@ -192,7 +192,7 @@ export const mergeImportIntoList = async (
   const addedTitles: string[] = [];
   const overwrittenTitles: string[] = [];
 
-  for (const entry of data.mangas) {
+  for (const entry of data.entries) {
     const existingId = existingMap.get(entry.title.toLowerCase());
     if (existingId) {
       duplicateTitles.push(entry.title);
@@ -205,14 +205,14 @@ export const mergeImportIntoList = async (
 
   if (toInsert.length > 0) {
     const { error } = await supabase
-      .from('mangas')
+      .from('entries')
       .insert(toInsert.map((m) => ({ ...m, list_id: listId, user_id: user?.id })));
     if (error) throw error;
   }
 
   for (const { id, entry } of toOverwrite) {
     const { error } = await supabase
-      .from('mangas')
+      .from('entries')
       .update({
         status: entry.status,
         current_chapter: entry.current_chapter,
@@ -239,12 +239,12 @@ export const exportAllListsToJSON = async () => {
 
   if (listsError) throw listsError;
 
-  const { data: mangas, error: mangasError } = await supabase
-    .from('mangas')
+  const { data: entries, error: entriesError } = await supabase
+    .from('entries')
     .select('*')
     .eq('user_id', user?.id);
 
-  if (mangasError) throw mangasError;
+  if (entriesError) throw entriesError;
 
   const exportData = {
     exported_at: new Date().toISOString(),
@@ -252,7 +252,7 @@ export const exportAllListsToJSON = async () => {
       name: list.name,
       type: list.type,
       description: list.description,
-      mangas: mangas
+      entries: entries
         .filter((m) => m.list_id === list.id)
         .map((m) => ({
           title: m.title,
@@ -280,12 +280,12 @@ export const deleteAllUserData = async () => {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error('Utilisateur non connecté');
 
-  const { error: mangasError } = await supabase
-    .from('mangas')
+  const { error: entriesError } = await supabase
+    .from('entries')
     .delete()
     .eq('user_id', user.id);
 
-  if (mangasError) throw mangasError;
+  if (entriesError) throw entriesError;
 
   const { error: listsError } = await supabase
     .from('lists')
@@ -341,10 +341,10 @@ export const importAllListsFromJSON = async (data: ExportedAllLists): Promise<nu
 
     if (listError) throw listError;
 
-    if (list.mangas.length > 0) {
+    if (list.entries.length > 0) {
       const { error } = await supabase
-        .from('mangas')
-        .insert(list.mangas.map((m) => ({ ...m, list_id: createdList.id, user_id: user?.id })));
+        .from('entries')
+        .insert(list.entries.map((m) => ({ ...m, list_id: createdList.id, user_id: user?.id })));
       if (error) throw error;
     }
     count++;

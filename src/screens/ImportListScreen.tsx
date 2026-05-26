@@ -202,7 +202,7 @@ export const ImportListScreen = ({ onBack, onSuccess, preselectedList }: {
           <View style={styles.previewContainer}>
             <Text style={styles.previewTitle}>{tr('import.loaded', '✅ Fichier chargé')}</Text>
             <Text style={styles.previewInfo}>
-              {importedData.mangas.length} {importedData.mangas.length > 1 ? tr('import.entries.found.plural', 'entrées trouvées') : tr('import.entries.found', 'entrée trouvée')}
+              {importedData.entries.length} {importedData.entries.length > 1 ? tr('import.entries.found.plural', 'entrées trouvées') : tr('import.entries.found', 'entrée trouvée')}
             </Text>
 
             {mode === 'new' ? (
