@@ -332,4 +332,11 @@ export default {
   'ach.ie_export5.desc': 'Export 5 lists',
   'ach.ie_exportall.label': 'Archivist',
   'ach.ie_exportall.desc': 'Export all lists at once',
+  'stats.monthly': 'Entries per month',
+  'stats.monthly.chart': 'Last 12 months',
+
+  // Month
+  'month.jan': 'Jan', 'month.feb': 'Feb', 'month.mar': 'Mar', 'month.apr': 'Apr',
+  'month.may': 'May', 'month.jun': 'Jun', 'month.jul': 'Jul', 'month.aug': 'Aug',
+  'month.sep': 'Sep', 'month.oct': 'Oct', 'month.nov': 'Nov', 'month.dec': 'Dec',
 };
