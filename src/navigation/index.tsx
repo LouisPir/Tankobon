@@ -28,6 +28,8 @@ import { AboutScreen } from '../screens/AboutScreen';
 import { ThemeScreen } from '../screens/ThemeScreen';
 import { LanguageScreen } from '../screens/LanguageScreen';
 import { ReferralScreen } from '../screens/ReferralScreen';
+import { StatsScreen } from '../screens/StatsScreen';
+
 
 type Screen =
   | 'Auth'
@@ -52,6 +54,7 @@ type Screen =
   | 'About'
   | 'Theme'
   | 'Language'
+  | 'Stats'
   | 'SelectList';
   
   
@@ -106,6 +109,7 @@ export const Navigation = () => {
           onTheme={() => setScreen('Theme')}
           onAbout={() => setScreen('About')}
           onLanguage={() => setScreen('Language')}
+          onStats={() => setScreen('Stats')}
           onReferral={() => setScreen('Referral')}
           onEditList={() => {
             if (selectedList) {
@@ -147,6 +151,7 @@ export const Navigation = () => {
       </SafeAreaProvider>
     );
   }
+  
   if (screen === 'Referral') {
     return (
       <SafeAreaProvider>
@@ -164,7 +169,16 @@ export const Navigation = () => {
       </SafeAreaProvider>
     );
   }
-
+  if (screen === 'Stats') {
+    return (
+      <SafeAreaProvider>
+        <StatsScreen 
+          onBack={() => setScreen('Settings')} 
+          selectedList={selectedList ?? undefined}
+        />
+      </SafeAreaProvider>
+    );
+  }
   if (screen === 'ChangePassword') {
     return (
       <SafeAreaProvider>

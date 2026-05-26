@@ -176,8 +176,14 @@ export const EntryListScreen = ({
         if (activeSort === 'date_oldest') return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
         if (activeSort === 'rating_asc') return (a.rating ?? 0) - (b.rating ?? 0);
         if (activeSort === 'rating_desc') return (b.rating ?? 0) - (a.rating ?? 0);
-        if (activeSort === 'progression_asc') return a.current_chapter - b.current_chapter;
-        if (activeSort === 'progression_desc') return b.current_chapter - a.current_chapter;
+        if (activeSort === 'progression_asc') {
+          if (a.current_season !== b.current_season) return a.current_season - b.current_season;
+          return a.current_chapter - b.current_chapter;
+        }
+        if (activeSort === 'progression_desc') {
+          if (a.current_season !== b.current_season) return b.current_season - a.current_season;
+          return b.current_chapter - a.current_chapter;
+        }
         return 0;
       });
     }
