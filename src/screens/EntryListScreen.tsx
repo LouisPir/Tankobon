@@ -10,6 +10,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { Theme } from '../config/theme';
 import { getEntries, deleteEntry, Entry } from '../services/entries';
 import { ListType, getListTypeConfig, EntryStatus } from '../config/listTypes';
+import { ThemeBackground } from '../components/ThemeBackground';
 
 type ModalTab = 'filter' | 'sort';
 type SortOption = 'title_asc' | 'title_desc' | 'date_newest' | 'date_oldest' | 'rating_asc' | 'rating_desc' | 'progression_asc' | 'progression_desc';
@@ -251,6 +252,7 @@ export const EntryListScreen = ({
 
   return (
     <SafeAreaView style={styles.container}>
+      <ThemeBackground />
       <View style={styles.header}>
         <TouchableOpacity onPress={onBack}>
           <Text style={styles.backText}>{tr('back', '← Retour')}</Text>
