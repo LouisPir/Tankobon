@@ -1,0 +1,9 @@
+[extend]
+useDefault = true
+
+[[rules]]
+id = "generic-api-key"
+[rules.allowlist]
+regexes = [
+  '''ach\.[a-z0-9_]+\.(label|desc)''',
+]

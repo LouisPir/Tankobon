@@ -10,6 +10,7 @@ export const SettingsScreen = ({
   onBack, selectedList, onImportList, onExportList, onEditList,
   onChangeEmail, onChangePassword, onDeleteAccount, onExportAllLists,
   onDeleteAllData, onAbout, onTheme, onLanguage, onReferral, onStats,
+  onAchievements,
 }: {
   onBack: () => void; selectedList?: List; onImportList: () => void;
   onExportList: () => void; onEditList: () => void; onChangeEmail: () => void;
@@ -17,6 +18,7 @@ export const SettingsScreen = ({
   onDeleteAllData: () => void; onAbout: () => void; onTheme: () => void;
   onLanguage: () => void; onReferral: () => void;
   onStats: () => void;
+  onAchievements: () => void;
 }) => {
   const insets = useSafeAreaInsets();
   const { theme } = useTheme();
@@ -60,6 +62,11 @@ export const SettingsScreen = ({
 
         <Text style={styles.sectionTitle}>{tr('settings.account', 'Compte')}</Text>
         <View style={styles.section}>
+          <TouchableOpacity style={styles.row} onPress={onAchievements}>
+            <Text style={styles.rowText}>{tr('settings.achievements', '🏆 Succès')}</Text>
+            <Text style={styles.rowArrow}>›</Text>
+          </TouchableOpacity>
+          <View style={styles.separator} />
           <TouchableOpacity style={styles.row} onPress={onChangeEmail}>
             <Text style={styles.rowText}>{tr('settings.email', '✉️ Changer l\'email')}</Text>
             <Text style={styles.rowArrow}>›</Text>

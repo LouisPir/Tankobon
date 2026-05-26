@@ -9,6 +9,8 @@ import { useLanguage } from '../context/LanguageContext';
 import { createList } from '../services/lists';
 import { Theme } from '../config/theme';
 import { ListType, LIST_TYPES,  getListTypeConfig } from '../config/listTypes';
+import { useAchievementToast } from '../context/AchievementToastContext';
+import { computeGrades } from '../services/grades';
 
 export const AddListScreen = ({
   onBack,
@@ -26,6 +28,7 @@ export const AddListScreen = ({
   const { tr } = useLanguage();
   const styles = makeStyles(theme);
   const typeConfig = getListTypeConfig(selectedType);
+  const { showAchievements } = useAchievementToast();
   const handleSubmit = async () => {
     try {
       setLoading(true);
@@ -35,6 +38,8 @@ export const AddListScreen = ({
         description: description.trim() || null,
         password_hash: password.trim() || null,
       });
+      const result = await computeGrades();
+      if (result.newlyUnlocked.length > 0) showAchievements(result.newlyUnlocked);
       onSuccess();
     } catch (error: any) {
       Alert.alert(tr('error', 'Erreur'), error.message);

@@ -5,6 +5,9 @@ import { useTheme } from '../context/ThemeContext';
 import { useLanguage } from '../context/LanguageContext';
 import { getLists, exportListToJSON, List } from '../services/lists';
 import { Theme } from '../config/theme';
+import { useAchievementToast } from '../context/AchievementToastContext';
+import { unlockAndCheck, incrementExportCount, computeGrades } from '../services/grades';
+
 
 export const ExportListScreen = ({ onBack, preselectedList }: { onBack: () => void; preselectedList?: List }) => {
   const [lists, setLists] = useState<List[]>([]);
@@ -16,6 +19,7 @@ export const ExportListScreen = ({ onBack, preselectedList }: { onBack: () => vo
   const { theme } = useTheme();
   const { tr } = useLanguage();
   const styles = makeStyles(theme);
+  const { showAchievements } = useAchievementToast();
 
   useEffect(() => {
     if (preselectedList) return;
@@ -34,9 +38,21 @@ export const ExportListScreen = ({ onBack, preselectedList }: { onBack: () => vo
 
   const handleExport = async () => {
     if (!selectedList) return;
-    try { setLoading(true); await exportListToJSON(selectedList.id); }
-    catch (error: any) { Alert.alert(tr('error', 'Erreur'), error.message); }
-    finally { setLoading(false); }
+    try {
+      setLoading(true);
+      await exportListToJSON(selectedList.id);
+      const newAch = await unlockAndCheck('ie_export1');
+      await incrementExportCount();
+      const result = await computeGrades();
+      const toShow = [...(newAch ? [newAch] : []), ...result.newlyUnlocked];
+      if (toShow.length > 0) showAchievements(toShow);
+
+    } catch (error: any) {
+      Alert.alert(tr('error', 'Erreur'), error.message);
+    } finally {
+      setLoading(false);
+      onBack();
+    }
   };
 
   return (
