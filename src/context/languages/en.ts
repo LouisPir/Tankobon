@@ -301,7 +301,7 @@ export default {
   'stats.by.list': 'By list',
   'stats.avg.rating': 'Average rating',
   'stats.empty': 'Add entries to your lists to see your statistics.',
-  'settings.stats': 'Statistics',
+  'settings.stats': '📊 Statistics',
   'stats.completed': 'Completed',
   'stats.rating.dist': 'Ratings',
   'stats.progression.dist': 'Progression',

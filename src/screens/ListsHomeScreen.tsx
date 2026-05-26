@@ -6,6 +6,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { getLists, deleteList, List } from '../services/lists';
 import { Theme } from '../config/theme';
 import { getListTypeConfig, LIST_TYPES, ListType } from '../config/listTypes';
+import { ThemeBackground } from '../components/ThemeBackground';
 
 const ListCard = ({ list, onPress, onDelete }: { list: List; onPress: (list: List) => void; onDelete: (id: string) => void }) => {
   const { theme } = useTheme();
@@ -150,6 +151,7 @@ export const ListsHomeScreen = ({ onSelectList, onAddList, onDeleteProtected, on
 
   return (
     <SafeAreaView style={styles.container}>
+      <ThemeBackground />
       <View style={styles.header}>
         <Text style={styles.headerTitle}>{tr('lists.title', '🌸 Tankobon')}</Text>
         <TouchableOpacity onPress={onSettings}><Text style={{ fontSize: theme.fontSize.xl }}>⚙️</Text></TouchableOpacity>
