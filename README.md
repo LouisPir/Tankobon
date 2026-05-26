@@ -13,9 +13,11 @@
 - 📚 **Multi-type lists** — manga, anime, film, series, video games, books, music, board games
 - 📖 **Track your progress** — chapters, episodes, hours played, pages read
 - ⭐ **Rate & review** — personal ratings and reviews for each entry
-- 🔍 **Search** — quickly find any list or entry
+- 🔍 **Search & filters** — filter by status, rating, type and sort by any field
 - 🔒 **Password protection** — lock sensitive lists
 - 📤 **Import / Export** — JSON format, single list or all at once
+- 📊 **Statistics** — global and per-list stats with charts
+- 🏆 **Achievements** — 25 achievements, grades from Bronze to Mythic
 - 🎨 **4 themes** — Sakura 🌸, Water Ninja 💧, Spicy 🌶️, Starry Night ✨
 - 🌍 **Multilingual** — French & English (more coming)
 - 🎟️ **Referral system** — invite-only after 20,000 users
@@ -79,14 +81,15 @@ Scan the QR code with **Expo Go** on your phone.
 
 ## 📁 Project Structure
 
-```
+```bash
 src/
-├── config/         # Theme and environment config
-├── context/        # React contexts (Theme, Language)
+├── config/         # Theme, list types and achievements config
+├── components/     # Shared components (ThemeBackground, AchievementToast)
+├── context/        # React contexts (Theme, Language, AchievementToast)
 │   ├── themes/     # One file per theme
 │   └── languages/  # One file per language
 ├── hooks/          # Custom hooks
-├── navigation/     # Navigation config
+├── navigation/     # State-based navigation
 ├── screens/        # App screens
 └── services/       # Supabase API calls
 ```
@@ -95,12 +98,12 @@ src/
 
 ## 🗄️ Database Schema
 
-```
+```bash
 auth.users
-└── profiles          (id, referral_code, referred_by, created_at)
-
-lists                 (id, user_id, name, description, password_hash, created_at)
-└── mangas            (id, user_id, list_id, title, status, current_chapter, rating, review, created_at)
+└── profiles          (id, referral_code, referred_by, export_count, created_at)
+lists                 (id, user_id, name, type, description, password_hash, created_at)
+└── entries           (id, user_id, list_id, title, status, current_chapter, current_season, rating, review, created_at)
+user_achievements     (id, user_id, achievement_id, unlocked_at)
 ```
 
 ---
@@ -133,12 +136,12 @@ eas build --profile preview --platform android
 | v0.3.0  | ✅     | Import / Export JSON               |
 | v0.4.0  | ✅     | Settings screen                    |
 | v0.5.0  | ✅     | Referral system + i18n refactor    |
-| v1.0.0  | 🔄     | Stable release + EAS Build         |
-| v1.1.0  | ⬜     | List types (manga, anime, film...) |
-| v1.2.0  | ⬜     | Sort & filters                     |
-| v1.3.0  | ⬜     | Dashboard stats                    |
-| v1.4.0  | ⬜     | Grade system                       |
-| v2.0.0  | ⬜     | Grand release                      |
+| v1.0.0  | ✅     | Stable release + EAS Build         |
+| v1.1.0  | ✅     | List types (manga, anime, film...) |
+| v1.2.0  | ✅     | Sort & filters                     |
+| v1.3.0  | ✅     | Dashboard stats                    |
+| v1.4.0  | ✅     | Achievement system & grades        |
+| v2.0.0  | 🔄     | Grand release                      |
 | v2.1.0  | ⬜     | User profiles                      |
 | v2.2.0  | ⬜     | Friends & sharing                  |
 | v3.0.0  | ⬜     | Social grand release               |
