@@ -301,8 +301,15 @@ export default {
   'stats.by.list': 'By list',
   'stats.avg.rating': 'Average rating',
   'stats.empty': 'Add entries to your lists to see your statistics.',
-  'settings.stats': 'Statistics',
+  'settings.stats': '📊 Statistics',
   'stats.completed': 'Completed',
   'stats.rating.dist': 'Ratings',
   'stats.progression.dist': 'Progression',
+  'stats.monthly': 'Entries per month',
+  'stats.monthly.chart': 'Last 12 months',
+
+  // Month
+  'month.jan': 'Jan', 'month.feb': 'Feb', 'month.mar': 'Mar', 'month.apr': 'Apr',
+  'month.may': 'May', 'month.jun': 'Jun', 'month.jul': 'Jul', 'month.aug': 'Aug',
+  'month.sep': 'Sep', 'month.oct': 'Oct', 'month.nov': 'Nov', 'month.dec': 'Dec',
 };
