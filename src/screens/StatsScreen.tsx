@@ -7,7 +7,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { Theme } from '../config/theme';
 import { getListTypeConfig, ListType } from '../config/listTypes';
 import { List } from '../services/lists';
-import { getGlobalStats, getListStats, getProgressionBars, GlobalStats, ListStat, BarData } from '../services/stats';
+import { getGlobalStats, getListStats, getEntriesPerMonth, GlobalStats, ListStat, BarData, MonthData } from '../services/stats';
 
 export const StatsScreen = ({ onBack, selectedList }: {
   onBack: () => void;
@@ -20,6 +20,15 @@ export const StatsScreen = ({ onBack, selectedList }: {
   const [stats, setStats] = useState<GlobalStats | null>(null);
   const [listStat, setListStat] = useState<ListStat | null>(null);
   const [loading, setLoading] = useState(true);
+  const [monthlyBars, setMonthlyBars] = useState<BarData[]>([]);
+  const MONTH_KEYS = [
+    { key: 'month.jan', fr: 'Jan' }, { key: 'month.feb', fr: 'Fév' },
+    { key: 'month.mar', fr: 'Mar' }, { key: 'month.apr', fr: 'Avr' },
+    { key: 'month.may', fr: 'Mai' }, { key: 'month.jun', fr: 'Juin' },
+    { key: 'month.jul', fr: 'Juil' }, { key: 'month.aug', fr: 'Aoû' },
+    { key: 'month.sep', fr: 'Sep' }, { key: 'month.oct', fr: 'Oct' },
+    { key: 'month.nov', fr: 'Nov' }, { key: 'month.dec', fr: 'Déc' },
+  ];
 
   useEffect(() => {
     if (selectedList) {
@@ -28,8 +37,14 @@ export const StatsScreen = ({ onBack, selectedList }: {
         .catch((error: any) => Alert.alert(tr('error', 'Erreur'), error.message))
         .finally(() => setLoading(false));
     } else {
-      getGlobalStats()
-        .then(setStats)
+      Promise.all([getGlobalStats(), getEntriesPerMonth()])
+        .then(([globalStats, monthly]) => {
+          setStats(globalStats);
+          setMonthlyBars(monthly.map(m => ({
+            label: tr(MONTH_KEYS[m.monthIndex].key, MONTH_KEYS[m.monthIndex].fr),
+            count: m.count,
+          })));
+        })
         .catch((error: any) => Alert.alert(tr('error', 'Erreur'), error.message))
         .finally(() => setLoading(false));
     }
@@ -154,6 +169,12 @@ export const StatsScreen = ({ onBack, selectedList }: {
                   <Text style={styles.statLabel}>{tr('stats.completed', 'Complétés')}</Text>
                 </View>
               </View>
+              {monthlyBars.length > 0 && (
+                <>
+                  <Text style={styles.sectionTitle}>{tr('stats.monthly', 'Ajouts par mois')}</Text>
+                  {renderBarChart(monthlyBars, tr('stats.monthly.chart', '12 derniers mois'))}
+                </>
+              )}
 
               {Object.keys(stats.byType).length > 0 && (
                 <>
@@ -165,7 +186,7 @@ export const StatsScreen = ({ onBack, selectedList }: {
                         <View key={type}>
                           <View style={styles.typeRow}>
                             <Text style={styles.typeIcon}>{config.icon}</Text>
-                            <Text style={styles.typeLabel}>{config.labelFr}</Text>
+                            <Text style={styles.typeLabel}>{tr(config.labelKey, config.labelFr)}</Text>
                             <Text style={styles.typeCount}>{count}</Text>
                           </View>
                           {index < arr.length - 1 && <View style={styles.separator} />}
@@ -259,10 +280,10 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
     marginBottom: theme.spacing.lg,
   },
   chartTitle: { fontSize: theme.fontSize.sm, fontWeight: '600', color: theme.colors.textSecondary, textTransform: 'uppercase', letterSpacing: 1 },
-  chartBars: { flexDirection: 'row', alignItems: 'flex-end', height: 120, gap: theme.spacing.xs },
+  chartBars: { flexDirection: 'row', alignItems: 'flex-end', height: 120, gap: 2 },
   barWrapper: { flex: 1, alignItems: 'center', gap: theme.spacing.xs, height: '100%', justifyContent: 'flex-end' },
   barCount: { fontSize: theme.fontSize.sm, color: theme.colors.textSecondary },
   barTrack: { width: '100%', flex: 1, justifyContent: 'flex-end' },
   barFill: { width: '100%', backgroundColor: theme.colors.primary, borderRadius: theme.borderRadius.sm },
-  barLabel: { fontSize: 10, color: theme.colors.textSecondary, textAlign: 'center' },
+  barLabel: { fontSize: 9, color: theme.colors.textSecondary, textAlign: 'center' },
 });

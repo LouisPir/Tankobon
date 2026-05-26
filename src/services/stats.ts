@@ -204,3 +204,30 @@ export const getGlobalStats = async (): Promise<GlobalStats> => {
     lists: listStats,
   };
 };
+export type MonthData = { monthIndex: number; count: number };
+
+export const getEntriesPerMonth = async (): Promise<MonthData[]> => {
+  const { data: { user } } = await supabase.auth.getUser();
+
+  const { data: entries, error } = await supabase
+    .from('entries')
+    .select('created_at')
+    .eq('user_id', user?.id);
+
+  if (error) throw error;
+
+  const now = new Date();
+  const months: MonthData[] = [];
+
+  for (let i = 11; i >= 0; i--) {
+    const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    const count = entries.filter(e => {
+      const d = new Date(e.created_at);
+      return d.getFullYear() === date.getFullYear() && d.getMonth() === date.getMonth();
+    }).length;
+
+    months.push({ monthIndex: date.getMonth(), count });
+  }
+
+  return months;
+};
