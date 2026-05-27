@@ -166,7 +166,7 @@ export default {
   'auth.email': 'Email',
   'auth.password': 'Password',
   'auth.logout': 'Logout',
-
+  'register.username.required': 'Username is required',
   // About
   'about.title': 'About',
   'about.description': 'Track your lists, note your progress and keep your reviews.',
@@ -340,7 +340,7 @@ export default {
   'profile.username': 'Username',
   'profile.username.required': 'Username is required',
   'profile.username.taken': 'This username is already taken',
-  'profile.username.placeholder': 'Your username...',
+  'profile.username.placeholder': 'Your username',
   'profile.username.empty': 'Set a username',
   'profile.grade': 'Grade',
   'profile.referral': 'Referral code',
