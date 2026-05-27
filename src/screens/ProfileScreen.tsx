@@ -7,6 +7,7 @@ import { Theme } from '../config/theme';
 import { getProfile, updateProfile, isUsernameTaken, Profile } from '../services/profile';
 import { getGlobalStats, GlobalStats } from '../services/stats';
 import { computeGrades, GradeResult } from '../services/grades';
+import { getFriendCount } from '../services/friends';
 
 const AVATARS = [
   'https://erykhvqoacquhsguaarc.supabase.co/storage/v1/object/public/avatars/blue_ninja.png',
@@ -26,13 +27,15 @@ export const ProfileScreen = ({ onBack }: { onBack: () => void }) => {
   const [editingUsername, setEditingUsername] = useState(false);
   const [savingUsername, setSavingUsername] = useState(false);
   const [selectingAvatar, setSelectingAvatar] = useState(false);
+  const [friendCount, setFriendCount] = useState(0);
 
   useEffect(() => {
-    Promise.all([getProfile(), getGlobalStats(), computeGrades()])
-      .then(([p, s, g]) => {
+    Promise.all([getProfile(), getGlobalStats(), computeGrades(), getFriendCount()])
+      .then(([p, s, g, fc]) => {
         setProfile(p);
         setStats(s);
         setGrades(g);
+        setFriendCount(fc);
         setUsername(p.username ?? '');
       })
       .catch((error: any) => Alert.alert(tr('error', 'Erreur'), error.message))
@@ -181,8 +184,8 @@ export const ProfileScreen = ({ onBack }: { onBack: () => void }) => {
                   <Text style={styles.statLabel}>{tr('stats.entries', 'Entrées')}</Text>
                 </View>
                 <View style={styles.statCard}>
-                  <Text style={styles.statValue}>{stats.totalCompleted}</Text>
-                  <Text style={styles.statLabel}>{tr('stats.completed', 'Complétés')}</Text>
+                  <Text style={styles.statValue}>{friendCount}</Text>
+                  <Text style={styles.statLabel}>{tr('friends.title', 'Amis')}</Text>
                 </View>
               </View>
             </>
