@@ -33,6 +33,7 @@ import { AchievementsScreen } from '../screens/AchievementsScreen';
 import { AchievementToastProvider, useAchievementToast } from '../context/AchievementToastContext';
 import { AchievementToast } from '../components/AchievementToast';
 import { unlockAndCheck, computeGrades } from '../services/grades';
+import { ProfileScreen } from '../screens/ProfileScreen';
 
 type Screen =
   | 'Auth'
@@ -58,6 +59,7 @@ type Screen =
   | 'Theme'
   | 'Language'
   | 'Stats'
+  | 'Profile'
   | 'Achievements'
   | 'SelectList';
 
@@ -104,6 +106,7 @@ const AppContent = () => {
           onImportList={() => setScreen('ImportList')}
           onExportList={() => setScreen('ExportList')}
           onChangeEmail={() => setScreen('ChangeEmail')}
+          onProfile={() => setScreen('Profile')}
           onChangePassword={() => setScreen('ChangePassword')}
           onTheme={() => setScreen('Theme')}
           onAbout={() => setScreen('About')}
@@ -148,7 +151,9 @@ const AppContent = () => {
     if (screen === 'Achievements') {
       return <AchievementsScreen onBack={() => setScreen('Settings')} />;
     }
-
+    if (screen === 'Profile') {
+      return <ProfileScreen onBack={() => setScreen('Settings')} />;
+    }
     if (screen === 'PasswordAccount') {
       return (
         <PasswordScreen
