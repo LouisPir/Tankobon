@@ -335,6 +335,17 @@ export default {
   'stats.monthly': 'Entries per month',
   'stats.monthly.chart': 'Last 12 months',
 
+  // Profile
+  'profile.title': 'Profile',
+  'profile.username': 'Username',
+  'profile.username.required': 'Username is required',
+  'profile.username.taken': 'This username is already taken',
+  'profile.username.placeholder': 'Your username...',
+  'profile.username.empty': 'Set a username',
+  'profile.grade': 'Grade',
+  'profile.referral': 'Referral code',
+  'settings.profile': '👤 My profile',
+
   // Month
   'month.jan': 'Jan', 'month.feb': 'Feb', 'month.mar': 'Mar', 'month.apr': 'Apr',
   'month.may': 'May', 'month.jun': 'Jun', 'month.jul': 'Jul', 'month.aug': 'Aug',
