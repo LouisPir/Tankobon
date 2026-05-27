@@ -5,6 +5,7 @@ import { useTheme } from '../context/ThemeContext';
 import { useLanguage } from '../context/LanguageContext';
 import { register, getUserCount, validateReferralCode } from '../services/auth';
 import { Theme } from '../config/theme';
+import { isUsernameTaken, updateProfile } from '../services/profile';
 
 const REFERRAL_THRESHOLD = 20000;
 
@@ -17,21 +18,34 @@ export const RegisterScreen = ({ onGoToLogin }: { onGoToLogin: () => void }) => 
   const { theme } = useTheme();
   const { tr } = useLanguage();
   const styles = makeStyles(theme);
+  const [username, setUsername] = useState('');
 
   useEffect(() => {
     getUserCount().then((count) => setReferralRequired(count >= REFERRAL_THRESHOLD)).catch(() => setReferralRequired(false));
   }, []);
 
   const handleRegister = async () => {
-    if (!email || !password) { Alert.alert(tr('error', 'Erreur'), tr('register.required.fields', 'Veuillez remplir tous les champs')); return; }
-    if (referralRequired && !referralCode.trim()) { Alert.alert(tr('error', 'Erreur'), tr('register.referral.missing', 'Un code de parrainage est requis')); return; }
+    if (!email || !password || !username.trim()) {
+      Alert.alert(tr('error', 'Erreur'), tr('register.required.fields', 'Veuillez remplir tous les champs'));
+      return;
+    }
+    if (referralRequired && !referralCode.trim()) {
+      Alert.alert(tr('error', 'Erreur'), tr('register.referral.missing', 'Un code de parrainage est requis'));
+      return;
+    }
     if (referralCode.trim()) {
       const valid = await validateReferralCode(referralCode.trim());
       if (!valid) { Alert.alert(tr('error', 'Erreur'), tr('register.referral.invalid', 'Code de parrainage invalide')); return; }
     }
     try {
       setLoading(true);
+      const taken = await isUsernameTaken(username.trim());
+      if (taken) {
+        Alert.alert(tr('error', 'Erreur'), tr('profile.username.taken', 'Ce pseudo est déjà pris'));
+        return;
+      }
       await register(email, password);
+      await updateProfile({ username: username.trim() });
       Alert.alert(tr('success', 'Succès'), tr('register.success', 'Compte créé ! Vérifiez votre email.'));
     } catch (error: any) {
       Alert.alert(tr('error', 'Erreur'), error.message);
@@ -45,6 +59,14 @@ export const RegisterScreen = ({ onGoToLogin }: { onGoToLogin: () => void }) => 
         <Text style={styles.title}>{tr('register.title', 'Créer un compte')}</Text>
         <TextInput style={styles.input} placeholder={tr('auth.email', 'Email')} placeholderTextColor={theme.colors.textSecondary} value={email} onChangeText={setEmail} autoCapitalize="none" keyboardType="email-address" />
         <TextInput style={styles.input} placeholder={tr('auth.password', 'Mot de passe')} placeholderTextColor={theme.colors.textSecondary} value={password} onChangeText={setPassword} secureTextEntry />
+        <TextInput
+          style={styles.input}
+          placeholder={tr('profile.username.placeholder', 'Ton pseudo')}
+          placeholderTextColor={theme.colors.textSecondary}
+          value={username}
+          onChangeText={setUsername}
+          autoCapitalize="none"
+        />
         <View style={styles.referralContainer}>
           <TextInput
             style={[styles.input, referralRequired && styles.inputRequired]}
