@@ -6,6 +6,7 @@ import { LoginScreen } from '../screens/LoginScreen';
 import { RegisterScreen } from '../screens/RegisterScreen';
 import { ListsHomeScreen } from '../screens/ListsHomeScreen';
 import { AddListScreen } from '../screens/AddListScreen';
+import { FriendProfileScreen } from '../screens/FriendProfileScreen';
 import { EditListScreen } from '../screens/EditListScreen';
 import { EntryListScreen } from '../screens/EntryListScreen';
 import { AddEntryScreen } from '../screens/AddEntryScreen';
@@ -28,12 +29,14 @@ import { AboutScreen } from '../screens/AboutScreen';
 import { ThemeScreen } from '../screens/ThemeScreen';
 import { LanguageScreen } from '../screens/LanguageScreen';
 import { ReferralScreen } from '../screens/ReferralScreen';
+import { Friend } from '../services/friends';
 import { StatsScreen } from '../screens/StatsScreen';
 import { AchievementsScreen } from '../screens/AchievementsScreen';
 import { AchievementToastProvider, useAchievementToast } from '../context/AchievementToastContext';
 import { AchievementToast } from '../components/AchievementToast';
 import { unlockAndCheck, computeGrades } from '../services/grades';
 import { ProfileScreen } from '../screens/ProfileScreen';
+import { FriendsScreen } from '../screens/FriendsScreen';
 
 type Screen =
   | 'Auth'
@@ -44,6 +47,7 @@ type Screen =
   | 'ImportList'
   | 'Referral'
   | 'ImportResult'
+  | 'FriendProfile'
   | 'Password'
   | 'EntryList'
   | 'AddEntry'
@@ -61,6 +65,7 @@ type Screen =
   | 'Stats'
   | 'Profile'
   | 'Achievements'
+  | 'Friends'
   | 'SelectList';
 
 const AppContent = () => {
@@ -69,6 +74,7 @@ const AppContent = () => {
   const [screen, setScreen] = useState<Screen>('ListsHome');
   const [selectedList, setSelectedList] = useState<List | null>(null);
   const [selectedEntry, setSelectedEntry] = useState<Entry | null>(null);
+  const [selectedFriend, setSelectedFriend] = useState<Friend | null>(null);
   const [pendingList, setPendingList] = useState<List | null>(null);
   const [passwordMode, setPasswordMode] = useState<'access' | 'delete'>('access');
   const [importResult, setImportResult] = useState<ImportResult | null>(null);
@@ -112,6 +118,7 @@ const AppContent = () => {
           onAbout={() => setScreen('About')}
           onLanguage={() => setScreen('Language')}
           onStats={() => setScreen('Stats')}
+          onFriends={() => setScreen('Friends')}
           onReferral={() => setScreen('Referral')}
           onAchievements={() => setScreen('Achievements')}
           onEditList={() => {
@@ -153,6 +160,15 @@ const AppContent = () => {
     }
     if (screen === 'Profile') {
       return <ProfileScreen onBack={() => setScreen('Settings')} />;
+    }
+    if (screen === 'Friends') {
+      return <FriendsScreen 
+        onBack={() => setScreen('Settings')} 
+        onFriendPress={(friend) => { setSelectedFriend(friend); setScreen('FriendProfile'); }}
+      />;
+    }
+    if (screen === 'FriendProfile' && selectedFriend) {
+      return <FriendProfileScreen onBack={() => setScreen('Friends')} friend={selectedFriend} />;
     }
     if (screen === 'PasswordAccount') {
       return (

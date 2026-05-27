@@ -109,7 +109,7 @@ export default {
   'settings.logout': 'Log out',
   'settings.logout.confirm': 'Are you sure you want to log out?',
   'settings.logout.title': 'Log out',
-
+  'settings.friends': 'Friends',
   // Import
   'import.title': 'Import a list',
   'import.how': 'How to import?',
@@ -350,4 +350,20 @@ export default {
   'month.jan': 'Jan', 'month.feb': 'Feb', 'month.mar': 'Mar', 'month.apr': 'Apr',
   'month.may': 'May', 'month.jun': 'Jun', 'month.jul': 'Jul', 'month.aug': 'Aug',
   'month.sep': 'Sep', 'month.oct': 'Oct', 'month.nov': 'Nov', 'month.dec': 'Dec',
+
+  // Friends
+  'friends.title': 'Friends',
+  'friends.add': 'Add a friend',
+  'friends.search.placeholder': 'Friend\'s username...',
+  'friends.send': 'Send',
+  'friends.request.sent': 'Request sent!',
+  'friends.requests.pending': 'Pending requests',
+  'friends.requests.sent': 'Sent requests',
+  'friends.pending': 'Pending',
+  'friends.list': 'My friends',
+  'friends.empty': 'No friends yet. Search a username to get started!',
+  'friends.remove': 'Remove',
+  'friends.remove.title': 'Remove friend',
+  'friends.remove.confirm': 'Remove',
+
 };

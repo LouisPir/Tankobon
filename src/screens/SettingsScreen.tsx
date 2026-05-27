@@ -10,7 +10,7 @@ export const SettingsScreen = ({
   onBack, selectedList, onImportList, onExportList, onEditList,
   onChangeEmail, onChangePassword, onDeleteAccount, onExportAllLists,
   onDeleteAllData, onAbout, onTheme, onLanguage, onReferral, onStats,
-  onAchievements, onProfile,
+  onAchievements, onProfile, onFriends,
 }: {
   onBack: () => void; selectedList?: List; onImportList: () => void;
   onExportList: () => void; onEditList: () => void; onChangeEmail: () => void;
@@ -19,7 +19,8 @@ export const SettingsScreen = ({
   onLanguage: () => void; onReferral: () => void;
   onStats: () => void;
   onAchievements: () => void;
-  onProfile: () => void
+  onProfile: () => void;
+  onFriends: () => void;
 }) => {
   const insets = useSafeAreaInsets();
   const { theme } = useTheme();
@@ -65,6 +66,11 @@ export const SettingsScreen = ({
         <View style={styles.section}>
           <TouchableOpacity style={styles.row} onPress={onProfile}>
             <Text style={styles.rowText}>{tr('settings.profile', '👤 Mon profil')}</Text>
+            <Text style={styles.rowArrow}>›</Text>
+          </TouchableOpacity>
+          <View style={styles.separator} />
+          <TouchableOpacity style={styles.row} onPress={onFriends}>
+            <Text style={styles.rowText}>{tr('settings.friends', '👥 Amis')}</Text>
             <Text style={styles.rowArrow}>›</Text>
           </TouchableOpacity>
           <View style={styles.separator} />
