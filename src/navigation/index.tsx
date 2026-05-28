@@ -1,7 +1,6 @@
 import { NavigationContainer } from '@react-navigation/native';
 import { ActivityIndicator, View, Alert } from 'react-native';
-import { useState } from 'react';
-import { useAuth } from '../hooks/useAuth';
+import { useState, useEffect } from 'react';import { useAuth } from '../hooks/useAuth';
 import { LoginScreen } from '../screens/LoginScreen';
 import { RegisterScreen } from '../screens/RegisterScreen';
 import { ListsHomeScreen } from '../screens/ListsHomeScreen';
@@ -41,6 +40,8 @@ import { unlockAndCheck, computeGrades } from '../services/grades';
 import { ProfileScreen } from '../screens/ProfileScreen';
 import { FriendsScreen } from '../screens/FriendsScreen';
 import { SharedList } from '../services/sharedLists';
+import { getPendingRequestCount } from '../services/friends';
+import { getUnseenSharedListCount, markAllSharedListsAsSeen } from '../services/sharedLists';
 
 type Screen =
   | 'Auth'
@@ -91,6 +92,24 @@ const AppContent = () => {
   const [settingsFrom, setSettingsFrom] = useState<'ListsHome' | 'EntryList'>('ListsHome');
   const [accountPasswordMode, setAccountPasswordMode] = useState<'deleteAccount' | 'deleteData'>('deleteAccount');
   const { showAchievements } = useAchievementToast();
+  const [pendingFriendRequests, setPendingFriendRequests] = useState(0);
+  const [unseenSharedLists, setUnseenSharedLists] = useState(0);
+  const loadNotifications = async () => {
+    try {
+      const [f, s] = await Promise.all([getPendingRequestCount(), getUnseenSharedListCount()]);
+      setPendingFriendRequests(f);
+      setUnseenSharedLists(s);
+    } catch {}
+  };
+  // Charger les notifications quand on arrive sur Settings
+  useEffect(() => {
+    if (screen === 'Settings' || screen === 'ListsHome') {
+      loadNotifications();
+    }
+  }, [screen]);
+  
+  
+  
   const renderScreen = () => {
     if (loading) {
       return (
@@ -126,11 +145,17 @@ const AppContent = () => {
           onAbout={() => setScreen('About')}
           onLanguage={() => setScreen('Language')}
           onStats={() => setScreen('Stats')}
-          onFriends={() => setScreen('Friends')}
+          pendingFriendRequests={pendingFriendRequests}
+          unseenSharedLists={unseenSharedLists}
+          onFriends={() => { setPendingFriendRequests(0); setScreen('Friends'); }}
           onReferral={() => setScreen('Referral')}
           onAchievements={() => setScreen('Achievements')}
           onShareList={() => setScreen('ShareList')}
-          onSharedWithMe={() => setScreen('SharedWithMe')}
+          onSharedWithMe={async () => {
+            await markAllSharedListsAsSeen();
+            setUnseenSharedLists(0);
+            setScreen('SharedWithMe');
+          }}
           onEditList={() => {
             if (selectedList) { setScreen('EditList'); } else { setScreen('SelectList'); }
           }}
