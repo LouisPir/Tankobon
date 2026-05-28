@@ -82,3 +82,19 @@ export const getUserCount = async (): Promise<number> => {
   if (error) throw error;
   return count ?? 0;
 };
+
+export const loginWithUsernameOrEmail = async (usernameOrEmail: string, password: string) => {
+  const isEmail = usernameOrEmail.includes('@');
+  
+  if (isEmail) {
+    return await login(usernameOrEmail.trim(), password);
+  }
+
+  const { data: resolvedEmail, error } = await supabase
+    .rpc('get_email_by_username', { p_username: usernameOrEmail.trim() });
+
+  console.log('resolvedEmail:', resolvedEmail, 'error:', error);
+  if (error || !resolvedEmail) throw new Error('Utilisateur introuvable');
+
+  return await login(resolvedEmail, password);
+};
