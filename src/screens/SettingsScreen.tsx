@@ -10,7 +10,7 @@ export const SettingsScreen = ({
   onBack, selectedList, onImportList, onExportList, onEditList,
   onChangeEmail, onChangePassword, onDeleteAccount, onExportAllLists,
   onDeleteAllData, onAbout, onTheme, onLanguage, onReferral, onStats,
-  onAchievements, onProfile, onFriends,
+  onAchievements, onProfile, onFriends, onShareList, onSharedWithMe,
 }: {
   onBack: () => void; selectedList?: List; onImportList: () => void;
   onExportList: () => void; onEditList: () => void; onChangeEmail: () => void;
@@ -20,6 +20,8 @@ export const SettingsScreen = ({
   onStats: () => void;
   onAchievements: () => void;
   onProfile: () => void;
+  onShareList: () => void;
+  onSharedWithMe: () => void;
   onFriends: () => void;
 }) => {
   const insets = useSafeAreaInsets();
@@ -56,6 +58,11 @@ export const SettingsScreen = ({
             <Text style={styles.rowArrow}>›</Text>
           </TouchableOpacity>
           <View style={styles.separator} />
+          <TouchableOpacity style={styles.row} onPress={onShareList}>
+            <Text style={styles.rowText}>🔗 {selectedList ? tr('settings.share.this', 'Partager cette liste') : tr('settings.share', 'Partager une liste')}</Text>
+            <Text style={styles.rowArrow}>›</Text>
+          </TouchableOpacity>
+          <View style={styles.separator} />
           <TouchableOpacity style={styles.row} onPress={onEditList}>
             <Text style={styles.rowText}>✏️ {selectedList ? tr('settings.edit.this', 'Modifier cette liste') : tr('settings.edit', 'Modifier une liste')}</Text>
             <Text style={styles.rowArrow}>›</Text>
@@ -65,37 +72,37 @@ export const SettingsScreen = ({
         <Text style={styles.sectionTitle}>{tr('settings.account', 'Compte')}</Text>
         <View style={styles.section}>
           <TouchableOpacity style={styles.row} onPress={onProfile}>
-            <Text style={styles.rowText}>{tr('settings.profile', '👤 Mon profil')}</Text>
+            <Text style={styles.rowText}>👤 {tr('settings.profile', 'Mon profil')}</Text>
             <Text style={styles.rowArrow}>›</Text>
           </TouchableOpacity>
           <View style={styles.separator} />
           <TouchableOpacity style={styles.row} onPress={onFriends}>
-            <Text style={styles.rowText}>{tr('settings.friends', '👥 Amis')}</Text>
+            <Text style={styles.rowText}>👥 {tr('settings.friends', 'Amis')}</Text>
             <Text style={styles.rowArrow}>›</Text>
           </TouchableOpacity>
           <View style={styles.separator} />
           <TouchableOpacity style={styles.row} onPress={onAchievements}>
-            <Text style={styles.rowText}>{tr('settings.achievements', '🏆 Succès')}</Text>
+            <Text style={styles.rowText}>🏆 {tr('settings.achievements', 'Succès')}</Text>
             <Text style={styles.rowArrow}>›</Text>
           </TouchableOpacity>
           <View style={styles.separator} />
           <TouchableOpacity style={styles.row} onPress={onChangeEmail}>
-            <Text style={styles.rowText}>{tr('settings.email', '✉️ Changer l\'email')}</Text>
+            <Text style={styles.rowText}>✉️ {tr('settings.email', 'Changer l\'email')}</Text>
             <Text style={styles.rowArrow}>›</Text>
           </TouchableOpacity>
           <View style={styles.separator} />
           <TouchableOpacity style={styles.row} onPress={onChangePassword}>
-            <Text style={styles.rowText}>{tr('settings.password', '🔑 Changer le mot de passe')}</Text>
+            <Text style={styles.rowText}>🔑 {tr('settings.password', 'Changer le mot de passe')}</Text>
             <Text style={styles.rowArrow}>›</Text>
           </TouchableOpacity>
           <View style={styles.separator} />
           <TouchableOpacity style={styles.row} onPress={onReferral}>
-            <Text style={styles.rowText}>{tr('settings.referral', '🎟️ Mon code de parrainage')}</Text>
+            <Text style={styles.rowText}>🎟️ {tr('settings.referral', 'Mon code de parrainage')}</Text>
             <Text style={styles.rowArrow}>›</Text>
           </TouchableOpacity>
           <View style={styles.separator} />
           <TouchableOpacity style={styles.row} onPress={onDeleteAccount}>
-            <Text style={[styles.rowText, { color: '#E53935' }]}>{tr('settings.delete.account', '🗑️ Supprimer mon compte')}</Text>
+            <Text style={[styles.rowText, { color: '#E53935' }]}>🗑️ {tr('settings.delete.account', 'Supprimer mon compte')}</Text>
             <Text style={styles.rowArrow}>›</Text>
           </TouchableOpacity>
         </View>
@@ -105,14 +112,19 @@ export const SettingsScreen = ({
           {!selectedList && (
             <>
               <TouchableOpacity style={styles.row} onPress={onExportAllLists}>
-                <Text style={styles.rowText}>{tr('settings.export.all', '📤 Exporter toutes les listes')}</Text>
+                <Text style={styles.rowText}>📤 {tr('settings.export.all', 'Exporter toutes les listes')}</Text>
                 <Text style={styles.rowArrow}>›</Text>
               </TouchableOpacity>
               <View style={styles.separator} />
             </>
           )}
+          <TouchableOpacity style={styles.row} onPress={onSharedWithMe}>
+            <Text style={styles.rowText}>📭 {tr('settings.shared.with.me', 'Listes partagées avec moi')}</Text>
+            <Text style={styles.rowArrow}>›</Text>
+          </TouchableOpacity>
+          <View style={styles.separator} />
           <TouchableOpacity style={styles.row} onPress={onDeleteAllData}>
-            <Text style={[styles.rowText, { color: '#E53935' }]}>{tr('settings.delete.data', '🗑️ Supprimer toutes mes données')}</Text>
+            <Text style={[styles.rowText, { color: '#E53935' }]}>🗑️ {tr('settings.delete.data', 'Supprimer toutes mes données')}</Text>
             <Text style={styles.rowArrow}>›</Text>
           </TouchableOpacity>
         </View>
@@ -120,17 +132,17 @@ export const SettingsScreen = ({
         <Text style={styles.sectionTitle}>{tr('settings.preferences', 'Préférences')}</Text>
         <View style={styles.section}>
           <TouchableOpacity style={styles.row} onPress={onTheme}>
-            <Text style={styles.rowText}>{tr('settings.theme', '🎨 Thème')}</Text>
+            <Text style={styles.rowText}>🎨 {tr('settings.theme', 'Thème')}</Text>
             <Text style={styles.rowArrow}>›</Text>
           </TouchableOpacity>
           <View style={styles.separator} />
           <TouchableOpacity style={styles.row} onPress={onLanguage}>
-            <Text style={styles.rowText}>{tr('settings.language', '🌍 Langue')}</Text>
+            <Text style={styles.rowText}>🌍 {tr('settings.language', 'Langue')}</Text>
             <Text style={styles.rowArrow}>›</Text>
           </TouchableOpacity>
           <View style={styles.separator} />
           <TouchableOpacity style={styles.row} onPress={onStats}>
-            <Text style={styles.rowText}>{tr('settings.stats', '📊 Statistiques')}</Text>
+            <Text style={styles.rowText}>📊 {tr('settings.stats', 'Statistiques')}</Text>
             <Text style={styles.rowArrow}>›</Text>
           </TouchableOpacity>
         </View>
@@ -138,7 +150,7 @@ export const SettingsScreen = ({
         <Text style={styles.sectionTitle}>{tr('settings.info', 'Informations')}</Text>
         <View style={styles.section}>
           <TouchableOpacity style={styles.row} onPress={onAbout}>
-            <Text style={styles.rowText}>{tr('settings.about', 'ℹ️ À propos')}</Text>
+            <Text style={styles.rowText}>ℹ️ {tr('settings.about', 'À propos')}</Text>
             <Text style={styles.rowArrow}>›</Text>
           </TouchableOpacity>
         </View>

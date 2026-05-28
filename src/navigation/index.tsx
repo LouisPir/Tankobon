@@ -6,7 +6,10 @@ import { LoginScreen } from '../screens/LoginScreen';
 import { RegisterScreen } from '../screens/RegisterScreen';
 import { ListsHomeScreen } from '../screens/ListsHomeScreen';
 import { AddListScreen } from '../screens/AddListScreen';
+import { ShareListScreen } from '../screens/ShareListScreen';
+import { SharedWithMeScreen } from '../screens/SharedWithMeScreen';
 import { FriendProfileScreen } from '../screens/FriendProfileScreen';
+import { SharedEntryListScreen } from '../screens/SharedEntryListScreen';
 import { EditListScreen } from '../screens/EditListScreen';
 import { EntryListScreen } from '../screens/EntryListScreen';
 import { AddEntryScreen } from '../screens/AddEntryScreen';
@@ -37,6 +40,7 @@ import { AchievementToast } from '../components/AchievementToast';
 import { unlockAndCheck, computeGrades } from '../services/grades';
 import { ProfileScreen } from '../screens/ProfileScreen';
 import { FriendsScreen } from '../screens/FriendsScreen';
+import { SharedList } from '../services/sharedLists';
 
 type Screen =
   | 'Auth'
@@ -44,6 +48,9 @@ type Screen =
   | 'ListsHome'
   | 'AddList'
   | 'EditList'
+  | 'ShareList'
+  | 'SharedWithMe'
+  | 'SharedEntryList'
   | 'ImportList'
   | 'Referral'
   | 'ImportResult'
@@ -72,6 +79,7 @@ const AppContent = () => {
   const { user, loading } = useAuth();
   const { current, onHide } = useAchievementToast();
   const [screen, setScreen] = useState<Screen>('ListsHome');
+  const [selectedSharedList, setSelectedSharedList] = useState<SharedList | null>(null);
   const [selectedList, setSelectedList] = useState<List | null>(null);
   const [selectedEntry, setSelectedEntry] = useState<Entry | null>(null);
   const [selectedFriend, setSelectedFriend] = useState<Friend | null>(null);
@@ -121,6 +129,8 @@ const AppContent = () => {
           onFriends={() => setScreen('Friends')}
           onReferral={() => setScreen('Referral')}
           onAchievements={() => setScreen('Achievements')}
+          onShareList={() => setScreen('ShareList')}
+          onSharedWithMe={() => setScreen('SharedWithMe')}
           onEditList={() => {
             if (selectedList) { setScreen('EditList'); } else { setScreen('SelectList'); }
           }}
@@ -154,6 +164,46 @@ const AppContent = () => {
     }
     if (screen === 'Stats') {
       return <StatsScreen onBack={() => setScreen('Settings')} selectedList={selectedList ?? undefined} />;
+    }
+    if (screen === 'ShareList') {
+      if (!selectedList) {
+        return (
+          <SelectListScreen
+            onBack={() => setScreen('Settings')}
+            onSelectList={(list) => {
+              setSelectedList(list);
+            }}
+          />
+        );
+      }
+      return (
+        <ShareListScreen
+          onBack={() => setScreen('Settings')}
+          list={selectedList}
+        />
+      );
+    }
+
+    if (screen === 'SharedWithMe') {
+      return (
+        <SharedWithMeScreen
+          onBack={() => setScreen('Settings')}
+          onSelectList={(sharedList) => {
+            setSelectedSharedList(sharedList);
+            setScreen('SharedEntryList');
+          }}
+        />
+      );
+    }
+
+    if (screen === 'SharedEntryList' && selectedSharedList) {
+      return (
+        <SharedEntryListScreen
+          onBack={() => setScreen('SharedWithMe')}
+          onSelectEntry={(entry) => { setSelectedEntry(entry); setScreen('EntryDetail'); }}
+          sharedList={selectedSharedList}
+        />
+      );
     }
     if (screen === 'Achievements') {
       return <AchievementsScreen onBack={() => setScreen('Settings')} />;
