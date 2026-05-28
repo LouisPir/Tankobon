@@ -58,3 +58,9 @@ export const deleteEntry = async (id: string) => {
 
   if (error) throw error;
 };
+
+export const getSharedListEntries = async (listId: string): Promise<Entry[]> => {
+  const { data, error } = await supabase.rpc('get_shared_list_entries', { p_list_id: listId });
+  if (error) throw error;
+  return data as Entry[];
+};

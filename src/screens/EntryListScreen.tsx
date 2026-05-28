@@ -26,11 +26,13 @@ const EntryCard = ({
   listType,
   onDelete,
   onPress,
+  readOnly,
 }: {
   entry: Entry;
   listType: ListType;
   onDelete: (id: string) => void;
   onPress: (entry: Entry) => void;
+  readOnly?: boolean;
 }) => {
   const { theme } = useTheme();
   const { tr } = useLanguage();
@@ -66,9 +68,11 @@ const EntryCard = ({
         )}
         {entry.rating && <Text style={styles.cardRating}>{'⭐'.repeat(entry.rating)}</Text>}
       </View>
-      <TouchableOpacity style={styles.deleteButton} onPress={() => onDelete(entry.id)}>
-        <Text style={styles.deleteText}>🗑️</Text>
-      </TouchableOpacity>
+      {!readOnly && (
+        <TouchableOpacity style={styles.deleteButton} onPress={() => onDelete(entry.id)}>
+          <Text style={styles.deleteText}>🗑️</Text>
+        </TouchableOpacity>
+      )}
     </TouchableOpacity>
   );
 };
@@ -80,6 +84,7 @@ export const EntryListScreen = ({
   onSettings,
   listId,
   listType,
+  readOnly,
 }: {
   listId: string;
   listType: ListType;
@@ -87,6 +92,7 @@ export const EntryListScreen = ({
   onAddEntry: () => void;
   onBack: () => void;
   onSettings: () => void;
+  readOnly?: boolean;
 }) => {
   const [entries, setEntries] = useState<Entry[]>([]);
   const [filtered, setFiltered] = useState<Entry[]>([]);
@@ -260,9 +266,11 @@ export const EntryListScreen = ({
         <Text style={styles.headerTitle}>
           {typeConfig.icon} {tr(typeConfig.labelKey, typeConfig.labelFr)}
         </Text>
-        <TouchableOpacity onPress={onSettings}>
-          <Text style={{ fontSize: theme.fontSize.xl }}>⚙️</Text>
-        </TouchableOpacity>
+        {!readOnly && (
+          <TouchableOpacity onPress={onSettings}>
+            <Text style={{ fontSize: theme.fontSize.xl }}>⚙️</Text>
+          </TouchableOpacity>
+        )}
       </View>
 
       <View style={styles.searchRow}>
@@ -317,10 +325,11 @@ export const EntryListScreen = ({
           contentContainerStyle={styles.list}
         />
       )}
-
-      <TouchableOpacity style={styles.fab} onPress={onAddEntry}>
-        <Text style={styles.fabText}>+</Text>
-      </TouchableOpacity>
+      {!readOnly && (
+        <TouchableOpacity style={styles.fab} onPress={onAddEntry}>
+          <Text style={styles.fabText}>+</Text>
+        </TouchableOpacity>
+      )}
 
       <Modal
         visible={modalVisible}
