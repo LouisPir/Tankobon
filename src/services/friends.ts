@@ -180,3 +180,17 @@ export const getFriendFriendCount = async (friendId: string): Promise<number> =>
   if (error) throw error;
   return data as number;
 };
+
+export const getPendingRequestCount = async (): Promise<number> => {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return 0;
+
+  const { count, error } = await supabase
+    .from('friend_requests')
+    .select('*', { count: 'exact', head: true })
+    .eq('receiver_id', user.id)
+    .eq('status', 'pending');
+
+  if (error) return 0;
+  return count ?? 0;
+};

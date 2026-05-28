@@ -95,3 +95,28 @@ export const getMySharedLists = async (): Promise<SharedList[]> => {
     shared_with: profiles?.find(p => p.id === r.shared_with_id) ?? null,
   }));
 };
+
+export const getUnseenSharedListCount = async (): Promise<number> => {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return 0;
+
+  const { count, error } = await supabase
+    .from('shared_lists')
+    .select('*', { count: 'exact', head: true })
+    .eq('shared_with_id', user.id)
+    .eq('seen', false);
+
+  if (error) return 0;
+  return count ?? 0;
+};
+
+export const markAllSharedListsAsSeen = async (): Promise<void> => {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return;
+
+  await supabase
+    .from('shared_lists')
+    .update({ seen: true })
+    .eq('shared_with_id', user.id)
+    .eq('seen', false);
+};

@@ -11,6 +11,7 @@ export const SettingsScreen = ({
   onChangeEmail, onChangePassword, onDeleteAccount, onExportAllLists,
   onDeleteAllData, onAbout, onTheme, onLanguage, onReferral, onStats,
   onAchievements, onProfile, onFriends, onShareList, onSharedWithMe,
+  pendingFriendRequests, unseenSharedLists
 }: {
   onBack: () => void; selectedList?: List; onImportList: () => void;
   onExportList: () => void; onEditList: () => void; onChangeEmail: () => void;
@@ -23,6 +24,8 @@ export const SettingsScreen = ({
   onShareList: () => void;
   onSharedWithMe: () => void;
   onFriends: () => void;
+  pendingFriendRequests?: number;
+  unseenSharedLists?: number;
 }) => {
   const insets = useSafeAreaInsets();
   const { theme } = useTheme();
@@ -77,8 +80,15 @@ export const SettingsScreen = ({
           </TouchableOpacity>
           <View style={styles.separator} />
           <TouchableOpacity style={styles.row} onPress={onFriends}>
-            <Text style={styles.rowText}>👥 {tr('settings.friends', 'Amis')}</Text>
-            <Text style={styles.rowArrow}>›</Text>
+            <Text style={styles.rowText}>{tr('settings.friends', '👥 Amis')}</Text>
+            <View style={styles.rowRight}>
+              {(pendingFriendRequests ?? 0) > 0 && (
+                <View style={styles.badge}>
+                  <Text style={styles.badgeText}>{pendingFriendRequests}</Text>
+                </View>
+              )}
+              <Text style={styles.rowArrow}>›</Text>
+            </View>
           </TouchableOpacity>
           <View style={styles.separator} />
           <TouchableOpacity style={styles.row} onPress={onAchievements}>
@@ -119,8 +129,15 @@ export const SettingsScreen = ({
             </>
           )}
           <TouchableOpacity style={styles.row} onPress={onSharedWithMe}>
-            <Text style={styles.rowText}>📭 {tr('settings.shared.with.me', 'Listes partagées avec moi')}</Text>
-            <Text style={styles.rowArrow}>›</Text>
+            <Text style={styles.rowText}>{tr('settings.shared.with.me', '📭 Listes partagées avec moi')}</Text>
+            <View style={styles.rowRight}>
+              {(unseenSharedLists ?? 0) > 0 && (
+                <View style={styles.badge}>
+                  <Text style={styles.badgeText}>{unseenSharedLists}</Text>
+                </View>
+              )}
+              <Text style={styles.rowArrow}>›</Text>
+            </View>
           </TouchableOpacity>
           <View style={styles.separator} />
           <TouchableOpacity style={styles.row} onPress={onDeleteAllData}>
@@ -177,4 +194,11 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
   separator: { height: 1, backgroundColor: theme.colors.border, marginLeft: theme.spacing.md },
   logoutButton: { marginTop: theme.spacing.lg, backgroundColor: theme.colors.accent, padding: theme.spacing.md, borderRadius: theme.borderRadius.full, alignItems: 'center', borderWidth: 1, borderColor: theme.colors.primaryLight },
   logoutText: { color: theme.colors.primary, fontSize: theme.fontSize.lg, fontWeight: 'bold' },
+  rowRight: { flexDirection: 'row', alignItems: 'center', gap: theme.spacing.sm },
+  badge: {
+    backgroundColor: '#E53935', borderRadius: theme.borderRadius.full,
+    minWidth: 20, height: 20, justifyContent: 'center', alignItems: 'center',
+    paddingHorizontal: 4,
+  },
+  badgeText: { color: '#fff', fontSize: 11, fontWeight: 'bold' },
 });
