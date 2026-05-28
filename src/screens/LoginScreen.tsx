@@ -3,7 +3,7 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator,
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from '../context/ThemeContext';
 import { useLanguage } from '../context/LanguageContext';
-import { login } from '../services/auth';
+import { loginWithUsernameOrEmail } from '../services/auth';
 import { Theme } from '../config/theme';
 
 export const LoginScreen = ({ onGoToRegister }: { onGoToRegister: () => void }) => {
@@ -16,9 +16,14 @@ export const LoginScreen = ({ onGoToRegister }: { onGoToRegister: () => void }) 
 
   const handleLogin = async () => {
     if (!email || !password) { Alert.alert(tr('error', 'Erreur'), tr('login.required.fields', 'Veuillez remplir tous les champs')); return; }
-    try { setLoading(true); await login(email, password); }
-    catch (error: any) { Alert.alert(tr('error', 'Erreur'), error.message); }
-    finally { setLoading(false); }
+    try {
+      setLoading(true);
+      await loginWithUsernameOrEmail(email, password);
+    } catch (error: any) {
+      Alert.alert(tr('error', 'Erreur'), error.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
