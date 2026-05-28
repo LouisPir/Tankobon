@@ -8,6 +8,7 @@ import { getSharedListEntries } from '../services/entries';
 import { Entry } from '../services/entries';
 import { ListType, getListTypeConfig } from '../config/listTypes';
 import { SharedList } from '../services/sharedLists';
+import { copySharedListToMyAccount } from '../services/sharedLists';
 
 export const SharedEntryListScreen = ({ onBack, onSelectEntry, sharedList }: {
   onBack: () => void;
@@ -21,11 +22,30 @@ export const SharedEntryListScreen = ({ onBack, onSelectEntry, sharedList }: {
   const [filtered, setFiltered] = useState<Entry[]>([]);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
-
+  const [copying, setCopying] = useState(false);
   const listType = sharedList.list?.type as ListType ?? 'manga';
   const typeConfig = getListTypeConfig(listType);
   const owner = sharedList.owner as any;
-
+  const handleCopy = () => {
+    Alert.alert(
+      tr('shared.copy.title', 'Copier la liste'),
+      tr('shared.copy.confirm', 'Copier cette liste dans tes propres listes ?'),
+      [
+        { text: tr('cancel', 'Annuler'), style: 'cancel' },
+        { text: tr('shared.copy.button', 'Copier'), onPress: async () => {
+          try {
+            setCopying(true);
+            await copySharedListToMyAccount(sharedList);
+            Alert.alert(tr('success', 'Succès'), tr('shared.copy.success', 'Liste copiée dans tes listes !'));
+          } catch (error: any) {
+            Alert.alert(tr('error', 'Erreur'), error.message);
+          } finally {
+            setCopying(false);
+          }
+        }},
+      ]
+    );
+  };
   useEffect(() => {
     getSharedListEntries(sharedList.list_id)
       .then((data) => { setEntries(data); setFiltered(data); })
@@ -48,7 +68,12 @@ export const SharedEntryListScreen = ({ onBack, onSelectEntry, sharedList }: {
           <Text style={styles.headerTitle} numberOfLines={1}>{sharedList.list?.name ?? '?'}</Text>
           <Text style={styles.headerSubtitle}>{tr('shared.by', 'Par')} {owner?.username ?? '?'}</Text>
         </View>
-        <View style={{ width: 60 }} />
+        <TouchableOpacity onPress={handleCopy} disabled={copying} style={{ width: 60, alignItems: 'flex-end' }}>
+          {copying
+            ? <ActivityIndicator color={theme.colors.primary} size="small" />
+            : <Text style={{ color: theme.colors.primary, fontSize: 20 }}>📋</Text>
+          }
+        </TouchableOpacity>
       </View>
 
       <View style={styles.searchRow}>

@@ -377,4 +377,8 @@ export default {
   'settings.share.this': 'Share this list',
   'settings.shared.with.me': 'Lists shared with me',
   'shared.by': 'By',
+  'shared.copy.title': 'Copy list',
+  'shared.copy.confirm': 'Copy this list to your own lists?',
+  'shared.copy.button': 'Copy',
+  'shared.copy.success': 'List copied to your lists!',
 };

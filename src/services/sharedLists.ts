@@ -120,3 +120,46 @@ export const markAllSharedListsAsSeen = async (): Promise<void> => {
     .eq('shared_with_id', user.id)
     .eq('seen', false);
 };
+
+export const copySharedListToMyAccount = async (sharedList: SharedList): Promise<void> => {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error('Utilisateur non connecté');
+
+  const { data: entries, error: entriesError } = await supabase
+    .rpc('get_shared_list_entries', { p_list_id: sharedList.list_id });
+
+  if (entriesError) throw entriesError;
+
+  const { data: newList, error: listError } = await supabase
+    .from('lists')
+    .insert({
+      name: sharedList.list?.name ?? 'Liste copiée',
+      type: sharedList.list?.type ?? 'manga',
+      description: sharedList.list?.description ?? null,
+      password_hash: null,
+      user_id: user.id,
+    })
+    .select()
+    .single();
+
+  if (listError) throw listError;
+
+  if (entries && entries.length > 0) {
+    const { error: insertError } = await supabase
+      .from('entries')
+      .insert(
+        entries.map((e: any) => ({
+          title: e.title,
+          status: e.status,
+          current_chapter: e.current_chapter,
+          current_season: e.current_season,
+          rating: e.rating,
+          review: e.review,
+          list_id: newList.id,
+          user_id: user.id,
+        }))
+      );
+
+    if (insertError) throw insertError;
+  }
+};
