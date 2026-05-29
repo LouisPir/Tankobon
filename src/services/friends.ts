@@ -191,6 +191,31 @@ export const getPendingRequestCount = async (): Promise<number> => {
     .eq('receiver_id', user.id)
     .eq('status', 'pending');
 
-  if (error) return 0;
   return count ?? 0;
+};
+
+export const getAcceptedUnseenCount = async (): Promise<number> => {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return 0;
+
+  const { count } = await supabase
+    .from('friend_requests')
+    .select('*', { count: 'exact', head: true })
+    .eq('sender_id', user.id)
+    .eq('status', 'accepted')
+    .eq('seen_by_sender', false);
+
+  return count ?? 0;
+};
+
+export const markAcceptedRequestsAsSeen = async (): Promise<void> => {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return;
+
+  await supabase
+    .from('friend_requests')
+    .update({ seen_by_sender: true })
+    .eq('sender_id', user.id)
+    .eq('status', 'accepted')
+    .eq('seen_by_sender', false);
 };

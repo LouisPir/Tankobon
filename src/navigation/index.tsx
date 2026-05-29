@@ -40,7 +40,7 @@ import { unlockAndCheck, computeGrades } from '../services/grades';
 import { ProfileScreen } from '../screens/ProfileScreen';
 import { FriendsScreen } from '../screens/FriendsScreen';
 import { SharedList } from '../services/sharedLists';
-import { getPendingRequestCount } from '../services/friends';
+import { getPendingRequestCount, getAcceptedUnseenCount, markAcceptedRequestsAsSeen } from '../services/friends';
 import { getUnseenSharedListCount, markAllSharedListsAsSeen } from '../services/sharedLists';
 
 type Screen =
@@ -93,18 +93,32 @@ const AppContent = () => {
   const [accountPasswordMode, setAccountPasswordMode] = useState<'deleteAccount' | 'deleteData'>('deleteAccount');
   const { showAchievements } = useAchievementToast();
   const [pendingFriendRequests, setPendingFriendRequests] = useState(0);
+  const [acceptedUnseen, setAcceptedUnseen] = useState(0);
   const [unseenSharedLists, setUnseenSharedLists] = useState(0);
+
   const loadNotifications = async () => {
     try {
-      const [f, s] = await Promise.all([getPendingRequestCount(), getUnseenSharedListCount()]);
-      setPendingFriendRequests(f);
-      setUnseenSharedLists(s);
+      const [pending, accepted, shared] = await Promise.all([
+        getPendingRequestCount(),
+        getAcceptedUnseenCount(),
+        getUnseenSharedListCount(),
+      ]);
+      setPendingFriendRequests(pending + accepted);
+      setAcceptedUnseen(accepted);
+      setUnseenSharedLists(shared);
     } catch {}
   };
-  // Charger les notifications quand on arrive sur Settings
+
   useEffect(() => {
-    if (screen === 'Settings' || screen === 'ListsHome') {
+    if (screen === 'ListsHome') {
       loadNotifications();
+    } else if (screen === 'Settings') {
+      Promise.all([getPendingRequestCount(), getUnseenSharedListCount()])
+        .then(([pending, shared]) => {
+          setPendingFriendRequests(pending + acceptedUnseen);
+          setUnseenSharedLists(shared);
+        })
+        .catch(() => {});
     }
   }, [screen]);
   
@@ -147,7 +161,12 @@ const AppContent = () => {
           onStats={() => setScreen('Stats')}
           pendingFriendRequests={pendingFriendRequests}
           unseenSharedLists={unseenSharedLists}
-          onFriends={() => { setPendingFriendRequests(0); setScreen('Friends'); }}
+          onFriends={async () => {
+            setPendingFriendRequests(prev => prev - acceptedUnseen);
+            setAcceptedUnseen(0);
+            await markAcceptedRequestsAsSeen();
+            setScreen('Friends');
+          }}
           onReferral={() => setScreen('Referral')}
           onAchievements={() => setScreen('Achievements')}
           onShareList={() => setScreen('ShareList')}
