@@ -1,5 +1,5 @@
 export default {
-  // Navigation
+  // ─── Navigation & Actions ───────────────────────────────────────────────────
   'back': '← Back',
   'settings': 'Settings',
   'save': 'Save 🌸',
@@ -9,7 +9,30 @@ export default {
   'error': 'Error',
   'success': 'Success',
 
-  // ListsHome
+  // ─── Auth ───────────────────────────────────────────────────────────────────
+  'auth.email': 'Email',
+  'auth.email.or.username': 'Email or username',
+  'auth.password': 'Password',
+
+  'login.title': 'Login',
+  'login.submit': 'Log in',
+  'login.register': 'No account? Sign up',
+  'login.required.fields': 'Please fill in all fields',
+  'login.username.not.found': 'User not found',
+
+  'register.title': 'Create an account',
+  'register.required.fields': 'Please fill in all fields',
+  'register.referral.optional': 'Referral code (optional)',
+  'register.referral.required': 'Referral code *',
+  'register.referral.warning': '⚠️ A referral code is required to sign up',
+  'register.referral.invalid': 'Invalid referral code',
+  'register.referral.missing': 'A referral code is required',
+  'register.username.required': 'Username is required',
+  'register.submit': 'Sign up 🌸',
+  'register.login': 'Already have an account? Log in',
+  'register.success': 'Account created! Check your email.',
+
+  // ─── Lists ──────────────────────────────────────────────────────────────────
   'lists.title': '🌸 Tankobon',
   'lists.search': '🔍 Search a list...',
   'lists.empty': 'No lists yet',
@@ -17,55 +40,56 @@ export default {
   'lists.no_results': 'No results',
   'lists.no_results_for': 'No list matches your search',
   'lists.delete.confirm': 'Are you sure you want to delete this list and all its entries?',
+
   'list.created': 'Created on',
   'list.name': 'Name *',
   'list.name_required': 'Name is required',
+  'list.name.placeholder': 'Ex: My favorites...',
   'list.description': 'Description',
+  'list.description.placeholder': 'An optional description...',
   'list.password': 'Password 🔒',
   'list.password.hint': 'Optional — protects access to this list',
   'list.password.placeholder': 'Leave empty for no protection',
-  'list.add.title': 'New list',
-  'list.edit.title': 'Edit list',
-  'list.add.button': 'Create list 🌸',
   'list.password.keep': 'Leave empty to keep current password',
   'list.password.none': 'Leave empty for no protection',
   'list.password.remove.title': 'Remove password',
   'list.password.remove.confirm': 'Are you sure you want to remove the protection?',
   'list.password.remove.button': '🔓 Remove password',
   'list.type': 'Type',
-  'list.name.placeholder': 'Ex: My favorites...',
-  'list.description.placeholder': 'An optional description...',
+  'list.add.title': 'New list',
+  'list.add.button': 'Create list 🌸',
+  'list.edit.title': 'Edit list',
 
-  // Entry
-  'entry.search': '🔍 Search...',
-  'entry.empty': 'Nothing here yet',
-  'entry.empty.subtitle': 'Add your first entry!',
-  'entry.delete.confirm': 'Are you sure you want to delete this entry?',
+  // ─── Entries ────────────────────────────────────────────────────────────────
+  'entry.label': 'Entry',
+  'entry.add.title': 'New',
+  'entry.add.button': 'Add 🌸',
+  'entry.edit.title': 'Edit',
+  'entry.edit.button': 'Edit ✏️',
   'entry.title': 'Title *',
   'entry.title_required': 'Title is required',
+  'entry.title.placeholder': 'Ex: One Piece, Breaking Bad...',
   'entry.status': 'Status',
   'entry.rating': 'Rating',
   'entry.review': 'My review',
-  'entry.add.button': 'Add 🌸',
-  'entry.edit.title': 'Edit',
+  'entry.review.placeholder': 'What did you think?',
+  'entry.no_review': 'No review yet...',
+  'entry.progression': 'Progression',
   'entry.progression.title': '📚 Progression',
   'entry.personal_rating': '⭐ Personal rating',
   'entry.my_review': '💭 My review',
-  'entry.no_review': 'No review yet...',
-  'entry.edit.button': 'Edit ✏️',
   'entry.chapter': 'Chapter',
   'entry.episode': 'Episode',
   'entry.season': 'Season',
   'entry.hours': 'Hours played',
   'entry.page': 'Page',
   'entry.plays': 'Games played',
-  'entry.progression': 'Progression',
-  'entry.add.title': 'New',
-  'entry.label': 'Entry',
-  'entry.review.placeholder': 'What did you think?',
-  'entry.title.placeholder': 'Ex: One Piece, Breaking Bad...',
+  'entry.search': '🔍 Search...',
+  'entry.empty': 'Nothing here yet',
+  'entry.empty.subtitle': 'Add your first entry!',
+  'entry.delete.confirm': 'Are you sure you want to delete this entry?',
 
-  // Types
+  // ─── Types ──────────────────────────────────────────────────────────────────
   'type.manga': 'Manga',
   'type.anime': 'Anime',
   'type.film': 'Film',
@@ -75,7 +99,7 @@ export default {
   'type.musique': 'Music',
   'type.jeu_societe': 'Board Game',
 
-  // Status
+  // ─── Statuses ───────────────────────────────────────────────────────────────
   'status.ongoing': 'ONGOING',
   'status.completed': 'COMPLETED',
   'status.dropped': 'DROPPED',
@@ -85,7 +109,7 @@ export default {
   'status.owned': 'Owned',
   'status.not_owned': 'Not owned',
 
-  // Settings
+  // ─── Settings ───────────────────────────────────────────────────────────────
   'settings.lists': 'Lists',
   'settings.import': 'Import a list',
   'settings.import.this': 'Import into this list',
@@ -93,10 +117,16 @@ export default {
   'settings.export.this': 'Export this list',
   'settings.edit': 'Edit a list',
   'settings.edit.this': 'Edit this list',
+  'settings.share': 'Share a list',
+  'settings.share.this': 'Share this list',
+  'settings.shared.with.me': 'Lists shared with me',
   'settings.account': 'Account',
+  'settings.profile': 'My profile',
+  'settings.achievements': 'Achievements',
   'settings.email': 'Change email',
   'settings.password': 'Change password',
   'settings.referral': 'My referral code',
+  'settings.friends': 'Friends',
   'settings.delete.account': 'Delete my account',
   'settings.data': 'Data',
   'settings.export.all': 'Export all lists',
@@ -104,26 +134,34 @@ export default {
   'settings.preferences': 'Preferences',
   'settings.theme': 'Theme',
   'settings.language': 'Language',
+  'settings.stats': 'Statistics',
   'settings.info': 'Information',
   'settings.about': 'About',
   'settings.logout': 'Log out',
   'settings.logout.confirm': 'Are you sure you want to log out?',
   'settings.logout.title': 'Log out',
-  'settings.friends': 'Friends',
-  // Import
+
+  // ─── Import ─────────────────────────────────────────────────────────────────
   'import.title': 'Import a list',
   'import.how': 'How to import?',
   'import.new': 'New list',
   'import.new.subtitle': 'Create a new list from the file',
   'import.merge': 'Merge',
   'import.merge.subtitle': 'Add to an existing list',
-  'import.pick': 'Choose a file',
-  'import.loaded': '✅ File loaded',
-  'import.create': 'Create list 🌸',
+  'import.merge.in': 'Merge into',
   'import.merge.button': 'Merge 🌸',
-  'import.change': 'Change file',
+  'import.pick': 'Choose a file',
+  'import.file.select': 'Select a file exported from Tankobon',
+  'import.loaded': '✅ File loaded',
+  'import.entries.found': 'entry found',
+  'import.entries.found.plural': 'entries found',
   'import.list.name': 'New list name *',
+  'import.list.name.required': 'List name is required',
   'import.target': 'Merge into *',
+  'import.target.required': 'Select a target list',
+  'import.create': 'Create list 🌸',
+  'import.change': 'Change file',
+  'import.select.empty': 'No list found',
   'import.done': 'Import done!',
   'import.result.new': 'New list',
   'import.result.new.created': 'created',
@@ -133,7 +171,6 @@ export default {
   'import.overwritten': 'Overwritten',
   'import.ignored': 'Ignored',
   'import.duplicates': 'Duplicates',
-  'import.back': 'Back to lists 🌸',
   'import.duplicates.question': 'Duplicates found?',
   'import.duplicates.subtitle': 'If entries from the file already exist in the list, what to do?',
   'import.ignore': 'Ignore',
@@ -142,60 +179,44 @@ export default {
   'import.all.message': 'This file contains multiple lists. They will all be imported as new lists.',
   'import.all.button': 'Import all',
   'import.invalid': 'Invalid or corrupted file',
-  'import.select.title': 'Edit a list',
-  'import.select.empty': 'No list found',
-  'import.merge.in': 'Merge into',
-  'import.file.select': 'Select a file exported from Tankobon',
-  'import.entries.found': 'entry found',
-  'import.entries.found.plural': 'entries found',
-  'import.list.name.required': 'List name is required',
-  'import.target.required': 'Select a target list',
+  'import.back': 'Back to lists 🌸',
   'import.password.title': 'Protected list',
   'import.password.subtitle': 'Enter the password to merge into',
   'import.password.wrong': 'Incorrect password',
 
-  // Export
+  // ─── Export ─────────────────────────────────────────────────────────────────
   'export.title': 'Export a list',
   'export.select': 'Choose a list *',
   'export.selected': 'Selected list',
   'export.button': 'Export 📤',
 
-  // Auth
-  'auth.login': 'Login',
-  'auth.register': 'Register',
-  'auth.email': 'Email',
-  'auth.password': 'Password',
-  'auth.logout': 'Logout',
-  'register.username.required': 'Username is required',
-  // About
-  'about.title': 'About',
-  'about.description': 'Track your lists, note your progress and keep your reviews.',
-  'about.source': '📦 Source code',
-  'about.dev': '👨‍💻 Developed by',
-  'about.stack': '🛠️ Stack',
-  'about.footer': 'Made with 🌸',
+  // ─── Share ──────────────────────────────────────────────────────────────────
+  'share.with': 'Share with',
+  'share.add': 'Share',
+  'share.remove': 'Remove',
+  'share.no.friends': 'No friends to share this list with yet.',
+  'shared.title': 'Shared with me',
+  'shared.empty': 'No lists shared with you yet.',
+  'shared.by': 'By',
+  'shared.copy.title': 'Copy list',
+  'shared.copy.confirm': 'Copy this list to your own lists?',
+  'shared.copy.button': 'Copy',
+  'shared.copy.success': 'List copied to your lists!',
 
-  // Theme
-  'theme.title': 'Theme',
-  'theme.active': '✓ Active',
-  'theme.sakura': 'Sakura',
-  'theme.ninja': 'Water Ninja',
-  'theme.spicy': 'Spicy',
-  'theme.night': 'Starry Night',
+  // ─── Password screen ────────────────────────────────────────────────────────
+  'password.protected': 'Protected list',
+  'password.access': 'Enter the password to access',
+  'password.placeholder': 'Password...',
+  'password.access.button': 'Access',
 
-  // Language
-  'language.title': 'Language',
-  'language.fr': '🇫🇷 French',
-  'language.en': '🇬🇧 English',
-
-  // Change email/password
+  // ─── Change email / password ────────────────────────────────────────────────
   'change.email.title': 'Change email',
   'change.email.description': 'A confirmation email will be sent to your new address.',
   'change.email.label': 'New email *',
   'change.email.placeholder': 'new@address.com',
+  'change.email.required': 'Email is required',
   'change.email.success.title': 'Email updated',
   'change.email.success.message': 'A confirmation email has been sent to your new address.',
-  'change.email.required': 'Email is required',
   'change.password.title': 'Change password',
   'change.password.label': 'New password *',
   'change.password.placeholder': 'At least 6 characters',
@@ -208,13 +229,7 @@ export default {
   'change.password.success.message': 'Your password has been changed successfully.',
   'confirm.button': 'Confirm 🌸',
 
-  // Password screen
-  'password.protected': 'Protected list',
-  'password.access': 'Enter the password to access',
-  'password.placeholder': 'Password...',
-  'password.access.button': 'Access',
-
-  // Delete account
+  // ─── Delete account / data ──────────────────────────────────────────────────
   'delete.account.title': 'Delete account',
   'delete.account.warning': '⚠️ Irreversible action',
   'delete.account.text': 'Deleting your account will permanently delete:',
@@ -226,13 +241,11 @@ export default {
   'delete.account.button': 'Delete my account',
   'delete.account.final.title': '⚠️ Permanent deletion',
   'delete.account.final.message': 'All your lists, entries and data will be deleted. This action is irreversible.',
-
-  // Delete data
   'delete.data.title': 'Delete data',
   'delete.data.confirm.title': 'Delete all data',
   'delete.data.confirm.message': 'All your lists and entries will be permanently deleted. Your account will be kept.',
 
-  // Referral
+  // ─── Referral ───────────────────────────────────────────────────────────────
   'referral.title': 'Referral',
   'referral.code.title': 'My referral code',
   'referral.code.subtitle': 'Share this code with your friends so they can join Tankobon',
@@ -241,25 +254,28 @@ export default {
   'referral.how.text': '• Share your code with a friend\n• They enter it when signing up\n• They join Tankobon with your referral',
   'referral.share.message': 'Join me on Tankobon 🌸 Use my referral code:',
 
-  // Register
-  'register.title': 'Create an account',
-  'register.referral.optional': 'Referral code (optional)',
-  'register.referral.required': 'Referral code *',
-  'register.referral.warning': '⚠️ A referral code is required to sign up',
-  'register.submit': 'Sign up 🌸',
-  'register.login': 'Already have an account? Log in',
-  'register.required.fields': 'Please fill in all fields',
-  'register.referral.invalid': 'Invalid referral code',
-  'register.referral.missing': 'A referral code is required',
-  'register.success': 'Account created! Check your email.',
+  // ─── Theme ──────────────────────────────────────────────────────────────────
+  'theme.title': 'Theme',
+  'theme.active': '✓ Active',
+  'theme.sakura': 'Sakura',
+  'theme.ninja': 'Water Ninja',
+  'theme.spicy': 'Spicy',
+  'theme.night': 'Starry Night',
 
-  // Login
-  'login.title': 'Login',
-  'login.submit': 'Log in',
-  'login.register': 'No account? Sign up',
-  'login.required.fields': 'Please fill in all fields',
+  // ─── Language ───────────────────────────────────────────────────────────────
+  'language.title': 'Language',
+  'language.fr': '🇫🇷 French',
+  'language.en': '🇬🇧 English',
 
-  // Modal filtre/tri
+  // ─── About ──────────────────────────────────────────────────────────────────
+  'about.title': 'About',
+  'about.description': 'Track your lists, note your progress and keep your reviews.',
+  'about.source': '📦 Source code',
+  'about.dev': '👨‍💻 Developed by',
+  'about.stack': '🛠️ Stack',
+  'about.footer': 'Made with 🌸',
+
+  // ─── Filter / Sort modal ────────────────────────────────────────────────────
   'modal.filter': 'Filter',
   'modal.sort': 'Sort',
   'modal.filter.type': 'By type',
@@ -285,57 +301,69 @@ export default {
   'modal.reset': 'Reset',
   'modal.close': 'Close',
 
-  // Home stats
-  'home.entries': 'Entries',
-  'home.ongoing': 'Ongoing',
-  'home.completed': 'Completed',
-  'home.cta': 'View my collection 🌸',
-
-  // Statistics
+  // ─── Statistics ─────────────────────────────────────────────────────────────
   'stats.title': 'Statistics',
   'stats.global': 'Overview',
   'stats.lists': 'Lists',
   'stats.entries': 'Entries',
-  'stats.progression': 'Chapters',
+  'stats.completed': 'Completed',
+  'stats.avg.rating': 'Average rating',
   'stats.by.type': 'By type',
   'stats.by.list': 'By list',
-  'stats.avg.rating': 'Average rating',
-  'stats.empty': 'Add entries to your lists to see your statistics.',
-  'settings.stats': 'Statistics',
-  'stats.completed': 'Completed',
   'stats.rating.dist': 'Ratings',
   'stats.progression.dist': 'Progression',
+  'stats.monthly': 'Entries per month',
+  'stats.monthly.chart': 'Last 12 months',
+  'stats.empty': 'Add entries to your lists to see your statistics.',
 
-  // Achievements
+  // ─── Achievements & Grades ──────────────────────────────────────────────────
   'ach.title': 'Achievements',
   'ach.locked': 'Locked achievement',
+  'ach.toast.title': 'Achievement unlocked!',
   'ach.cat.quantity': 'Quantity',
   'ach.cat.completion': 'Completion',
   'ach.cat.rating': 'Ratings',
   'ach.cat.lists': 'Lists',
   'ach.cat.diversity': 'Diversity',
   'ach.cat.app': 'App',
+  'ach.cat.import_export': 'Import / Export',
+  
+  'ach.qty1.label': 'First Entry', 'ach.qty1.desc': 'Add 1 entry to a list',
+  'ach.qty10.label': 'Collector', 'ach.qty10.desc': '10 entries in a list',
+  'ach.qty50.label': 'Passionate', 'ach.qty50.desc': '50 entries in a list',
+  'ach.qty100.label': 'Obsessed', 'ach.qty100.desc': '100 entries in a list',
+  'ach.qty500.label': 'Legend', 'ach.qty500.desc': '500 entries in a list',
+  'ach.qty1000.label': 'Divine', 'ach.qty1000.desc': '1000 entries in a list',
+  'ach.cmp1.label': 'First Finish', 'ach.cmp1.desc': 'Complete 1 entry',
+  'ach.cmp50p.label': 'On the Right Track', 'ach.cmp50p.desc': '50% completed in a list (min. 10 entries)',
+  'ach.cmp100p.label': 'Perfectionist', 'ach.cmp100p.desc': '100% completed in a list (min. 20 entries)',
+  'ach.rat10.label': 'Critic', 'ach.rat10.desc': 'Rate 10 entries in a list',
+  'ach.ratlow.label': 'Hard to Impress', 'ach.ratlow.desc': 'Average ≤ 2 in a list (min. 5 rated)',
+  'ach.rathigh.label': 'Absolute Fan', 'ach.rathigh.desc': 'Average ≥ 4.5 in a list (min. 5 rated)',
+  'ach.rat5s.label': 'Crush', 'ach.rat5s.desc': '5 entries rated 5★ in a list',
+  'ach.lst5.label': 'Organized', 'ach.lst5.desc': '5 lists with min. 25 entries each',
+  'ach.lst10.label': 'Maniac', 'ach.lst10.desc': '10 lists with min. 25 entries each',
+  'ach.div3.label': 'Explorer', 'ach.div3.desc': 'Use 3 different list types',
+  'ach.div5.label': 'Jack of All Trades', 'ach.div5.desc': 'Use 5 different list types',
+  'ach.div8.label': 'Universal Collector', 'ach.div8.desc': 'Use all 8 list types',
+  'ach.applang.label': 'Polyglot', 'ach.applang.desc': 'Change the app language',
+  'ach.appthm.label': 'Customized', 'ach.appthm.desc': 'Change the app theme',
+  'ach.appref.label': 'Godfather', 'ach.appref.desc': 'Refer a friend',
+  'ach.statview.label': 'Analyst', 'ach.statview.desc': 'View your statistics',
+  'ach.cat.social': 'Social',
+  'ach.socfriend1.label': 'First Friend', 'ach.socfriend1.desc': 'Add your first friend',
+  'ach.socfriend5.label': 'Popular', 'ach.socfriend5.desc': 'Have 5 friends',
+  'ach.socshare1.label': 'Generous', 'ach.socshare1.desc': 'Share a list with a friend',
+  'ach.soccopy1.label': 'Inspired', 'ach.soccopy1.desc': 'Copy a shared list',
+    
   'grade.bronze': 'Bronze',
   'grade.silver': 'Silver',
   'grade.gold': 'Gold',
   'grade.platinum': 'Platinum',
   'grade.diamond': 'Diamond',
   'grade.mythic': 'Mythic',
-  'settings.achievements': 'Achievements',
-  'ach.toast.title': 'Achievement unlocked!',
-  'ach.cat.import_export': 'Import / Export',
-  'ach.ie_export1.label': 'First Export',
-  'ach.ie_export1.desc': 'Export a list for the first time',
-  'ach.ie_import1.label': 'First Import',
-  'ach.ie_import1.desc': 'Import a list for the first time',
-  'ach.ie_export5.label': 'Nomadic Collector',
-  'ach.ie_export5.desc': 'Export 5 lists',
-  'ach.ie_exportall.label': 'Archivist',
-  'ach.ie_exportall.desc': 'Export all lists at once',
-  'stats.monthly': 'Entries per month',
-  'stats.monthly.chart': 'Last 12 months',
 
-  // Profile
+  // ─── Profile ────────────────────────────────────────────────────────────────
   'profile.title': 'Profile',
   'profile.username': 'Username',
   'profile.username.required': 'Username is required',
@@ -344,14 +372,8 @@ export default {
   'profile.username.empty': 'Set a username',
   'profile.grade': 'Grade',
   'profile.referral': 'Referral code',
-  'settings.profile': 'My profile',
 
-  // Month
-  'month.jan': 'Jan', 'month.feb': 'Feb', 'month.mar': 'Mar', 'month.apr': 'Apr',
-  'month.may': 'May', 'month.jun': 'Jun', 'month.jul': 'Jul', 'month.aug': 'Aug',
-  'month.sep': 'Sep', 'month.oct': 'Oct', 'month.nov': 'Nov', 'month.dec': 'Dec',
-
-  // Friends
+  // ─── Friends ────────────────────────────────────────────────────────────────
   'friends.title': 'Friends',
   'friends.add': 'Add a friend',
   'friends.search.placeholder': 'Friend\'s username...',
@@ -366,19 +388,14 @@ export default {
   'friends.remove.title': 'Remove friend',
   'friends.remove.confirm': 'Remove',
 
-  // Share
-  'share.with': 'Share with',
-  'share.add': 'Share',
-  'share.remove': 'Remove',
-  'share.no.friends': 'No friends to share this list with yet.',
-  'shared.title': 'Shared with me',
-  'shared.empty': 'No lists shared with you yet.',
-  'settings.share': 'Share a list',
-  'settings.share.this': 'Share this list',
-  'settings.shared.with.me': 'Lists shared with me',
-  'shared.by': 'By',
-  'shared.copy.title': 'Copy list',
-  'shared.copy.confirm': 'Copy this list to your own lists?',
-  'shared.copy.button': 'Copy',
-  'shared.copy.success': 'List copied to your lists!',
+  // ─── Months ─────────────────────────────────────────────────────────────────
+  'month.jan': 'Jan', 'month.feb': 'Feb', 'month.mar': 'Mar', 'month.apr': 'Apr',
+  'month.may': 'May', 'month.jun': 'Jun', 'month.jul': 'Jul', 'month.aug': 'Aug',
+  'month.sep': 'Sep', 'month.oct': 'Oct', 'month.nov': 'Nov', 'month.dec': 'Dec',
+
+  // ─── Home stats ─────────────────────────────────────────────────────────────
+  'home.entries': 'Entries',
+  'home.ongoing': 'Ongoing',
+  'home.completed': 'Completed',
+  'home.cta': 'View my collection 🌸',
 };

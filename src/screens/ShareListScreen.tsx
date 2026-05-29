@@ -7,6 +7,8 @@ import { Theme } from '../config/theme';
 import { getFriends, Friend } from '../services/friends';
 import { shareListWithFriend, unshareList, getMySharedLists, SharedList } from '../services/sharedLists';
 import { List } from '../services/lists';
+import { unlockAndCheck} from '../services/grades';
+import { useAchievementToast } from '../context/AchievementToastContext';
 
 export const ShareListScreen = ({ onBack, list }: {
   onBack: () => void;
@@ -14,6 +16,7 @@ export const ShareListScreen = ({ onBack, list }: {
 }) => {
   const { theme } = useTheme();
   const { tr } = useLanguage();
+  const { showAchievements } = useAchievementToast();
   const styles = makeStyles(theme);
   const insets = useSafeAreaInsets();
   const [friends, setFriends] = useState<Friend[]>([]);
@@ -45,6 +48,8 @@ export const ShareListScreen = ({ onBack, list }: {
       setActionLoading(friendId);
       await shareListWithFriend(list.id, friendId);
       await load();
+      const ach = await unlockAndCheck('soc_share1');
+      if (ach) showAchievements([ach]);
     } catch (error: any) {
       Alert.alert(tr('error', 'Erreur'), error.message);
     } finally {

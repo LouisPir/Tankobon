@@ -97,7 +97,7 @@ export const computeGrades = async (forceUnlock: string[] = []): Promise<GradeRe
   const computedIds = await computeUnlockedIds(user.id);
 
   // Achievements app (app_lang, app_thm, app_ref) — uniquement depuis la DB
-  const appIds = ['app_lang', 'app_thm', 'app_ref', 'ie_export1', 'ie_import1', 'ie_export5', 'ie_exportall'];
+  const appIds = ['app_lang', 'app_thm', 'app_ref', 'ie_export1', 'ie_import1', 'ie_export5', 'ie_exportall', 'stat_view', 'soc_friend1', 'soc_friend5', 'soc_share1', 'soc_copy1'];
   for (const id of appIds) {
     if (dbUnlockedMap.has(id)) computedIds.add(id);
   }

@@ -80,7 +80,7 @@ export const SettingsScreen = ({
           </TouchableOpacity>
           <View style={styles.separator} />
           <TouchableOpacity style={styles.row} onPress={onFriends}>
-            <Text style={styles.rowText}>{tr('settings.friends', '👥 Amis')}</Text>
+            <Text style={styles.rowText}>👥 {tr('settings.friends', 'Amis')}</Text>
             <View style={styles.rowRight}>
               {(pendingFriendRequests ?? 0) > 0 && (
                 <View style={styles.badge}>
@@ -129,7 +129,7 @@ export const SettingsScreen = ({
             </>
           )}
           <TouchableOpacity style={styles.row} onPress={onSharedWithMe}>
-            <Text style={styles.rowText}>{tr('settings.shared.with.me', '📭 Listes partagées avec moi')}</Text>
+            <Text style={styles.rowText}>📭 {tr('settings.shared.with.me', 'Listes partagées avec moi')}</Text>
             <View style={styles.rowRight}>
               {(unseenSharedLists ?? 0) > 0 && (
                 <View style={styles.badge}>

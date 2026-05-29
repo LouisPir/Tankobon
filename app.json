@@ -3,7 +3,7 @@
     "name": "Tankobon",
     "slug": "tankobon",
     "scheme": "tankobon",
-    "version": "2.2.2",
+    "version": "3.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",

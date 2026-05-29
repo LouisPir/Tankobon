@@ -7,6 +7,12 @@ import { Theme } from '../config/theme';
 const LANGUAGE_OPTIONS: { code: Language; label: string }[] = [
   { code: 'fr', label: '🇫🇷 Français' },
   { code: 'en', label: '🇬🇧 English' },
+  { code: 'es', label: '🇪🇸 Español' },
+  { code: 'de', label: '🇩🇪 Deutsch' },
+  { code: 'it', label: '🇮🇹 Italiano' },
+  { code: 'pt', label: '🇵🇹 Português' },
+  { code: 'nl', label: '🇳🇱 Nederlands' },
+  { code: 'ja', label: '🇯🇵 日本語' },
 ];
 
 export const LanguageScreen = ({ onBack }: { onBack: () => void }) => {

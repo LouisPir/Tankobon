@@ -8,6 +8,8 @@ import { Theme } from '../config/theme';
 import { getListTypeConfig, ListType } from '../config/listTypes';
 import { List } from '../services/lists';
 import { getGlobalStats, getListStats, getEntriesPerMonth, GlobalStats, ListStat, BarData, MonthData } from '../services/stats';
+import { unlockAndCheck, computeGrades } from '../services/grades';
+import { useAchievementToast } from '../context/AchievementToastContext';
 
 export const StatsScreen = ({ onBack, selectedList }: {
   onBack: () => void;
@@ -15,6 +17,7 @@ export const StatsScreen = ({ onBack, selectedList }: {
 }) => {
   const { theme } = useTheme();
   const { tr } = useLanguage();
+  const { showAchievements } = useAchievementToast();
   const styles = makeStyles(theme);
   const insets = useSafeAreaInsets();
   const [stats, setStats] = useState<GlobalStats | null>(null);
@@ -36,6 +39,9 @@ export const StatsScreen = ({ onBack, selectedList }: {
         .then(setListStat)
         .catch((error: any) => Alert.alert(tr('error', 'Erreur'), error.message))
         .finally(() => setLoading(false));
+        unlockAndCheck('stat_view').then(ach => {
+          if (ach) showAchievements([ach]);
+        });
     } else {
       Promise.all([getGlobalStats(), getEntriesPerMonth()])
         .then(([globalStats, monthly]) => {
