@@ -1,11 +1,17 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import en from './languages/en';
+import es from './languages/es';
+import de from './languages/de';
+import it from './languages/it';
+import pt from './languages/pt';
+import nl from './languages/nl';
+import ja from './languages/ja';
 import { unlockAchievement } from '../services/grades';
 
-export type Language = 'fr' | 'en';
+export type Language = 'fr' | 'en' | 'es' | 'de' | 'it' | 'pt' | 'nl' | 'ja';
 
-const languages: Record<Exclude<Language, 'fr'>, Record<string, string>> = { en };
+const languages: Record<Exclude<Language, 'fr'>, Record<string, string>> = { en, es, de, it, pt, nl, ja };
 
 type LanguageContextType = {
   language: Language;
@@ -24,7 +30,7 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     AsyncStorage.getItem('language').then((saved) => {
-      if (saved && saved in languages) {
+      if (saved && (saved === 'fr' || saved in languages)) {
         setLanguageState(saved as Language);
       }
     });

@@ -4,11 +4,10 @@ import { useEffect, useState } from 'react';
 import { useTheme } from '../context/ThemeContext';
 import { useLanguage } from '../context/LanguageContext';
 import { Theme } from '../config/theme';
-import {
-  getFriends, getPendingRequests, getSentRequests,
-  sendFriendRequest, acceptFriendRequest, declineFriendRequest,
-  removeFriend, Friend, FriendRequest,
-} from '../services/friends';
+import { unlockAndCheck } from '../services/grades';
+import { useAchievementToast } from '../context/AchievementToastContext';
+import { Achievement } from '../config/achievements';
+import { getFriends, getPendingRequests, getSentRequests, sendFriendRequest, acceptFriendRequest, declineFriendRequest, removeFriend, getFriendCount, Friend, FriendRequest } from '../services/friends';
 
 export const FriendsScreen = ({ onBack, onFriendPress }: {
   onBack: () => void;
@@ -24,7 +23,8 @@ export const FriendsScreen = ({ onBack, onFriendPress }: {
   const [loading, setLoading] = useState(true);
   const [searchUsername, setSearchUsername] = useState('');
   const [sending, setSending] = useState(false);
-
+  const { showAchievements } = useAchievementToast();
+  
   const load = async () => {
     try {
       const [f, p, s] = await Promise.all([getFriends(), getPendingRequests(), getSentRequests()]);
@@ -58,12 +58,17 @@ export const FriendsScreen = ({ onBack, onFriendPress }: {
   const handleAccept = async (requestId: string) => {
     try {
       await acceptFriendRequest(requestId);
-      load();
+      await load();
+      const count = await getFriendCount();
+      const toUnlock = ['soc_friend1'];
+      if (count >= 5) toUnlock.push('soc_friend5');
+      const results = await Promise.all(toUnlock.map(id => unlockAndCheck(id)));
+      const toShow = results.filter(Boolean) as Achievement[];
+      if (toShow.length > 0) showAchievements(toShow);
     } catch (error: any) {
       Alert.alert(tr('error', 'Erreur'), error.message);
     }
   };
-
   const handleDecline = async (requestId: string) => {
     try {
       await declineFriendRequest(requestId);

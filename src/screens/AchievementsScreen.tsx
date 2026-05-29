@@ -16,7 +16,8 @@ const CATEGORY_LABELS: Record<AchievementCategory, { key: string; fr: string }> 
   lists:      { key: 'ach.cat.lists',      fr: 'Listes' },
   diversity:  { key: 'ach.cat.diversity',  fr: 'Diversité' },
   app:        { key: 'ach.cat.app',        fr: 'App' },
-  import_export:{key: 'ach.cat.import_export',        fr: 'Import / Export' }
+  import_export:{key: 'ach.cat.import_export',        fr: 'Import / Export' },
+  social: { key: 'ach.cat.social', fr: 'Social' },
 };
 
 export const AchievementsScreen = ({ onBack }: { onBack: () => void }) => {
@@ -63,9 +64,26 @@ export const AchievementsScreen = ({ onBack }: { onBack: () => void }) => {
           <View style={styles.gradeCard}>
             <Text style={styles.gradeIcon}>{result.grade.icon}</Text>
             <Text style={styles.gradeName}>{tr(result.grade.nameKey, result.grade.name)}</Text>
-            <Text style={styles.gradePoints}>{result.totalPoints} / {TOTAL_POINTS} pts</Text>
+            {(() => {
+              const currentGradeIndex = GRADES.findIndex(g => g.name === result.grade.name);
+              const nextGrade = GRADES[currentGradeIndex + 1];
+              return (
+                <Text style={styles.gradePoints}>
+                  {result.totalPoints} / {nextGrade?.minPoints ?? TOTAL_POINTS} pts
+                </Text>
+              );
+            })()}
             <View style={styles.progressBarTrack}>
-              <View style={[styles.progressBarFill, { width: `${Math.min((result.totalPoints / TOTAL_POINTS) * 100, 100)}%` }]} />
+              {(() => {
+                const currentGradeIndex = GRADES.findIndex(g => g.name === result.grade.name);
+                const nextGrade = GRADES[currentGradeIndex + 1];
+                const currentMin = result.grade.minPoints;
+                const nextMin = nextGrade?.minPoints ?? TOTAL_POINTS;
+                const progress = nextGrade
+                  ? (result.totalPoints - currentMin) / (nextMin - currentMin)
+                  : 1;
+                return <View style={[styles.progressBarFill, { width: `${Math.min(progress * 100, 100)}%` }]} />;
+              })()}
             </View>
             <View style={styles.gradesRow}>
               {GRADES.map(g => (
@@ -141,7 +159,7 @@ const makeStyles = (theme: Theme) => StyleSheet.create({
     borderRadius: theme.borderRadius.full, overflow: 'hidden',
   },
   progressBarFill: { height: '100%', backgroundColor: theme.colors.primary, borderRadius: theme.borderRadius.full },
-  gradesRow: { flexDirection: 'row', gap: theme.spacing.md, marginTop: theme.spacing.xs },
+  gradesRow: { flexDirection: 'row', justifyContent: 'space-between', width: '100%', marginTop: theme.spacing.xs },
   gradeChip: { fontSize: theme.fontSize.xl, opacity: 0.3 },
   gradeChipActive: { opacity: 1 },
   sectionTitle: {

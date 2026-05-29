@@ -370,8 +370,8 @@ const AppContent = () => {
       return (
         <EntryDetailScreen
           entry={selectedEntry}
-          listType={selectedList!.type}
-          onBack={() => setScreen('EntryList')}
+          listType={selectedList?.type ?? selectedSharedList?.list?.type as any ?? 'manga'}
+          onBack={() => setScreen(selectedSharedList ? 'SharedEntryList' : 'EntryList')}
           onEdit={() => setScreen('EditEntry')}
         />
       );

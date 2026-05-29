@@ -9,6 +9,8 @@ import { Entry } from '../services/entries';
 import { ListType, getListTypeConfig } from '../config/listTypes';
 import { SharedList } from '../services/sharedLists';
 import { copySharedListToMyAccount } from '../services/sharedLists';
+import { unlockAndCheck } from '../services/grades';
+import { useAchievementToast } from '../context/AchievementToastContext';
 
 export const SharedEntryListScreen = ({ onBack, onSelectEntry, sharedList }: {
   onBack: () => void;
@@ -19,6 +21,7 @@ export const SharedEntryListScreen = ({ onBack, onSelectEntry, sharedList }: {
   const { tr } = useLanguage();
   const styles = makeStyles(theme);
   const [entries, setEntries] = useState<Entry[]>([]);
+  const { showAchievements } = useAchievementToast();
   const [filtered, setFiltered] = useState<Entry[]>([]);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
@@ -36,6 +39,8 @@ export const SharedEntryListScreen = ({ onBack, onSelectEntry, sharedList }: {
           try {
             setCopying(true);
             await copySharedListToMyAccount(sharedList);
+            const ach = await unlockAndCheck('soc_copy1');
+            if (ach) showAchievements([ach]);
             Alert.alert(tr('success', 'Succès'), tr('shared.copy.success', 'Liste copiée dans tes listes !'));
           } catch (error: any) {
             Alert.alert(tr('error', 'Erreur'), error.message);
