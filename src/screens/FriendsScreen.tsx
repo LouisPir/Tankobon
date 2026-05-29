@@ -7,7 +7,7 @@ import { Theme } from '../config/theme';
 import { unlockAndCheck } from '../services/grades';
 import { useAchievementToast } from '../context/AchievementToastContext';
 import { Achievement } from '../config/achievements';
-import { getFriends, getPendingRequests, getSentRequests, sendFriendRequest, acceptFriendRequest, declineFriendRequest, removeFriend, getFriendCount, Friend, FriendRequest } from '../services/friends';
+import { getFriends, markAcceptedRequestsAsSeen, getPendingRequests, getSentRequests, sendFriendRequest, acceptFriendRequest, declineFriendRequest, removeFriend, getFriendCount, Friend, FriendRequest } from '../services/friends';
 
 export const FriendsScreen = ({ onBack, onFriendPress }: {
   onBack: () => void;
@@ -31,6 +31,16 @@ export const FriendsScreen = ({ onBack, onFriendPress }: {
       setFriends(f);
       setPending(p);
       setSent(s);
+      const count = f.length;
+      const toUnlock = [];
+      await markAcceptedRequestsAsSeen();
+      if (count >= 1) toUnlock.push('soc_friend1');
+      if (count >= 5) toUnlock.push('soc_friend5');
+      if (toUnlock.length > 0) {
+        const results = await Promise.all(toUnlock.map(id => unlockAndCheck(id)));
+        const toShow = results.filter(Boolean) as Achievement[];
+        if (toShow.length > 0) showAchievements(toShow);
+      }
     } catch (error: any) {
       Alert.alert(tr('error', 'Erreur'), error.message);
     } finally {

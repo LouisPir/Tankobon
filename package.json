@@ -1,6 +1,6 @@
 {
   "name": "tankobon",
-  "version": "3.0.0",
+  "version": "v2.2.6",
   "main": "index.ts",
   "scripts": {
     "start": "expo start",
