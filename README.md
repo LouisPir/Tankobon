@@ -17,9 +17,13 @@
 - 🔒 **Password protection** — lock sensitive lists
 - 📤 **Import / Export** — JSON format, single list or all at once
 - 📊 **Statistics** — global and per-list stats with charts
-- 🏆 **Achievements** — 25 achievements, grades from Bronze to Mythic
+- 🏆 **Achievements** — 29 achievements across 7 categories, grades from Bronze to Mythic
+- 👤 **User profiles** — username, avatar, grade and global stats
+- 👥 **Friends** — add friends, view their profile and achievements
+- 🔗 **List sharing** — share lists in read-only mode, copy shared lists
+- 🔔 **Notifications** — badge for pending friend requests and shared lists
 - 🎨 **4 themes** — Sakura 🌸, Water Ninja 💧, Spicy 🌶️, Starry Night ✨
-- 🌍 **Multilingual** — French & English (more coming)
+- 🌍 **8 languages** — FR, EN, ES, DE, IT, PT, NL, JA
 - 🎟️ **Referral system** — invite-only after 20,000 users
 - 👤 **Account management** — change email, password, delete account
 
@@ -87,9 +91,9 @@ src/
 ├── components/     # Shared components (ThemeBackground, AchievementToast)
 ├── context/        # React contexts (Theme, Language, AchievementToast)
 │   ├── themes/     # One file per theme
-│   └── languages/  # One file per language
+│   └── languages/  # One file per language (fr default, en/es/de/it/pt/nl/ja)
 ├── hooks/          # Custom hooks
-├── navigation/     # State-based navigation
+├── navigation/     # State-based navigation with Android back button support
 ├── screens/        # App screens
 └── services/       # Supabase API calls
 ```
@@ -100,10 +104,12 @@ src/
 
 ```bash
 auth.users
-└── profiles          (id, referral_code, referred_by, export_count, created_at)
+└── profiles          (id, username, avatar, referral_code, referred_by, export_count, created_at)
 lists                 (id, user_id, name, type, description, password_hash, created_at)
 └── entries           (id, user_id, list_id, title, status, current_chapter, current_season, rating, review, created_at)
 user_achievements     (id, user_id, achievement_id, unlocked_at)
+friend_requests       (id, sender_id, receiver_id, status, seen_by_sender, created_at)
+shared_lists          (id, list_id, owner_id, shared_with_id, seen, created_at)
 ```
 
 ---
@@ -141,10 +147,10 @@ eas build --profile preview --platform android
 | v1.2.0  | ✅     | Sort & filters                     |
 | v1.3.0  | ✅     | Dashboard stats                    |
 | v1.4.0  | ✅     | Achievement system & grades        |
-| v2.0.0  | 🔄     | Grand release                      |
-| v2.1.0  | ⬜     | User profiles                      |
-| v2.2.0  | ⬜     | Friends & sharing                  |
-| v3.0.0  | ⬜     | Social grand release               |
+| v2.0.0  | ✅     | Grand release                      |
+| v2.1.0  | ✅     | User profiles                      |
+| v2.2.0  | ✅     | Friends & sharing                  |
+| v3.0.0  | ✅     | Social grand release               |
 
 ---
 

@@ -42,6 +42,7 @@ import { FriendsScreen } from '../screens/FriendsScreen';
 import { SharedList } from '../services/sharedLists';
 import { getPendingRequestCount, getAcceptedUnseenCount, markAcceptedRequestsAsSeen } from '../services/friends';
 import { getUnseenSharedListCount, markAllSharedListsAsSeen } from '../services/sharedLists';
+import { BackHandler } from 'react-native';
 
 type Screen =
   | 'Auth'
@@ -123,7 +124,48 @@ const AppContent = () => {
   }, [screen]);
   
   
-  
+  useEffect(() => {
+    const backAction = () => {
+      if (screen === 'ListsHome') return false; // laisse Android quitter l'app
+      
+      // Simule le bouton retour selon le screen actuel
+      if (screen === 'Settings') { setScreen(settingsFrom); return true; }
+      if (screen === 'EntryList') { setScreen('ListsHome'); return true; }
+      if (screen === 'EntryDetail') { 
+        setScreen(selectedSharedList ? 'SharedEntryList' : 'EntryList'); 
+        return true; 
+      }
+      if (screen === 'SharedEntryList') { setScreen('SharedWithMe'); return true; }
+      if (screen === 'FriendProfile') { setScreen('Friends'); return true; }
+      if (screen === 'Friends') { setScreen('Settings'); return true; }
+      if (screen === 'Profile') { setScreen('Settings'); return true; }
+      if (screen === 'Achievements') { setScreen('Settings'); return true; }
+      if (screen === 'Stats') { setScreen('Settings'); return true; }
+      if (screen === 'Theme') { setScreen('Settings'); return true; }
+      if (screen === 'Language') { setScreen('Settings'); return true; }
+      if (screen === 'Referral') { setScreen('Settings'); return true; }
+      if (screen === 'About') { setScreen('Settings'); return true; }
+      if (screen === 'ChangeEmail') { setScreen('Settings'); return true; }
+      if (screen === 'ChangePassword') { setScreen('Settings'); return true; }
+      if (screen === 'ShareList') { setScreen('Settings'); return true; }
+      if (screen === 'SharedWithMe') { setScreen('Settings'); return true; }
+      if (screen === 'ExportList') { setScreen('Settings'); return true; }
+      if (screen === 'ImportList') { setScreen('Settings'); return true; }
+      if (screen === 'ImportResult') { setScreen(settingsFrom); return true; }
+      if (screen === 'AddList') { setScreen('ListsHome'); return true; }
+      if (screen === 'EditList') { setScreen('Settings'); return true; }
+      if (screen === 'AddEntry') { setScreen('EntryList'); return true; }
+      if (screen === 'EditEntry') { setScreen('EntryDetail'); return true; }
+      if (screen === 'Password') { setScreen('ListsHome'); setPendingList(null); return true; }
+      if (screen === 'PasswordAccount') { setScreen('Settings'); return true; }
+      if (screen === 'SelectList') { setScreen('Settings'); return true; }
+
+      return false;
+    };
+
+    const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
+    return () => backHandler.remove();
+  }, [screen, settingsFrom, selectedSharedList]);
   const renderScreen = () => {
     if (loading) {
       return (
